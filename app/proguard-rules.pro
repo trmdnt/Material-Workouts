@@ -12,6 +12,7 @@
 #   public *;
 #}
 
+-keep class com.example.gymutil.database.AppDatabase_Impl { *; }
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable

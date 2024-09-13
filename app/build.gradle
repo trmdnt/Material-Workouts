@@ -1,16 +1,21 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    id 'kotlin-kapt'
+    alias(libs.plugins.hilt.android)
 }
 
 android {
     namespace 'com.example.gymutil'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.gymutil"
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -20,8 +25,16 @@ android {
         }
     }
 
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -37,13 +50,17 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.1'
+        kotlinCompilerExtensionVersion '1.5.15'
     }
     packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+}
+
+kapt {
+    correctErrorTypes true
 }
 
 dependencies {
@@ -63,6 +80,7 @@ dependencies {
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.runtime.livedata
     //implementation "androidx.compose.animation.core:*"
+    implementation libs.androidx.material.icons.extended
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
@@ -71,4 +89,22 @@ dependencies {
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
+
+
+    implementation libs.androidx.room.runtime
+    annotationProcessor libs.androidx.room.compiler
+
+    // To use Kotlin Symbol Processing (KSP)
+    ksp libs.androidx.room.compiler
+
+    implementation libs.kotlinx.serialization.json
+
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
+
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation("androidx.compose.runtime:runtime-tracing:1.7.8")
 }
