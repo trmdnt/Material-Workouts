@@ -5,5 +5,6 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun ListStatistics() {
-    Text("This is where the statistics are")
+    //TODO
+    Text("Statistics (not implemented)")
 }

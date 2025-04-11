@@ -34,7 +34,6 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     private val workout = gymRepository.getWorkoutById(workoutId)
     private val workoutObserver = Observer<Workout> {
-        //TODO maybe do something
         if (workoutTemplateId.value == null) {
             workoutTemplateId.value = it.workoutTemplateId
         }
@@ -42,10 +41,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     private val exercises = gymRepository.getAllExercisesByWorkoutId(workoutId)
     private val exercisesObserver = Observer<List<ExerciseWithSets>> {
-        it?.let {
-            _uiState.value = _uiState.value.copy(exercises = it)
-            updateRecommended()
-        }
+        _uiState.value = _uiState.value.copy(exercises = it)
+        updateRecommended()
     }
 
 
@@ -67,14 +64,12 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     private fun updateRecommended() {
-        println("update recommendation")
         available?.value?.let {
             val recommended = it.filter { exerciseTemplate ->
                 println("recomm found ${uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId }}")
                 uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId } == null
             }
 
-            println("new recommendation: $recommended")
             viewModelScope.launch(Dispatchers.Main) {
                 _uiState.value = _uiState.value.copy(
                     recommendedExercises = recommended,
@@ -91,8 +86,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     fun addExercise(exerciseTemplateId: Long) {
         val exercise = Exercise(
-            workoutId = workoutId,
-            exerciseTemplateId = exerciseTemplateId
+            workoutId = workoutId, exerciseTemplateId = exerciseTemplateId
         )
         viewModelScope.launch(IO) {
             gymRepository.insertExercise(exercise)
@@ -123,8 +117,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     fun onSetAdded(exerciseId: Long) {
         val exerciseSet = ExerciseSet(
-            exerciseId = exerciseId,
-            date = System.currentTimeMillis()
+            exerciseId = exerciseId, date = System.currentTimeMillis()
         )
         insertSet(exerciseSet)
     }
@@ -155,10 +148,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     fun onDeleteSetPressed(setId: Long) {
-        println("deleting set with id: $setId")
         viewModelScope.launch(IO) {
             gymRepository.deleteSetById(setId)
         }
-
     }
 }

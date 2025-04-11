@@ -5,5 +5,5 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun MainSettings() {
-    Text("here are the settings")
+    Text("Settings (not implemented)")
 }

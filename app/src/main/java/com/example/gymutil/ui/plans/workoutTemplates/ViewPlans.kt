@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,8 +28,7 @@ import com.example.gymutil.ui.components.TopAppBarWithDeleteButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewPlans(
-    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit,
-    navToCreateWorkoutTemplate: () -> Unit
+    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit, navToCreateWorkoutTemplate: () -> Unit
 ) {
     val viewModel: ViewPlansViewmodel = hiltViewModel()
     val uiState = viewModel.uiState.collectAsState()
@@ -121,7 +119,6 @@ fun PlansList(
     }
 }
 
-//TODO refactor this
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun workoutTemplateListItem(
@@ -136,7 +133,6 @@ fun workoutTemplateListItem(
     Card(
         modifier = Modifier
             .combinedClickable(onClick = {
-                // dont know how to navigate from viewmodel
                 // TODO jank: move navigation to viewmodel
                 //
                 if (!onItemPress(id)) {
@@ -166,7 +162,7 @@ fun workoutTemplateListItem(
                             onItemPress(id)
                         })
                 } else {
-                    Row {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
                             onClick = {
                                 goToWorkoutTemplate(id)
@@ -178,16 +174,17 @@ fun workoutTemplateListItem(
                                 )
                             },
                         )
-                        Button(
-                            content = {
-                                Icon(
-                                    imageVector = Icons.Filled.PlayArrow, contentDescription = "start workout"
-                                )
-                            },
-                            onClick = {
-                                //TODO implement start workout and navigate to it
-                            },
-                        )
+                        //TODO implement starting directly
+//                        Button(
+//                            content = {
+//                                Icon(
+//                                    imageVector = Icons.Filled.PlayArrow, contentDescription = "start workout"
+//                                )
+//                            },
+//                            onClick = {
+//                                //TODO
+//                            },
+//                        )
                     }
                 }
             }

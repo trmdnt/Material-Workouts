@@ -2,6 +2,7 @@ package com.example.gymutil.ui.plans.exercisesTemplates
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gymutil.ui.components.TopAppBarWithBackButton
@@ -25,7 +27,9 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
         TopAppBarWithBackButton(title = "Edit exercise", onBack = onBackPressed)
     }) {
         Column(
-            modifier = Modifier.padding(it)
+            modifier = Modifier
+                .padding(it)
+                .padding(4.dp)
         ) {
             OutlinedTextField(
                 value = uiState.nameTextField, singleLine = true, onValueChange = {
@@ -35,10 +39,10 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                 ), keyboardActions = KeyboardActions(
                     onDone = {
                         viewModel.onSaveButtonPressed()
-                    })
+                    }), modifier = Modifier.fillMaxWidth()
             )
             Row {
-                Text("reps")
+                Text("reps", modifier = Modifier.weight(1F))
                 Checkbox(
                     checked = uiState.repsSelected,
                     onCheckedChange = {
@@ -47,7 +51,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                 )
             }
             Row {
-                Text("weight")
+                Text("weight", modifier = Modifier.weight(1F))
                 Checkbox(
                     checked = uiState.weightSelected,
                     onCheckedChange = {
@@ -56,7 +60,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                 )
             }
             Row {
-                Text("time")
+                Text("time (not implemented)", modifier = Modifier.weight(1F))
                 Checkbox(
                     checked = uiState.timeSelected,
                     onCheckedChange = {
@@ -65,7 +69,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                 )
             }
             Row {
-                Text("distance")
+                Text("distance (not implemented)", modifier = Modifier.weight(1F))
                 Checkbox(
                     checked = uiState.distanceSelected,
                     onCheckedChange = {

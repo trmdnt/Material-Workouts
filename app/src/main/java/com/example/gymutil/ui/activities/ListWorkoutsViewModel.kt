@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -126,7 +127,9 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         }!!
         val workout = Workout(
             //TODO fix naming
-            name = "${workoutTemplate.name} on ${LocalDateTime.now()}",
+            name = "${workoutTemplate.name} on ${
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+            }",
             dateStarted = System.currentTimeMillis(),
             workoutTemplateId = workoutTemplate.workoutTemplateId,
         )

@@ -189,11 +189,11 @@ fun WorkoutListItem(
     }
 }
 
-//TODO finish this
 @Composable
 fun ListAvailableTemplates(itemsList: List<WorkoutTemplate>, onItemSelected: (Long) -> Unit) {
     println("hello from list: ${itemsList.size}")
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    //TODO add ability to start empty workout (without template)
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)) {
         items(
             items = itemsList, key = {
                 it.workoutTemplateId
@@ -204,7 +204,7 @@ fun ListAvailableTemplates(itemsList: List<WorkoutTemplate>, onItemSelected: (Lo
                     .fillMaxWidth()
                     .clickable(onClick = { onItemSelected(it.workoutTemplateId) })
             ) {
-                Text(modifier = Modifier.padding(8.dp), text = it.name)
+                Text(modifier = Modifier.padding(8.dp), text = it.name, style = MaterialTheme.typography.titleLarge)
             }
         }
     }

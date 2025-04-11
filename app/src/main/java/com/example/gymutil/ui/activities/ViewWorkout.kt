@@ -31,6 +31,7 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    //TODO add ability to add other exercises not in the template
     Scaffold(topBar = {
         TopAppBarWithBackButton(title = uiState.topBarTitle, onBackPressed)
     }, content = {
@@ -55,21 +56,24 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
             }
 
             if (uiState.recommendedExercises.isNotEmpty()) {
-                Text("available exercises:")
-                ContextualFlowRow(
-                    itemCount = uiState.recommendedExercises.size,
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Text("available exercises:")
+                    ContextualFlowRow(
+                        itemCount = uiState.recommendedExercises.size,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
 
                     ) { index ->
-                    //TODO find out why this crashes
-                    var exerciseTemplate: ExerciseTemplate = try {
-                        uiState.recommendedExercises[index]
-                    } catch (_: IndexOutOfBoundsException) {
-                        return@ContextualFlowRow
-                    }
-                    Button(onClick = {
-                        viewModel.addExercise(exerciseTemplate.exerciseTemplateId)
-                    }) {
-                        Text(text = exerciseTemplate.name)
+                        //TODO find out why this crashes when replacing the list
+                        var exerciseTemplate: ExerciseTemplate = try {
+                            uiState.recommendedExercises[index]
+                        } catch (_: IndexOutOfBoundsException) {
+                            return@ContextualFlowRow
+                        }
+                        Button(onClick = {
+                            viewModel.addExercise(exerciseTemplate.exerciseTemplateId)
+                        }) {
+                            Text(text = exerciseTemplate.name)
+                        }
                     }
                 }
             }
@@ -90,6 +94,7 @@ fun ExerciseList(
     onDeleteExercisePressed: (Long) -> Unit,
     onDeleteSetPressed: (Long) -> Unit,
 ) {
+    //TODO maybe use just one lazy column, move away from cards and just insert headers for each exercise
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(
             items = items, key = { it ->
@@ -202,9 +207,11 @@ fun SetListItem(
                 )
             }
             if (exerciseTemplate.distance) {
+                //TODO allow editing distance
                 TODO()
             }
             if (exerciseTemplate.time) {
+                //TODO allow editing time
                 TODO()
             }
             TextButton(onClick = {
