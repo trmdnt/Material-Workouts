@@ -207,12 +207,10 @@ fun SetListItem(
                 )
             }
             if (exerciseTemplate.distance) {
-                //TODO allow editing distance
-                TODO()
+                TODO("allow editing distance")
             }
             if (exerciseTemplate.time) {
-                //TODO allow editing time
-                TODO()
+                TODO("allow editing time")
             }
             TextButton(onClick = {
                 onDeleteSetPressed()

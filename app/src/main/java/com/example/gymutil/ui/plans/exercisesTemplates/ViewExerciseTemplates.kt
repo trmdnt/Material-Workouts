@@ -129,7 +129,7 @@ fun ExerciseTemplateListItem(
         modifier = Modifier
             .combinedClickable(onClick = {
                 // dont know how to navigate from viewmodel
-                // TODO jank: does not seem like the right way to navigate on viewmodel event
+                // TODO jank: does not seem like the right way to navigate on viewmodel event (spoiler: it is not)
                 onItemPress(id)
             }, onLongClick = {
                 onLongItemPress(id)

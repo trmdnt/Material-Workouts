@@ -31,7 +31,6 @@ class CreateExerciseDialogViewModel @Inject constructor(private val gymRepositor
             _uiState.value = _uiState.value.copy(isError = true)
         } else {
             viewModelScope.launch(IO) {
-                //TODO fix navigating to it
                 val exerciseTemplateId: Long = createExercise(name = uiState.value.text)
                 _uiState.value = _uiState.value.copy(exerciseTemplateId = exerciseTemplateId)
             }

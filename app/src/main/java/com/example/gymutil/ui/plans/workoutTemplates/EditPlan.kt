@@ -69,7 +69,6 @@ fun ExerciseList(
 ) {
     if (exerciseList.isNotEmpty()) {
         Text("selected exercises:")
-        //TODO edit exercices button disappears with to many elements
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(
                 items = exerciseList, key = {

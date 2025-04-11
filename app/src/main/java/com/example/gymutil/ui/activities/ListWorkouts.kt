@@ -169,7 +169,6 @@ fun WorkoutListItem(
                         })
                 } else {
                     Row {
-                        //TODO move to own component
                         //TODO actually open edit mode
                         OutlinedButton(
                             onClick = {

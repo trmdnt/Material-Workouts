@@ -126,7 +126,6 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
             it.workoutTemplateId == id
         }!!
         val workout = Workout(
-            //TODO fix naming
             name = "${workoutTemplate.name} on ${
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
             }",
