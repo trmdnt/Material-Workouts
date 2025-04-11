@@ -77,9 +77,11 @@ interface Dao {
     fun deleteExerciseTemplateById(id: Long)
 
 
+    @Transaction
     @Query("SELECT * FROM workout_template")
     fun getAllWorkoutTemplatesWithExercises(): LiveData<List<WorkoutTemplateWithExercises>>
 
+    @Transaction
     @Query("SELECT * FROM workout_template WHERE workout_template_id = :id")
     fun getWorkoutTemplateWithExercisesById(id: Long): LiveData<WorkoutTemplateWithExercises>
 
@@ -104,6 +106,7 @@ interface Dao {
     @Insert
     fun insertExercise(exercise: Exercise)
 
+    @Transaction
     @Query("SELECT * FROM exercise WHERE workout_id = :workoutId")
     fun getExercisesByWorkoutId(workoutId: Long): LiveData<List<ExerciseWithSets>>
 
