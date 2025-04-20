@@ -16,12 +16,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gymutil.database.entities.WorkoutTemplate
 import com.example.gymutil.ui.components.ConfirmDeleteBottomSheet
@@ -81,8 +79,8 @@ fun ViewPlans(
 
         // Screen content
         PlansList(
-            itemsList = viewModel.workoutTemplates,
-            selectedIdsList = uiState.selectedWorkoutTemplateIds,
+            itemsList = uiState.workoutTemplates,
+            selectedItemsList = uiState.selectedWorkoutTemplates,
             onItemPress = {
                 viewModel.onItemPressed(it)
             },
@@ -98,29 +96,30 @@ fun ViewPlans(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlansList(
-    itemsList: LiveData<List<WorkoutTemplate>>,
-    selectedIdsList: List<Long>,
+    itemsList: List<WorkoutTemplate>,
+    selectedItemsList: List<WorkoutTemplate>,
     paddingValues: PaddingValues,
-    onItemPress: (id: Long) -> Unit,
-    onLongItemPress: (id: Long) -> Unit,
+    onItemPress: (WorkoutTemplate) -> Unit,
+    onLongItemPress: (WorkoutTemplate) -> Unit,
     editMode: Boolean
 ) {
-    val workoutTemplatesList = itemsList.observeAsState().value
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = paddingValues
     ) {
         items(
-            items = workoutTemplatesList ?: emptyList(), key = {
+            items = itemsList, key = {
                 it.workoutTemplateId
             }) { workoutTemplate ->
             workoutTemplateListItem(
                 workoutTemplate = workoutTemplate,
                 onItemPress = {
-                    onItemPress(workoutTemplate.workoutTemplateId)
+                    onItemPress(workoutTemplate)
                 },
-                onLongItemPress = onLongItemPress,
+                onLongItemPress = {
+                    onLongItemPress(workoutTemplate)
+                },
                 editMode = editMode,
-                selectedIdsList = selectedIdsList
+                selectedIdsList = selectedItemsList
             )
         }
     }
@@ -131,17 +130,16 @@ fun PlansList(
 fun workoutTemplateListItem(
     workoutTemplate: WorkoutTemplate,
     onItemPress: () -> Unit,
-    onLongItemPress: (id: Long) -> Unit,
+    onLongItemPress: () -> Unit,
     editMode: Boolean,
-    selectedIdsList: List<Long>
+    selectedIdsList: List<WorkoutTemplate>
 ) {
-    val id: Long = workoutTemplate.workoutTemplateId
     Card(
         modifier = Modifier
             .combinedClickable(onClick = {
                 onItemPress()
             }, onLongClick = {
-                onLongItemPress(id)
+                onLongItemPress()
             })
             .fillMaxWidth()
     ) {
@@ -160,7 +158,7 @@ fun workoutTemplateListItem(
             ) {
                 if (editMode) {
                     Checkbox(
-                        checked = selectedIdsList.contains(id), onCheckedChange = { _ ->
+                        checked = selectedIdsList.contains(workoutTemplate), onCheckedChange = { _ ->
                             onItemPress()
                         })
                 } else {

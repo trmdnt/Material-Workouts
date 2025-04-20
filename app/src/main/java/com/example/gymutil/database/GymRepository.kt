@@ -17,10 +17,8 @@ class GymRepository(private val dao: Dao) {
     }
 
     //TODO do it in a single action?
-    fun deleteWorkoutTemplateWithIds(ids: List<Long>) {
-        ids.forEach { id ->
-            dao.deleteWorkoutTemplateWithId(id)
-        }
+    fun deleteWorkoutTemplates(workoutTemplates: List<WorkoutTemplate>) {
+        dao.deleteWorkoutTemplate(*workoutTemplates.toTypedArray())
     }
 
     fun getAllExerciseTemplatesFromWorkoutTemplate(workoutTemplateId: Long): LiveData<List<ExerciseTemplate>> =

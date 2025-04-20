@@ -43,6 +43,9 @@ interface Dao {
     @Query("delete from workout_template where workout_template_id = :id")
     fun deleteWorkoutTemplateWithId(id: Long)
 
+    @Delete
+    fun deleteWorkoutTemplate(vararg workoutTemplates: WorkoutTemplate)
+
     @Update
     fun updateWorkoutTemplate(workoutTemplate: WorkoutTemplate)
 
