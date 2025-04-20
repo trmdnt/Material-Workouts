@@ -3,6 +3,7 @@ package com.example.gymutil.ui.activities
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -128,7 +130,7 @@ fun ExerciseList(
                     enter = expandVertically(expandFrom = Alignment.Top),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(4.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         exerciseWithSets.exerciseSets.fastForEach { set ->
                             SetListItem(
                                 exerciseSet = set,
@@ -173,53 +175,112 @@ fun SetListItem(
     onDeleteSetPressed: () -> Unit
 ) {
     key(exerciseSet.id) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (exerciseTemplate.reps) {
-                var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
-                var isError = remember { mutableStateOf(false) }
-                OutlinedTextField(
-                    value = text.value, onValueChange = {
-                        text.value = it
-                        var newValue = (if (it.isEmpty()) "0" else it).toIntOrNull()
-                        if (newValue == null) {
-                            isError.value = true
-                        } else {
-                            isError.value = false
-                            onRepsChanged(newValue)
-                        }
-                    }, isError = isError.value, modifier = Modifier.weight(1f)
-                )
-            }
-            if (exerciseTemplate.weight) {
-                var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
-                var isError = remember { mutableStateOf(false) }
-                OutlinedTextField(
-                    value = text.value, onValueChange = {
-                        text.value = it
-                        var newValue = (if (it.isEmpty()) "0" else it).toDoubleOrNull()
-                        if (newValue == null) {
-                            isError.value = true
-                        } else {
-                            isError.value = false
-                            onWeightChanged(newValue)
-                        }
-                    }, isError = isError.value, modifier = Modifier.weight(1f)
-                )
-            }
-            if (exerciseTemplate.distance) {
-                TODO("allow editing distance")
-            }
-            if (exerciseTemplate.time) {
-                TODO("allow editing time")
-            }
-            TextButton(onClick = {
-                onDeleteSetPressed()
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete set",
-                )
-            }
-        }
+        val dismissState = rememberSwipeToDismissBoxState(
+            confirmValueChange = {
+                when (it) {
+                    SwipeToDismissBoxValue.StartToEnd -> {
+                        onDeleteSetPressed()
+
+                    }
+
+                    SwipeToDismissBoxValue.EndToStart -> {
+                        onDeleteSetPressed()
+                    }
+
+                    SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                }
+                return@rememberSwipeToDismissBoxState true
+            },
+            // positional threshold of 25%
+            positionalThreshold = { it * .25f }
+        )
+        SwipeToDismissBox(
+            state = dismissState,
+            backgroundContent = { DismissBackground(dismissState) },
+            content = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    if (exerciseTemplate.reps) {
+                        var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
+                        var isError = remember { mutableStateOf(false) }
+                        OutlinedTextField(
+                            value = text.value, onValueChange = {
+                                text.value = it
+                                var newValue = (if (it.isEmpty()) "0" else it).toIntOrNull()
+                                if (newValue == null) {
+                                    isError.value = true
+                                } else {
+                                    isError.value = false
+                                    onRepsChanged(newValue)
+                                }
+                            }, isError = isError.value, modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (exerciseTemplate.weight) {
+                        var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
+                        var isError = remember { mutableStateOf(false) }
+                        OutlinedTextField(
+                            value = text.value, onValueChange = {
+                                text.value = it
+                                var newValue = (if (it.isEmpty()) "0" else it).toDoubleOrNull()
+                                if (newValue == null) {
+                                    isError.value = true
+                                } else {
+                                    isError.value = false
+                                    onWeightChanged(newValue)
+                                }
+                            }, isError = isError.value, modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (exerciseTemplate.distance) {
+                        TODO("allow editing distance")
+                    }
+                    if (exerciseTemplate.time) {
+                        TODO("allow editing time")
+                    }
+                    TextButton(onClick = {
+                        onDeleteSetPressed()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Delete set",
+                        )
+                    }
+                }
+            })
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val color = when (dismissState.dismissDirection) {
+        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.onError
+        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onError
+        SwipeToDismissBoxValue.Settled -> Color.Transparent
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(12.dp, 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Icon(
+            Icons.Default.Delete,
+            contentDescription = "delete"
+        )
+        Spacer(modifier = Modifier)
+        Icon(
+            Icons.Default.Delete,
+            contentDescription = "delete"
+        )
     }
 }
