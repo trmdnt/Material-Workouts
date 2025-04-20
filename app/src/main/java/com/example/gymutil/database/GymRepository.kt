@@ -86,10 +86,9 @@ class GymRepository(private val dao: Dao) {
         return dao.insertWorkout(workout)
     }
 
-    fun deleteWorkoutsById(ids: List<Long>) {
-        ids.forEach { id ->
-            dao.deleteWorkoutById(id)
-        }
+    fun deleteWorkouts(workouts: List<Workout>) {
+        dao.deleteWorkouts(*workouts.toTypedArray())
+
     }
 
     fun getWorkoutById(id: Long): LiveData<Workout> {

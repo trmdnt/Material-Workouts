@@ -99,8 +99,8 @@ interface Dao {
     @Insert
     fun insertWorkout(workout: Workout): Long
 
-    @Query("DELETE FROM workout WHERE id = :workoutId")
-    fun deleteWorkoutById(workoutId: Long)
+    @Delete
+    fun deleteWorkouts(vararg workouts: Workout)
 
     @Query("SELECT * FROM workout WHERE id = :workoutId")
     fun getWorkoutById(workoutId: Long): LiveData<Workout>

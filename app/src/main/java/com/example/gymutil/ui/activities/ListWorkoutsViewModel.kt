@@ -21,7 +21,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         var editMode: Boolean = false,
         var selectAll: Boolean = false,
         val workouts: List<Workout> = emptyList(),
-        val selectedWorkoutIds: List<Long> = emptyList(),
+        val selectedWorkouts: List<Workout> = emptyList(),
         val confirmBottomSheetShown: Boolean = false,
         val confirmBottomSheetText: String = "",
         val startWorkoutBottomSheetShown: Boolean = false,
@@ -66,12 +66,12 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         workoutTemplates.removeObserver(workoutTemplatesObserver)
     }
 
-    fun onItemPressed(id: Long) {
+    fun onItemPressed(workout: Workout) {
         // return true if event was handled
         if (uiState.value.editMode) {
-            toggleSelection(id)
+            toggleSelection(workout)
         } else {
-            _navigateToExerciseTemplateId.value = Pair(id, false)
+            _navigateToExerciseTemplateId.value = Pair(workout.id, false)
         }
     }
 
@@ -79,14 +79,14 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         _navigateToExerciseTemplateId.value = null
     }
 
-    fun onLongItemPressed(id: Long) {
-        toggleSelection(id)
+    fun onLongItemPressed(workout: Workout) {
+        toggleSelection(workout)
     }
 
     fun onDeleteButtonPressed() {
         _uiState.value = _uiState.value.copy(
             confirmBottomSheetShown = true,
-            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedWorkoutIds.size} selected item(s)"
+            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedWorkouts.size} selected item(s)"
         )
     }
 
@@ -105,7 +105,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
 
     fun onConfirmButtonPressed() {
         viewModelScope.launch(IO) {
-            gymRepository.deleteWorkoutsById(uiState.value.selectedWorkoutIds.toList())
+            gymRepository.deleteWorkouts(uiState.value.selectedWorkouts)
             getOutOfEditMode()
         }
         onCancelConfirmSheetPressed()
@@ -143,46 +143,45 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
 
     private fun getOutOfEditMode() {
         _uiState.value = _uiState.value.copy(
-            selectedWorkoutIds = uiState.value.selectedWorkoutIds.toMutableList().apply {
+            selectedWorkouts = uiState.value.selectedWorkouts.toMutableList().apply {
                 clear()
             }
         )
         _uiState.value = _uiState.value.copy(editMode = false)
     }
 
-    private fun isInSelectedList(id: Long): Boolean {
-        return uiState.value.selectedWorkoutIds.contains(id)
+    private fun isInSelectedList(workout: Workout): Boolean {
+        return uiState.value.selectedWorkouts.contains(workout)
     }
 
-    private fun addToSelectedList(id: Long) {
+    private fun addToSelectedList(workout: Workout) {
         if (!uiState.value.editMode) {
             _uiState.value = _uiState.value.copy(editMode = true)
         }
 
         _uiState.value = _uiState.value.copy(
-            selectedWorkoutIds = uiState.value.selectedWorkoutIds.toMutableList().apply {
-                add(id)
+            selectedWorkouts = uiState.value.selectedWorkouts.toMutableList().apply {
+                add(workout)
             }
         )
     }
 
-    private fun removeFromSelectedList(id: Long) {
-
+    private fun removeFromSelectedList(workout: Workout) {
         _uiState.value = _uiState.value.copy(
-            selectedWorkoutIds = uiState.value.selectedWorkoutIds.toMutableList().apply {
-                remove(id)
+            selectedWorkouts = uiState.value.selectedWorkouts.toMutableList().apply {
+                remove(workout)
             }
         )
-        if (uiState.value.selectedWorkoutIds.isEmpty()) {
+        if (uiState.value.selectedWorkouts.isEmpty()) {
             _uiState.value = _uiState.value.copy(editMode = false)
         }
     }
 
-    private fun toggleSelection(id: Long) {
-        if (isInSelectedList(id)) {
-            removeFromSelectedList(id)
+    private fun toggleSelection(workout: Workout) {
+        if (isInSelectedList(workout)) {
+            removeFromSelectedList(workout)
         } else {
-            addToSelectedList(id)
+            addToSelectedList(workout)
         }
     }
 }
