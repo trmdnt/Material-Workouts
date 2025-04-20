@@ -14,13 +14,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gymutil.database.entities.WorkoutTemplate
 import com.example.gymutil.ui.components.ConfirmDeleteBottomSheet
 import com.example.gymutil.ui.components.TopAppBarWithDeleteButton
@@ -31,10 +32,10 @@ fun ViewPlans(
     goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit, navToCreateWorkoutTemplate: () -> Unit
 ) {
     val viewModel: ViewPlansViewmodel = hiltViewModel()
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     //TODO find way to turn all views that use this into a reusable component
-    if (uiState.value.editMode) {
+    if (uiState.editMode) {
         BackHandler {
             viewModel.onCancelButtonPressed()
         }
@@ -42,7 +43,7 @@ fun ViewPlans(
 
     Scaffold(topBar = {
         AnimatedVisibility(
-            visible = uiState.value.editMode, enter = expandVertically(
+            visible = uiState.editMode, enter = expandVertically(
                 // Expand from the top.
                 expandFrom = Alignment.Top
             ), exit = shrinkVertically()
@@ -61,8 +62,8 @@ fun ViewPlans(
             Icon(Icons.Filled.Add, "Floating action button.")
         }
     }) { contentPadding ->
-        if (uiState.value.confirmBottomSheetShown) {
-            ConfirmDeleteBottomSheet(text = uiState.value.confirmBottomSheetText, onDismiss = {
+        if (uiState.confirmBottomSheetShown) {
+            ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
                 viewModel.onCancelSheetPressed()
             }, onConfirm = {
                 viewModel.onConfirmButtonPressed()
@@ -72,7 +73,7 @@ fun ViewPlans(
         // Screen content
         PlansList(
             itemsList = viewModel.workoutTemplates,
-            selectedIdsList = uiState.value.selectedWorkoutTemplateIds,
+            selectedIdsList = uiState.selectedWorkoutTemplateIds,
             goToWorkoutTemplate = {
                 goToWorkoutTemplate(it)
             },
@@ -83,7 +84,7 @@ fun ViewPlans(
                 viewModel.onLongItemPressed(it)
             },
             paddingValues = contentPadding,
-            editMode = uiState.value.editMode
+            editMode = uiState.editMode
         )
     }
 }

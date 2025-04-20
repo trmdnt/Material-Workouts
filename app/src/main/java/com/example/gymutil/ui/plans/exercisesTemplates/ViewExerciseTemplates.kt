@@ -12,9 +12,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gymutil.database.entities.ExerciseTemplate
 import com.example.gymutil.ui.components.ConfirmDeleteBottomSheet
 import com.example.gymutil.ui.components.TopAppBarWithBackButton
@@ -29,10 +31,10 @@ fun ViewExerciseTemplates(
     val viewModel: ViewExerciseTemplatesViewModel = hiltViewModel()
 
     //TODO avoid using uistate.value, replace with 'by'
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     //TODO find way to turn all views that use this into a reusable component
-    if (uiState.value.editMode) {
+    if (uiState.editMode) {
         BackHandler {
             viewModel.onCancelButtonPressed()
         }
@@ -47,7 +49,7 @@ fun ViewExerciseTemplates(
     }
 
     Scaffold(topBar = {
-        if (uiState.value.editMode) {
+        if (uiState.editMode) {
             TopAppBarWithDeleteButton(onClosePressed = {
                 viewModel.onCancelButtonPressed()
             }, onDeletePressed = {
@@ -64,8 +66,8 @@ fun ViewExerciseTemplates(
             Icon(Icons.Filled.Add, "Floating action button.")
         }
     }) { contentPadding ->
-        if (uiState.value.confirmBottomSheetShown) {
-            ConfirmDeleteBottomSheet(text = uiState.value.confirmBottomSheetText, onDismiss = {
+        if (uiState.confirmBottomSheetShown) {
+            ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
                 viewModel.onCancelSheetPressed()
             }, onConfirm = {
                 viewModel.onConfirmButtonPressed()
@@ -74,8 +76,8 @@ fun ViewExerciseTemplates(
 
         // Screen content
         ExerciseTemplateList(
-            itemsList = uiState.value.exerciseTemplates,
-            selectedIdsList = uiState.value.selectedExerciseTemplatesIds,
+            itemsList = uiState.exerciseTemplates,
+            selectedIdsList = uiState.selectedExerciseTemplatesIds,
             onItemPress = {
                 viewModel.onItemPressed(it)
             },
@@ -83,7 +85,7 @@ fun ViewExerciseTemplates(
                 viewModel.onLongItemPressed(it)
             },
             paddingValues = contentPadding,
-            editMode = uiState.value.editMode
+            editMode = uiState.editMode
         )
     }
 }
