@@ -17,7 +17,7 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         var editMode: Boolean = false,
         var selectAll: Boolean = false,
         val exerciseTemplates: List<ExerciseTemplate> = emptyList(),
-        val selectedExerciseTemplatesIds: List<Long> = emptyList(),
+        val selectedExerciseTemplates: List<ExerciseTemplate> = emptyList(),
 
         val confirmBottomSheetShown: Boolean = false,
         val confirmBottomSheetText: String = ""
@@ -37,12 +37,12 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
     private val _navigateToExerciseTemplateId = MutableStateFlow<Long?>(null)
     val navigateToExerciseTemplateId: StateFlow<Long?> = _navigateToExerciseTemplateId
 
-    fun onItemPressed(id: Long) {
+    fun onItemPressed(exerciseTemplate: ExerciseTemplate) {
         // return true if event was handled
         if (uiState.value.editMode) {
-            toggleSelection(id)
+            toggleSelection(exerciseTemplate)
         } else {
-            _navigateToExerciseTemplateId.value = id
+            _navigateToExerciseTemplateId.value = exerciseTemplate.exerciseTemplateId
         }
     }
 
@@ -50,14 +50,14 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         _navigateToExerciseTemplateId.value = null
     }
 
-    fun onLongItemPressed(id: Long) {
-        toggleSelection(id)
+    fun onLongItemPressed(exerciseTemplate: ExerciseTemplate) {
+        toggleSelection(exerciseTemplate)
     }
 
     fun onDeleteButtonPressed() {
         _uiState.value = _uiState.value.copy(
             confirmBottomSheetShown = true,
-            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedExerciseTemplatesIds.size} selected item(s)"
+            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedExerciseTemplates.size} selected item(s)"
         )
     }
 
@@ -70,7 +70,7 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
 
     fun onConfirmButtonPressed() {
         viewModelScope.launch(Dispatchers.IO) {
-            gymRepository.deleteExerciseTemplatesByIds(uiState.value.selectedExerciseTemplatesIds.toList())
+            gymRepository.deleteExerciseTemplates(_uiState.value.selectedExerciseTemplates)
             getOutOfEditMode()
         }
         onCancelSheetPressed()
@@ -82,46 +82,46 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
 
     private fun getOutOfEditMode() {
         _uiState.value = _uiState.value.copy(
-            selectedExerciseTemplatesIds = uiState.value.selectedExerciseTemplatesIds.toMutableList().apply {
+            selectedExerciseTemplates = uiState.value.selectedExerciseTemplates.toMutableList().apply {
                 clear()
             }
         )
         _uiState.value = _uiState.value.copy(editMode = false)
     }
 
-    private fun isInSelectedList(id: Long): Boolean {
-        return uiState.value.selectedExerciseTemplatesIds.contains(id)
+    private fun isInSelectedList(exerciseTemplate: ExerciseTemplate): Boolean {
+        return uiState.value.selectedExerciseTemplates.contains(exerciseTemplate)
     }
 
-    private fun addToSelectedList(id: Long) {
+    private fun addToSelectedList(exerciseTemplate: ExerciseTemplate) {
         if (!uiState.value.editMode) {
             _uiState.value = _uiState.value.copy(editMode = true)
         }
 
         _uiState.value = _uiState.value.copy(
-            selectedExerciseTemplatesIds = uiState.value.selectedExerciseTemplatesIds.toMutableList().apply {
-                add(id)
+            selectedExerciseTemplates = uiState.value.selectedExerciseTemplates.toMutableList().apply {
+                add(exerciseTemplate)
             }
         )
     }
 
-    private fun removeFromSelectedList(id: Long) {
+    private fun removeFromSelectedList(exerciseTemplate: ExerciseTemplate) {
 
         _uiState.value = _uiState.value.copy(
-            selectedExerciseTemplatesIds = uiState.value.selectedExerciseTemplatesIds.toMutableList().apply {
-                remove(id)
+            selectedExerciseTemplates = uiState.value.selectedExerciseTemplates.toMutableList().apply {
+                remove(exerciseTemplate)
             }
         )
-        if (uiState.value.selectedExerciseTemplatesIds.isEmpty()) {
+        if (uiState.value.selectedExerciseTemplates.isEmpty()) {
             _uiState.value = _uiState.value.copy(editMode = false)
         }
     }
 
-    private fun toggleSelection(id: Long) {
-        if (isInSelectedList(id)) {
-            removeFromSelectedList(id)
+    private fun toggleSelection(exerciseTemplate: ExerciseTemplate) {
+        if (isInSelectedList(exerciseTemplate)) {
+            removeFromSelectedList(exerciseTemplate)
         } else {
-            addToSelectedList(id)
+            addToSelectedList(exerciseTemplate)
         }
     }
 }

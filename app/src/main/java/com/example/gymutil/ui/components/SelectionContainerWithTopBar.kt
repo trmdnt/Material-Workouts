@@ -39,30 +39,30 @@ fun <T> SelectionContainerWithTopBar(
     }
 
     Scaffold(topBar = {
-        AnimatedVisibility(
-            visible = editMode, enter = expandVertically(
-                // Expand from the top.
-                expandFrom = Alignment.Top
-            ), exit = shrinkVertically()
-        ) {
-            TopAppBarWithDeleteButton(onClosePressed = {
-                onCancel()
-            }, onDeletePressed = {
-                onDelete()
-            })
-        }
-
-        if (alternativeTopBar != null) {
+        if (alternativeTopBar == null) {
             AnimatedVisibility(
-                visible = !editMode, enter = expandVertically(
+                visible = editMode, enter = expandVertically(
                     // Expand from the top.
                     expandFrom = Alignment.Top
                 ), exit = shrinkVertically()
             ) {
+                TopAppBarWithDeleteButton(onClosePressed = {
+                    onCancel()
+                }, onDeletePressed = {
+                    onDelete()
+                })
+            }
+        } else {
+            if (editMode) {
+                TopAppBarWithDeleteButton(onClosePressed = {
+                    onCancel()
+                }, onDeletePressed = {
+                    onDelete()
+                })
+            } else {
                 alternativeTopBar()
             }
         }
-
     }, floatingActionButton = {
         if (fabAction != null) {
             FloatingActionButton(

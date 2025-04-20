@@ -54,10 +54,8 @@ class GymRepository(private val dao: Dao) {
         dao.updateExerciseTemplate(exerciseTemplate)
     }
 
-    fun deleteExerciseTemplatesByIds(ids: List<Long>) {
-        ids.forEach { id ->
-            dao.deleteExerciseTemplateById(id)
-        }
+    fun deleteExerciseTemplates(exerciseTemplates: List<ExerciseTemplate>) {
+        dao.deleteExerciseTemplates(*exerciseTemplates.toTypedArray())
     }
 
     fun addExerciseToWorkoutTemplate(workoutTemplateId: Long, exerciseTemplateId: Long) {
