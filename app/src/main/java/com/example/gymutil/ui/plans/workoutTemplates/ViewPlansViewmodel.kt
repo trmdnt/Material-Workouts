@@ -23,15 +23,21 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
+    private val _navigateToWorkoutTemplateId = MutableStateFlow<Long?>(null)
+    val navigateToWorkoutTemplateId: StateFlow<Long?> = _navigateToWorkoutTemplateId
+
     val workoutTemplates = gymRepository.getAllWorkoutTemplates()
 
-    fun onItemPressed(id: Long): Boolean {
+    fun receivedNavEvent() {
+        _navigateToWorkoutTemplateId.value = null
+    }
+
+    fun onItemPressed(id: Long) {
         // return true if event was handled
         if (uiState.value.editMode) {
             toggleSelection(id)
-            return true
         } else {
-            return false
+            _navigateToWorkoutTemplateId.value = id
         }
     }
 

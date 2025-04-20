@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -33,6 +34,14 @@ fun ViewPlans(
 ) {
     val viewModel: ViewPlansViewmodel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    viewModel.navigateToWorkoutTemplateId.collectAsState().let { navigateToExerciseTemplateId ->
+        val id = navigateToExerciseTemplateId.value
+        if (id != null) {
+            viewModel.receivedNavEvent()
+            goToWorkoutTemplate(id)
+        }
+    }
 
     //TODO find way to turn all views that use this into a reusable component
     if (uiState.editMode) {
@@ -74,9 +83,6 @@ fun ViewPlans(
         PlansList(
             itemsList = viewModel.workoutTemplates,
             selectedIdsList = uiState.selectedWorkoutTemplateIds,
-            goToWorkoutTemplate = {
-                goToWorkoutTemplate(it)
-            },
             onItemPress = {
                 viewModel.onItemPressed(it)
             },
@@ -94,9 +100,8 @@ fun ViewPlans(
 fun PlansList(
     itemsList: LiveData<List<WorkoutTemplate>>,
     selectedIdsList: List<Long>,
-    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit,
     paddingValues: PaddingValues,
-    onItemPress: (id: Long) -> Boolean,
+    onItemPress: (id: Long) -> Unit,
     onLongItemPress: (id: Long) -> Unit,
     editMode: Boolean
 ) {
@@ -110,9 +115,10 @@ fun PlansList(
             }) { workoutTemplate ->
             workoutTemplateListItem(
                 workoutTemplate = workoutTemplate,
-                onItemPress = onItemPress,
+                onItemPress = {
+                    onItemPress(workoutTemplate.workoutTemplateId)
+                },
                 onLongItemPress = onLongItemPress,
-                goToWorkoutTemplate = goToWorkoutTemplate,
                 editMode = editMode,
                 selectedIdsList = selectedIdsList
             )
@@ -124,9 +130,8 @@ fun PlansList(
 @Composable
 fun workoutTemplateListItem(
     workoutTemplate: WorkoutTemplate,
-    onItemPress: (id: Long) -> Boolean,
+    onItemPress: () -> Unit,
     onLongItemPress: (id: Long) -> Unit,
-    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit,
     editMode: Boolean,
     selectedIdsList: List<Long>
 ) {
@@ -134,11 +139,7 @@ fun workoutTemplateListItem(
     Card(
         modifier = Modifier
             .combinedClickable(onClick = {
-                // TODO jank: move navigation to viewmodel
-                //
-                if (!onItemPress(id)) {
-                    goToWorkoutTemplate(id)
-                }
+                onItemPress()
             }, onLongClick = {
                 onLongItemPress(id)
             })
@@ -160,13 +161,13 @@ fun workoutTemplateListItem(
                 if (editMode) {
                     Checkbox(
                         checked = selectedIdsList.contains(id), onCheckedChange = { _ ->
-                            onItemPress(id)
+                            onItemPress()
                         })
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
                             onClick = {
-                                goToWorkoutTemplate(id)
+                                onItemPress()
                             },
 
                             content = {
