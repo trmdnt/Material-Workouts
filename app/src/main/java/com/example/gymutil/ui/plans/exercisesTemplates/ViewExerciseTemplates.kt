@@ -30,7 +30,6 @@ fun ViewExerciseTemplates(
 ) {
     val viewModel: ViewExerciseTemplatesViewModel = hiltViewModel()
 
-    //TODO avoid using uistate.value, replace with 'by'
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     //TODO find way to turn all views that use this into a reusable component
@@ -130,8 +129,6 @@ fun ExerciseTemplateListItem(
     Card(
         modifier = Modifier
             .combinedClickable(onClick = {
-                // dont know how to navigate from viewmodel
-                // TODO jank: does not seem like the right way to navigate on viewmodel event (spoiler: it is not)
                 onItemPress(id)
             }, onLongClick = {
                 onLongItemPress(id)

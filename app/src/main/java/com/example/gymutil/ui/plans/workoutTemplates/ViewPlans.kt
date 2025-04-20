@@ -184,7 +184,7 @@ fun workoutTemplateListItem(
 //                                )
 //                            },
 //                            onClick = {
-//                                //TODO
+//
 //                            },
 //                        )
                     }
