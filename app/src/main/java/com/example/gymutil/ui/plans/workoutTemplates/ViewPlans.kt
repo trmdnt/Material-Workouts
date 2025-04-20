@@ -1,29 +1,17 @@
 package com.example.gymutil.ui.plans.workoutTemplates
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.gymutil.database.entities.WorkoutTemplate
 import com.example.gymutil.ui.components.ConfirmDeleteBottomSheet
-import com.example.gymutil.ui.components.TopAppBarWithDeleteButton
+import com.example.gymutil.ui.components.SelectionContainerWithTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,161 +21,50 @@ fun ViewPlans(
     val viewModel: ViewPlansViewmodel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    viewModel.navigateToWorkoutTemplateId.collectAsState().let { navigateToExerciseTemplateId ->
-        val id = navigateToExerciseTemplateId.value
-        if (id != null) {
+    viewModel.navigateToWorkoutTemplateId.collectAsState().let { navigateToWorkoutTemplateId ->
+        navigateToWorkoutTemplateId.value?.let {
             viewModel.receivedNavEvent()
-            goToWorkoutTemplate(id)
+            goToWorkoutTemplate(it)
         }
     }
 
-    //TODO find way to turn all views that use this into a reusable component
-    if (uiState.editMode) {
-        BackHandler {
+    SelectionContainerWithTopBar(
+        itemsList = uiState.workoutTemplates,
+        selectedItemsList = uiState.selectedWorkoutTemplates,
+        onItemClick = {
+            viewModel.onItemPressed(it)
+        },
+        onLongItemClick = {
+            viewModel.onLongItemPressed(it)
+        },
+        onCancel = {
             viewModel.onCancelButtonPressed()
-        }
-    }
-
-    Scaffold(topBar = {
-        AnimatedVisibility(
-            visible = uiState.editMode, enter = expandVertically(
-                // Expand from the top.
-                expandFrom = Alignment.Top
-            ), exit = shrinkVertically()
-        ) {
-            TopAppBarWithDeleteButton(onClosePressed = {
-                viewModel.onCancelButtonPressed()
-            }, onDeletePressed = {
-                viewModel.onDeleteButtonPressed()
-            })
-        }
-    }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = {
-                navToCreateWorkoutTemplate()
-            }) {
-            Icon(Icons.Filled.Add, "Floating action button.")
-        }
-    }) { contentPadding ->
-        if (uiState.confirmBottomSheetShown) {
-            ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
-                viewModel.onCancelSheetPressed()
-            }, onConfirm = {
-                viewModel.onConfirmButtonPressed()
-            })
-        }
-
-        // Screen content
-        PlansList(
-            itemsList = uiState.workoutTemplates,
-            selectedItemsList = uiState.selectedWorkoutTemplates,
-            onItemPress = {
-                viewModel.onItemPressed(it)
-            },
-            onLongItemPress = {
-                viewModel.onLongItemPressed(it)
-            },
-            paddingValues = contentPadding,
-            editMode = uiState.editMode
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun PlansList(
-    itemsList: List<WorkoutTemplate>,
-    selectedItemsList: List<WorkoutTemplate>,
-    paddingValues: PaddingValues,
-    onItemPress: (WorkoutTemplate) -> Unit,
-    onLongItemPress: (WorkoutTemplate) -> Unit,
-    editMode: Boolean
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = paddingValues
-    ) {
-        items(
-            items = itemsList, key = {
-                it.workoutTemplateId
-            }) { workoutTemplate ->
-            workoutTemplateListItem(
-                workoutTemplate = workoutTemplate,
-                onItemPress = {
-                    onItemPress(workoutTemplate)
-                },
-                onLongItemPress = {
-                    onLongItemPress(workoutTemplate)
-                },
-                editMode = editMode,
-                selectedIdsList = selectedItemsList
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun workoutTemplateListItem(
-    workoutTemplate: WorkoutTemplate,
-    onItemPress: () -> Unit,
-    onLongItemPress: () -> Unit,
-    editMode: Boolean,
-    selectedIdsList: List<WorkoutTemplate>
-) {
-    Card(
-        modifier = Modifier
-            .combinedClickable(onClick = {
-                onItemPress()
-            }, onLongClick = {
-                onLongItemPress()
-            })
-            .fillMaxWidth()
-    ) {
-
-        Row {
+        },
+        onDelete = {
+            viewModel.onDeleteButtonPressed()
+        },
+        editMode = uiState.editMode,
+        textContent = { it, mod ->
             Column(
-                modifier = Modifier
+                modifier = mod
                     .padding(8.dp)
-                    .weight(1f)
             ) {
-                Text(text = workoutTemplate.name)
-                Text(text = "Last used: ${workoutTemplate.lastUsed?.toString() ?: "Never"}")
+                Text(text = it.name)
+                Text(text = "Last used: ${it.lastUsed?.toString() ?: "Never"}")
             }
-            Column(
-                modifier = Modifier.padding(8.dp),
-            ) {
-                if (editMode) {
-                    Checkbox(
-                        checked = selectedIdsList.contains(workoutTemplate), onCheckedChange = { _ ->
-                            onItemPress()
-                        })
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(
-                            onClick = {
-                                onItemPress()
-                            },
-
-                            content = {
-                                Icon(
-                                    imageVector = Icons.Filled.Edit, contentDescription = "Edit plan"
-                                )
-                            },
-                        )
-                        //TODO implement starting directly
-//                        Button(
-//                            content = {
-//                                Icon(
-//                                    imageVector = Icons.Filled.PlayArrow, contentDescription = "start workout"
-//                                )
-//                            },
-//                            onClick = {
-//
-//                            },
-//                        )
-                    }
-                }
-            }
+        },
+        alternativeTopBar = null,
+        fabAction = navToCreateWorkoutTemplate,
+        getId = {
+            it.workoutTemplateId
         }
+    )
+
+    if (uiState.confirmBottomSheetShown) {
+        ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
+            viewModel.onCancelSheetPressed()
+        }, onConfirm = {
+            viewModel.onConfirmButtonPressed()
+        })
     }
 }
