@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SwipeToDeleteContainer(onDelete: () -> Unit, content: @Composable () -> Unit) {
+fun SwipeToDeleteContainer(onDelete: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             when (it) {
@@ -37,7 +37,9 @@ fun SwipeToDeleteContainer(onDelete: () -> Unit, content: @Composable () -> Unit
         backgroundContent = { DismissBackground(dismissState) },
         content = {
             content()
-        })
+        },
+        modifier = modifier
+    )
 }
 
 

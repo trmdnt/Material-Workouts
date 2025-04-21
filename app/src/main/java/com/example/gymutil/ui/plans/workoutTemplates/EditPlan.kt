@@ -95,7 +95,6 @@ fun ExerciseTemplateListItem(
         modifier = Modifier
             .combinedClickable(
                 onClick = onItemPress
-                //TODO maybe add long click to navigate to edit exercise
             )
             .fillMaxWidth()
     ) {

@@ -3,11 +3,14 @@ package com.example.gymutil.ui.activities
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,10 +22,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gymutil.database.entities.ExerciseSet
 import com.example.gymutil.database.entities.ExerciseTemplate
 import com.example.gymutil.database.entities.ExerciseWithSets
+import com.example.gymutil.ui.components.ListAvailableItems
 import com.example.gymutil.ui.components.SwipeToDeleteContainer
 import com.example.gymutil.ui.components.TopAppBarWithBackButton
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
     val viewModel = hiltViewModel<ViewWorkoutViewModel, ViewWorkoutViewModel.ViewWorkoutViewModelFactory> {
@@ -34,6 +38,12 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
     //TODO add ability to add other exercises not in the template
     Scaffold(topBar = {
         TopAppBarWithBackButton(title = uiState.topBarTitle, onBackPressed)
+    }, floatingActionButton = {
+        FloatingActionButton(onClick = {
+            viewModel.onNewExercisePressed()
+        }, content = {
+            Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+        })
     }, content = {
         Column(modifier = Modifier.padding(it)) {
             //Text("id: $workoutId, editing: $editing, recommended: ${uiState.recommendedExercises}")
@@ -70,17 +80,34 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
                             return@ContextualFlowRow
                         }
                         Button(onClick = {
-                            viewModel.addExercise(exerciseTemplate.exerciseTemplateId)
+                            viewModel.addExercise(exerciseTemplate)
                         }) {
                             Text(text = exerciseTemplate.name)
                         }
                     }
                 }
             }
+
+            if (uiState.displaySelectExerciseBottomSheet) {
+                val sheetState = rememberModalBottomSheetState()
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        viewModel.onSelectExerciseBottomSheetDismissed()
+                    }, sheetState = sheetState
+                ) {
+                    ListAvailableItems(items = uiState.allAvailableExercises, onItemClick = {
+                        viewModel.addExercise(it)
+                        viewModel.onSelectExerciseBottomSheetDismissed()
+                    }, getName = {
+                        it.name
+                    })
+                }
+            }
         }
     })
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseList(
     items: List<ExerciseWithSets>,
@@ -95,68 +122,63 @@ fun ExerciseList(
     onDeleteSetPressed: (Long) -> Unit,
 ) {
     //TODO maybe use just one lazy column, move away from cards and just insert headers for each exercise
-    LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(
-            items = items, key = { it ->
-                it.exercise.exerciseId
-            }) { exerciseWithSets ->
+    if (items.isEmpty()) {
+        Text("add an exercise to get started")
+    } else {
+        LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(
+                items = items, key = { it ->
+                    it.exercise.exerciseId
+                }) { exerciseWithSets ->
 
-            SwipeToDeleteContainer({
-                onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
-            }) {
-                var expanded by remember { mutableStateOf(!editMode) }
-                Card(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            onClick = { expanded = !expanded })
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = exerciseWithSets.exerciseTemplate.name,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
-                        )
-//                        TextButton(onClick = {
-//                            onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
-//                        }) {
-//                            Icon(
-//                                imageVector = Icons.Filled.Delete,
-//                                contentDescription = "Delete exercise",
-//                            )
-//                        }
-                    }
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = expandVertically(expandFrom = Alignment.Top),
-                        exit = shrinkVertically(shrinkTowards = Alignment.Top)
+                SwipeToDeleteContainer(onDelete = {
+                    onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
+                }) {
+                    var expanded by remember { mutableStateOf(!editMode) }
+                    Card(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                onClick = { expanded = !expanded })
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            exerciseWithSets.exerciseSets.fastForEach { set ->
-                                SetListItem(
-                                    exerciseSet = set,
-                                    exerciseTemplate = exerciseWithSets.exerciseTemplate,
-                                    onWeightChanged = {
-                                        onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                    },
-                                    onRepsChanged = {
-                                        onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                    },
-                                    onDistanceChanged = {
-                                        onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                    },
-                                    onTimeChanged = {
-                                        onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                    },
-                                    onDeleteSetPressed = {
-                                        onDeleteSetPressed(set.id)
-                                    }
-                                )
-                            }
-                            TextButton(onClick = {
-                                onSetAdded(exerciseWithSets.exercise.exerciseId)
-                            }) {
-                                Text(text = "Add")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = exerciseWithSets.exerciseTemplate.name,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(expandFrom = Alignment.Top),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top)
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                exerciseWithSets.exerciseSets.fastForEach { set ->
+                                    SetListItem(
+                                        exerciseSet = set,
+                                        exerciseTemplate = exerciseWithSets.exerciseTemplate,
+                                        onWeightChanged = {
+                                            onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                        },
+                                        onRepsChanged = {
+                                            onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                        },
+                                        onDistanceChanged = {
+                                            onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                        },
+                                        onTimeChanged = {
+                                            onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                        },
+                                        onDeleteSetPressed = {
+                                            onDeleteSetPressed(set.id)
+                                        })
+                                }
+                                TextButton(onClick = {
+                                    onSetAdded(exerciseWithSets.exercise.exerciseId)
+                                }) {
+                                    Text(text = "Add")
+                                }
                             }
                         }
                     }
@@ -222,14 +244,6 @@ fun SetListItem(
                 if (exerciseTemplate.time) {
                     TODO("allow editing time")
                 }
-//                TextButton(onClick = {
-//                    onDeleteSetPressed()
-//                }) {
-//                    Icon(
-//                        imageVector = Icons.Filled.Delete,
-//                        contentDescription = "Delete set",
-//                    )
-//                }
             }
         }
     }

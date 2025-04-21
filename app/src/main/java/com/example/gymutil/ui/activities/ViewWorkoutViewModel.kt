@@ -27,6 +27,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         val editMode: Boolean,
         val exercises: List<ExerciseWithSets> = emptyList(),
         val recommendedExercises: List<ExerciseTemplate> = emptyList(),
+        val allAvailableExercises: List<ExerciseTemplate> = emptyList(),
+        val displaySelectExerciseBottomSheet: Boolean = false,
     )
 
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
@@ -45,10 +47,15 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         updateRecommended()
     }
 
+    private val allAvailableExercises = gymRepository.getAllExerciseTemplates()
+    private val allAvailableExercisesObserver = Observer<List<ExerciseTemplate>> {
+        _uiState.value = _uiState.value.copy(allAvailableExercises = it)
+    }
+
 
     private val workoutTemplateId: MutableLiveData<Long?> = MutableLiveData(null)
-    private var available: LiveData<List<ExerciseTemplate>>? = null
-    private val availableObserver = Observer<List<ExerciseTemplate>> {
+    private var recommended: LiveData<List<ExerciseTemplate>>? = null
+    private val recommendedObserver = Observer<List<ExerciseTemplate>> {
         updateRecommended()
     }
 
@@ -56,15 +63,16 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         workout.observeForever(workoutObserver)
         workoutTemplateId.observeForever {
             it?.let {
-                available = gymRepository.getAllExerciseTemplatesFromWorkoutTemplate(it)
-                available?.observeForever(availableObserver)
+                recommended = gymRepository.getAllExerciseTemplatesFromWorkoutTemplate(it)
+                recommended?.observeForever(recommendedObserver)
             }
         }
         exercises.observeForever(exercisesObserver)
+        allAvailableExercises.observeForever(allAvailableExercisesObserver)
     }
 
     private fun updateRecommended() {
-        available?.value?.let {
+        recommended?.value?.let {
             val recommended = it.filter { exerciseTemplate ->
                 println("recomm found ${uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId }}")
                 uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId } == null
@@ -79,14 +87,16 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
+        //TODO check if cancelling observers is really necessary
         super.onCleared()
         workout.removeObserver(workoutObserver)
         exercises.removeObserver(exercisesObserver)
+        allAvailableExercises.removeObserver(allAvailableExercisesObserver)
     }
 
-    fun addExercise(exerciseTemplateId: Long) {
+    fun addExercise(exerciseTemplate: ExerciseTemplate) {
         val exercise = Exercise(
-            workoutId = workoutId, exerciseTemplateId = exerciseTemplateId
+            workoutId = workoutId, exerciseTemplateId = exerciseTemplate.exerciseTemplateId,
         )
         viewModelScope.launch(IO) {
             gymRepository.insertExercise(exercise)
@@ -151,5 +161,13 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         viewModelScope.launch(IO) {
             gymRepository.deleteSetById(setId)
         }
+    }
+
+    fun onNewExercisePressed() {
+        _uiState.value = _uiState.value.copy(displaySelectExerciseBottomSheet = true)
+    }
+
+    fun onSelectExerciseBottomSheetDismissed() {
+        _uiState.value = _uiState.value.copy(displaySelectExerciseBottomSheet = false)
     }
 }

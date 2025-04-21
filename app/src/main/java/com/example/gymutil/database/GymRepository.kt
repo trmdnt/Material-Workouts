@@ -16,7 +16,6 @@ class GymRepository(private val dao: Dao) {
         return dao.insertWorkoutTemplate(workoutTemplate)
     }
 
-    //TODO do it in a single action?
     fun deleteWorkoutTemplates(workoutTemplates: List<WorkoutTemplate>) {
         dao.deleteWorkoutTemplate(*workoutTemplates.toTypedArray())
     }

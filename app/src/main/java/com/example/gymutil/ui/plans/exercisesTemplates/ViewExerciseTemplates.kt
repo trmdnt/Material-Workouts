@@ -1,6 +1,5 @@
 package com.example.gymutil.ui.plans.exercisesTemplates
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -22,13 +21,6 @@ fun ViewExerciseTemplates(
     val viewModel: ViewExerciseTemplatesViewModel = hiltViewModel()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    //TODO find way to turn all views that use this into a reusable component
-    if (uiState.editMode) {
-        BackHandler {
-            viewModel.onCancelButtonPressed()
-        }
-    }
 
     viewModel.navigateToExerciseTemplateId.collectAsState().let { navigateToExerciseTemplateId ->
         val id = navigateToExerciseTemplateId.value

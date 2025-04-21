@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GymUtilTheme {
-                //TODO change android navigation bar color to the one of the bottomnavbar
+                //TODO fix deprecation
                 val backgroundColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
                 window.navigationBarColor = backgroundColor
                 MainScreen()

@@ -102,7 +102,6 @@ private fun <T> ItemsList(
         verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = paddingValues
     ) {
         items(
-            //TODO use key
             items = itemsList, key = {
                 getId(it)
             }) { item ->
