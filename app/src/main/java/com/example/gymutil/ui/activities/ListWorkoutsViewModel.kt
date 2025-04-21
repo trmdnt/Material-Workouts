@@ -47,12 +47,19 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
     private val workoutTemplates = gymRepository.getAllWorkoutTemplates()
     private val workoutTemplatesObserver = Observer<List<WorkoutTemplate>> {
         it.let { workoutTemplates ->
+            workoutTemplates.toMutableList().apply {
+                add(
+                    0, WorkoutTemplate(
+                        workoutTemplateId = 0,
+                        name = "Empty workout",
+                    )
+                )
+            }
             _uiState.value = _uiState.value.copy(
                 workoutTemplates = workoutTemplates,
             )
             println("hello ${workoutTemplates.size}")
         }
-
     }
 
     init {
@@ -121,16 +128,13 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         )
     }
 
-    fun onWorkoutTemplateSelected(id: Long) {
-        val workoutTemplate: WorkoutTemplate = workoutTemplates.value?.find {
-            it.workoutTemplateId == id
-        }!!
+    fun onWorkoutTemplateSelected(workoutTemplate: WorkoutTemplate) {
         val workout = Workout(
             name = "${workoutTemplate.name} on ${
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
             }",
             dateStarted = System.currentTimeMillis(),
-            workoutTemplateId = workoutTemplate.workoutTemplateId,
+            workoutTemplateId = if (workoutTemplate.workoutTemplateId == 0.toLong()) null else workoutTemplate.workoutTemplateId,
         )
         viewModelScope.launch(IO) {
             val id = gymRepository.createWorkout(workout)

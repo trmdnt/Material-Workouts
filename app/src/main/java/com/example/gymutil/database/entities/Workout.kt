@@ -26,6 +26,6 @@ data class Workout(
     val dateStarted: Long,
 
     @ColumnInfo(name = "workout_template_id")
-    val workoutTemplateId: Long,
+    val workoutTemplateId: Long?,
 
     )

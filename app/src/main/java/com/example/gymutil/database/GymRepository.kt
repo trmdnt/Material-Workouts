@@ -82,6 +82,7 @@ class GymRepository(private val dao: Dao) {
     }
 
     fun createWorkout(workout: Workout): Long {
+
         return dao.insertWorkout(workout)
     }
 
