@@ -47,18 +47,17 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
     private val workoutTemplates = gymRepository.getAllWorkoutTemplates()
     private val workoutTemplatesObserver = Observer<List<WorkoutTemplate>> {
         it.let { workoutTemplates ->
-            workoutTemplates.toMutableList().apply {
+            val newList = workoutTemplates.toMutableList().apply {
                 add(
-                    0, WorkoutTemplate(
+                    WorkoutTemplate(
                         workoutTemplateId = 0,
                         name = "Empty workout",
                     )
                 )
             }
             _uiState.value = _uiState.value.copy(
-                workoutTemplates = workoutTemplates,
+                workoutTemplates = newList,
             )
-            println("hello ${workoutTemplates.size}")
         }
     }
 
@@ -74,7 +73,6 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
     }
 
     fun onItemPressed(workout: Workout) {
-        // return true if event was handled
         if (uiState.value.editMode) {
             toggleSelection(workout)
         } else {
