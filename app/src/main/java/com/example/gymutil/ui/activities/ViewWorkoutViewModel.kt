@@ -23,7 +23,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     data class UiState(
-        val topBarTitle: String = "Editing Workout",
+        val topBarTitle: String = "Viewing workout",
         val editMode: Boolean,
         val exercises: List<ExerciseWithSets> = emptyList(),
         val recommendedExercises: List<ExerciseTemplate> = emptyList(),
@@ -169,5 +169,11 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     fun onSelectExerciseBottomSheetDismissed() {
         _uiState.value = _uiState.value.copy(displaySelectExerciseBottomSheet = false)
+    }
+
+    fun onEditButtonPressed() {
+        _uiState.value = _uiState.value.copy(
+            editMode = !_uiState.value.editMode,
+        )
     }
 }

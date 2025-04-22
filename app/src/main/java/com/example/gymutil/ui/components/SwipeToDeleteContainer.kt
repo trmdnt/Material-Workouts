@@ -12,33 +12,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SwipeToDeleteContainer(onDelete: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            when (it) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    onDelete()
-
-                }
-
-                SwipeToDismissBoxValue.EndToStart -> {
-                    onDelete()
-                }
-
-                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+fun SwipeToDeleteContainer(
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+        when (it) {
+            SwipeToDismissBoxValue.StartToEnd -> {
+                onDelete()
             }
-            return@rememberSwipeToDismissBoxState true
-        },
-        // positional threshold of 25%
-        positionalThreshold = { it * .25f }
-    )
+
+            SwipeToDismissBoxValue.EndToStart -> {
+                onDelete()
+            }
+
+            SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+        }
+        return@rememberSwipeToDismissBoxState true
+    }, positionalThreshold = { it * .3f })
     SwipeToDismissBox(
-        state = dismissState,
-        backgroundContent = { DismissBackground(dismissState) },
-        content = {
+        state = dismissState, backgroundContent = { if (enabled) DismissBackground(dismissState) }, content = {
             content()
-        },
-        modifier = modifier
+        }, modifier = modifier, enableDismissFromEndToStart = enabled, enableDismissFromStartToEnd = enabled
     )
 }
 
@@ -61,13 +58,11 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
-            Icons.Default.Delete,
-            contentDescription = "delete"
+            Icons.Default.Delete, contentDescription = "delete"
         )
         Spacer(modifier = Modifier)
         Icon(
-            Icons.Default.Delete,
-            contentDescription = "delete"
+            Icons.Default.Delete, contentDescription = "delete"
         )
     }
 }

@@ -1,20 +1,22 @@
 package com.example.gymutil.ui.activities
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,13 +39,27 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
 
     //TODO add ability to add other exercises not in the template
     Scaffold(topBar = {
-        TopAppBarWithBackButton(title = uiState.topBarTitle, onBackPressed)
-    }, floatingActionButton = {
-        FloatingActionButton(onClick = {
-            viewModel.onNewExercisePressed()
-        }, content = {
-            Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+
+        TopAppBarWithBackButton(title = uiState.topBarTitle, onBackPressed, onAlternativeAction = {
+            viewModel.onEditButtonPressed()
+        }, alternativeIcon = {
+            if (!uiState.editMode) {
+                Icon(Icons.Filled.Edit, contentDescription = "enter edit mode")
+            } else {
+                Icon(Icons.Filled.EditOff, contentDescription = "exit edit mode")
+            }
         })
+
+
+    }, floatingActionButton = {
+        AnimatedVisibility(visible = uiState.editMode, enter = fadeIn(), exit = fadeOut()) {
+            FloatingActionButton(onClick = {
+                viewModel.onNewExercisePressed()
+            }, content = {
+                Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+            })
+        }
+
     }, content = {
         Column(modifier = Modifier.padding(it)) {
             //Text("id: $workoutId, editing: $editing, recommended: ${uiState.recommendedExercises}")
@@ -65,28 +81,30 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
                 })
             }
 
-            if (uiState.recommendedExercises.isNotEmpty()) {
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text("available exercises:")
-                    ContextualFlowRow(
-                        itemCount = uiState.recommendedExercises.size,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-
-                    ) { index ->
-                        //TODO find out why this crashes when replacing the list
-                        var exerciseTemplate: ExerciseTemplate = try {
-                            uiState.recommendedExercises[index]
-                        } catch (_: IndexOutOfBoundsException) {
-                            return@ContextualFlowRow
-                        }
-                        Button(onClick = {
-                            viewModel.addExercise(exerciseTemplate)
-                        }) {
-                            Text(text = exerciseTemplate.name)
+            AnimatedVisibility(visible = uiState.editMode) {
+                if (uiState.recommendedExercises.isNotEmpty()) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text("available exercises:")
+                        ContextualFlowRow(
+                            itemCount = uiState.recommendedExercises.size,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) { index ->
+                            //TODO find out why this crashes when replacing the list
+                            var exerciseTemplate: ExerciseTemplate = try {
+                                uiState.recommendedExercises[index]
+                            } catch (_: IndexOutOfBoundsException) {
+                                return@ContextualFlowRow
+                            }
+                            Button(onClick = {
+                                viewModel.addExercise(exerciseTemplate)
+                            }) {
+                                Text(text = exerciseTemplate.name)
+                            }
                         }
                     }
                 }
             }
+
 
             if (uiState.displaySelectExerciseBottomSheet) {
                 val sheetState = rememberModalBottomSheetState()
@@ -121,9 +139,13 @@ fun ExerciseList(
     onDeleteExercisePressed: (Long) -> Unit,
     onDeleteSetPressed: (Long) -> Unit,
 ) {
-    //TODO maybe use just one lazy column, move away from cards and just insert headers for each exercise
     if (items.isEmpty()) {
-        Text("add an exercise to get started")
+        if (editMode) {
+            Text("add an exercise to get started")
+        } else {
+            Text("this workout is empty")
+        }
+
     } else {
         LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(
@@ -133,51 +155,64 @@ fun ExerciseList(
 
                 SwipeToDeleteContainer(onDelete = {
                     onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
-                }) {
-                    var expanded by remember { mutableStateOf(!editMode) }
+                }, enabled = editMode) {
+                    var expanded by remember { mutableStateOf(true) }
                     Card(
                         modifier = modifier
                             .fillMaxWidth()
                             .clickable(
                                 onClick = { expanded = !expanded })
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = exerciseWithSets.exerciseTemplate.name,
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
-                            )
-                        }
-                        AnimatedVisibility(
-                            visible = expanded,
-                            enter = expandVertically(expandFrom = Alignment.Top),
-                            exit = shrinkVertically(shrinkTowards = Alignment.Top)
-                        ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                exerciseWithSets.exerciseSets.fastForEach { set ->
-                                    SetListItem(
-                                        exerciseSet = set,
-                                        exerciseTemplate = exerciseWithSets.exerciseTemplate,
-                                        onWeightChanged = {
-                                            onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                        },
-                                        onRepsChanged = {
-                                            onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                        },
-                                        onDistanceChanged = {
-                                            onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                        },
-                                        onTimeChanged = {
-                                            onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                        },
-                                        onDeleteSetPressed = {
-                                            onDeleteSetPressed(set.id)
-                                        })
-                                }
-                                TextButton(onClick = {
-                                    onSetAdded(exerciseWithSets.exercise.exerciseId)
-                                }) {
-                                    Text(text = "Add")
+                        Column(modifier = Modifier.padding(4.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = exerciseWithSets.exerciseTemplate.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 0.dp)
+                                )
+                            }
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = expandVertically(expandFrom = Alignment.Top),
+                                exit = shrinkVertically(shrinkTowards = Alignment.Top)
+                            ) {
+                                Column {
+                                    if (exerciseWithSets.exerciseSets.isEmpty()) {
+                                        Text("no sets yet")
+                                    } else {
+                                        exerciseWithSets.exerciseSets.fastForEach { set ->
+                                            SetListItem(
+                                                exerciseSet = set,
+                                                exerciseTemplate = exerciseWithSets.exerciseTemplate,
+                                                onWeightChanged = {
+                                                    onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                                },
+                                                onRepsChanged = {
+                                                    onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                                },
+                                                onDistanceChanged = {
+                                                    onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                                },
+                                                onTimeChanged = {
+                                                    onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                                },
+                                                onDeleteSetPressed = {
+                                                    onDeleteSetPressed(set.id)
+                                                },
+                                                editMode = editMode
+                                            )
+
+                                        }
+                                    }
+                                    AnimatedVisibility(
+                                        visible = editMode
+                                    ) {
+                                        TextButton(onClick = {
+                                            onSetAdded(exerciseWithSets.exercise.exerciseId)
+                                        }) {
+                                            Text(text = "Add")
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -196,21 +231,22 @@ fun SetListItem(
     onRepsChanged: (Int) -> Unit,
     onDistanceChanged: (Double) -> Unit,
     onTimeChanged: (Long) -> Unit,
-    onDeleteSetPressed: () -> Unit
+    onDeleteSetPressed: () -> Unit,
+    editMode: Boolean
 ) {
     key(exerciseSet.id) {
-        SwipeToDeleteContainer(onDeleteSetPressed) {
+        SwipeToDeleteContainer(onDelete = onDeleteSetPressed, enabled = editMode) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .padding(horizontal = 4.dp)
             ) {
                 if (exerciseTemplate.reps) {
                     var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
                     var isError = remember { mutableStateOf(false) }
                     OutlinedTextField(
-                        value = text.value, onValueChange = {
+                        value = text.value,
+                        onValueChange = {
                             text.value = it
                             var newValue = (if (it.isEmpty()) "0" else it).toIntOrNull()
                             if (newValue == null) {
@@ -219,24 +255,46 @@ fun SetListItem(
                                 isError.value = false
                                 onRepsChanged(newValue)
                             }
-                        }, isError = isError.value, modifier = Modifier.weight(1f)
+                        },
+                        isError = isError.value,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = {
+                            Text("reps")
+                        },
+                        readOnly = !editMode,
+                        placeholder = {
+                            Text("0")
+                        }
                     )
                 }
                 if (exerciseTemplate.weight) {
                     var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
                     var isError = remember { mutableStateOf(false) }
                     OutlinedTextField(
-                        value = text.value, onValueChange = {
+                        value = text.value,
+                        onValueChange = {
                             text.value = it
-                            var newValue = (if (it.isEmpty()) "0" else it).toDoubleOrNull()
+                            var newValue = (if (it.isEmpty()) "0" else it.replace(',', '.')).toDoubleOrNull()
                             if (newValue == null) {
                                 isError.value = true
                             } else {
                                 isError.value = false
                                 onWeightChanged(newValue)
                             }
-                        }, isError = isError.value, modifier = Modifier.weight(1f)
+                        },
+                        isError = isError.value,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = {
+                            Text("weight (kg)")
+                        },
+                        readOnly = !editMode,
+                        placeholder = {
+                            Text("0.0")
+                        }
                     )
+
                 }
                 if (exerciseTemplate.distance) {
                     TODO("allow editing distance")

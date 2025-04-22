@@ -7,7 +7,12 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarWithBackButton(title: String, onBack: () -> Unit) {
+fun TopAppBarWithBackButton(
+    title: String,
+    onBack: () -> Unit,
+    onAlternativeAction: (() -> Unit)? = null,
+    alternativeIcon: (@Composable () -> Unit)? = null
+) {
     TopAppBar(
         title = {
             Text(title)
@@ -17,10 +22,16 @@ fun TopAppBarWithBackButton(title: String, onBack: () -> Unit) {
                 onBack()
             }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Go back to previous screen"
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back to previous screen"
                 )
             }
         },
+        actions = {
+            if (onAlternativeAction != null && alternativeIcon != null) {
+                IconButton(onClick = { onAlternativeAction() }) {
+                    alternativeIcon()
+                }
+            }
+        }
     )
 }
