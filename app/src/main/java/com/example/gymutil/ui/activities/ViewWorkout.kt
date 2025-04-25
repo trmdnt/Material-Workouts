@@ -36,10 +36,11 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    //TODO add ability to add other exercises not in the template
-    Scaffold(topBar = {
-
+    Scaffold(snackbarHost = {
+        SnackbarHost(hostState = snackbarHostState)
+    }, topBar = {
         TopAppBarWithBackButton(title = uiState.topBarTitle, onBackPressed, onAlternativeAction = {
             viewModel.onEditButtonPressed()
         }, alternativeIcon = {
@@ -49,8 +50,6 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
                 Icon(Icons.Filled.EditOff, contentDescription = "exit edit mode")
             }
         })
-
-
     }, floatingActionButton = {
         AnimatedVisibility(visible = uiState.editMode, enter = fadeIn(), exit = fadeOut()) {
             FloatingActionButton(onClick = {
@@ -61,7 +60,10 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
         }
 
     }, content = {
-        Column(modifier = Modifier.padding(it)) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+        ) {
             //Text("id: $workoutId, editing: $editing, recommended: ${uiState.recommendedExercises}")
             Row(modifier = Modifier.weight(1f)) {
                 ExerciseList(uiState.exercises, onSetAdded = {
@@ -119,6 +121,29 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
                     }, getName = {
                         it.name
                     })
+                }
+            }
+
+            //TODO understand LaunchedEffect
+            if (uiState.showUndoSnackBar) {
+                LaunchedEffect(uiState.showUndoSnackBar) {
+                    try {
+                        val result = snackbarHostState.showSnackbar(
+                            message = uiState.undoSnackBarMessage.toString(), actionLabel = "Undo",
+                            // Defaults to SnackbarDuration.Short
+                            duration = SnackbarDuration.Short
+                        )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                viewModel.onUndoPressed()
+                            }
+
+                            SnackbarResult.Dismissed -> {/* Handle snackbar dismissed */
+                            }
+                        }
+                    } finally {
+                        viewModel.onSnackBarDismissed()
+                    }
                 }
             }
         }
@@ -238,8 +263,7 @@ fun SetListItem(
         SwipeToDeleteContainer(onDelete = onDeleteSetPressed, enabled = editMode) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 if (exerciseTemplate.reps) {
                     var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
@@ -265,8 +289,7 @@ fun SetListItem(
                         readOnly = !editMode,
                         placeholder = {
                             Text("0")
-                        }
-                    )
+                        })
                 }
                 if (exerciseTemplate.weight) {
                     var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
@@ -292,8 +315,7 @@ fun SetListItem(
                         readOnly = !editMode,
                         placeholder = {
                             Text("0.0")
-                        }
-                    )
+                        })
 
                 }
                 if (exerciseTemplate.distance) {

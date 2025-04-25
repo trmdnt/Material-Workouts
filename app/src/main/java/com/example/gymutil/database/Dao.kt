@@ -112,11 +112,15 @@ interface Dao {
     @Query("SELECT * FROM exercise WHERE workout_id = :workoutId")
     fun getExercisesByWorkoutId(workoutId: Long): LiveData<List<ExerciseWithSets>>
 
+    @Transaction
+    @Query("SELECT * FROM exercise WHERE exercise_id = :exerciseId")
+    fun getExerciseWithSetsById(exerciseId: Long): ExerciseWithSets?
+
     @Query("DELETE FROM exercise WHERE exercise_id = :exerciseId")
     fun deleteExerciseById(exerciseId: Long)
 
     @Insert
-    fun insertSet(exerciseSet: ExerciseSet)
+    fun insertSets(vararg exerciseSet: ExerciseSet)
 
     @Update
     fun updateSet(exerciseSet: ExerciseSet)
@@ -124,5 +128,9 @@ interface Dao {
     @Query("DELETE FROM `set` WHERE id = :setId")
     fun deleteSetById(setId: Long)
 
+    @Query("SELECT * FROM exercise WHERE exercise_id = :id")
+    fun getExerciseById(id: Long): Exercise?
 
+    @Query("SELECT * FROM `set` WHERE id = :id")
+    fun getSetById(id: Long): ExerciseSet?
 }

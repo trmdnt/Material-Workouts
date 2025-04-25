@@ -29,6 +29,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         val recommendedExercises: List<ExerciseTemplate> = emptyList(),
         val allAvailableExercises: List<ExerciseTemplate> = emptyList(),
         val displaySelectExerciseBottomSheet: Boolean = false,
+        val showUndoSnackBar: Boolean = false,
+        val undoSnackBarMessage: String? = null,
     )
 
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
@@ -71,10 +73,11 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         allAvailableExercises.observeForever(allAvailableExercisesObserver)
     }
 
+    private var lastActionToUndo: Any? = null
+
     private fun updateRecommended() {
         recommended?.value?.let {
             val recommended = it.filter { exerciseTemplate ->
-                println("recomm found ${uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId }}")
                 uiState.value.exercises.find { it.exercise.exerciseTemplateId == exerciseTemplate.exerciseTemplateId } == null
             }
 
@@ -153,14 +156,52 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     fun onDeleteExercisePressed(exerciseId: Long) {
         viewModelScope.launch(IO) {
+            val exerciseWithSets = gymRepository.getExerciseWithSets(exerciseId)
             gymRepository.deleteExerciseById(exerciseId)
+            lastActionToUndo = exerciseWithSets
+            _uiState.value = _uiState.value.copy(
+                showUndoSnackBar = true, undoSnackBarMessage = "deleted exercise"
+            )
         }
     }
 
     fun onDeleteSetPressed(setId: Long) {
         viewModelScope.launch(IO) {
+            val set = gymRepository.getSetById(setId)
             gymRepository.deleteSetById(setId)
+            lastActionToUndo = set
+            _uiState.value = _uiState.value.copy(
+                showUndoSnackBar = true, undoSnackBarMessage = "deleted set"
+            )
         }
+    }
+
+    fun onSnackBarDismissed() {
+        _uiState.value = _uiState.value.copy(
+            showUndoSnackBar = false, undoSnackBarMessage = null
+        )
+    }
+
+    fun onUndoPressed() {
+        lastActionToUndo?.let {
+            when (it) {
+                is ExerciseWithSets -> {
+                    viewModelScope.launch(IO) {
+                        gymRepository.insertExercise(it.exercise)
+                        gymRepository.insertSets(it.exerciseSets)
+                    }
+                }
+
+                is ExerciseSet -> {
+                    viewModelScope.launch(IO) {
+                        gymRepository.insertSet(it)
+                    }
+                }
+            }
+        }
+        _uiState.value = _uiState.value.copy(
+            showUndoSnackBar = false, undoSnackBarMessage = null
+        )
     }
 
     fun onNewExercisePressed() {
@@ -176,4 +217,5 @@ class ViewWorkoutViewModel @AssistedInject constructor(
             editMode = !_uiState.value.editMode,
         )
     }
+
 }

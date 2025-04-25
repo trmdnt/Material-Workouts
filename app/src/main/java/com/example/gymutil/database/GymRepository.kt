@@ -104,8 +104,13 @@ class GymRepository(private val dao: Dao) {
     }
 
     fun insertSet(set: ExerciseSet) {
-        dao.insertSet(set)
+        dao.insertSets(set)
     }
+
+    fun insertSets(sets: List<ExerciseSet>) {
+        dao.insertSets(*sets.toTypedArray())
+    }
+
 
     fun updateSet(set: ExerciseSet) {
         dao.updateSet(set)
@@ -115,7 +120,19 @@ class GymRepository(private val dao: Dao) {
         dao.deleteExerciseById(exerciseId)
     }
 
+    fun getExerciseById(id: Long): Exercise? {
+        return dao.getExerciseById(id)
+    }
+
     fun deleteSetById(setId: Long) {
         dao.deleteSetById(setId)
+    }
+
+    fun getSetById(id: Long): ExerciseSet? {
+        return dao.getSetById(id)
+    }
+
+    fun getExerciseWithSets(id: Long): ExerciseWithSets? {
+        return dao.getExerciseWithSetsById(id)
     }
 }
