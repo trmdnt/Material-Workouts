@@ -135,4 +135,8 @@ class GymRepository(private val dao: Dao) {
     fun getExerciseWithSets(id: Long): ExerciseWithSets? {
         return dao.getExerciseWithSetsById(id)
     }
+
+    fun updateWorkout(workout: Workout) {
+        dao.updateWorkout(workout)
+    }
 }

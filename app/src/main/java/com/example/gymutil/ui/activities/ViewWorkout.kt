@@ -64,7 +64,25 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
             modifier = Modifier
                 .padding(it)
         ) {
-            //Text("id: $workoutId, editing: $editing, recommended: ${uiState.recommendedExercises}")
+            uiState.workoutName?.let {
+                val text = remember { mutableStateOf(it) }
+                OutlinedTextField(
+                    value = text.value,
+                    label = {
+                        Text("workout name")
+                    },
+                    onValueChange = {
+                        viewModel.onWorkoutRename(it)
+                        text.value = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    readOnly = !uiState.editMode
+                )
+            }
+
+
             Row(modifier = Modifier.weight(1f)) {
                 ExerciseList(uiState.exercises, onSetAdded = {
                     viewModel.onSetAdded(it)
@@ -124,30 +142,32 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
                 }
             }
 
-            //TODO understand LaunchedEffect
-            if (uiState.showUndoSnackBar) {
-                LaunchedEffect(uiState.showUndoSnackBar) {
-                    try {
-                        val result = snackbarHostState.showSnackbar(
-                            message = uiState.undoSnackBarMessage.toString(), actionLabel = "Undo",
-                            // Defaults to SnackbarDuration.Short
-                            duration = SnackbarDuration.Short
-                        )
-                        when (result) {
-                            SnackbarResult.ActionPerformed -> {
-                                viewModel.onUndoPressed()
-                            }
 
-                            SnackbarResult.Dismissed -> {/* Handle snackbar dismissed */
-                            }
-                        }
-                    } finally {
-                        viewModel.onSnackBarDismissed()
-                    }
-                }
-            }
         }
     })
+
+    //TODO understand LaunchedEffect
+    if (uiState.showUndoSnackBar) {
+        LaunchedEffect(uiState.showUndoSnackBar) {
+            try {
+                val result = snackbarHostState.showSnackbar(
+                    message = uiState.undoSnackBarMessage.toString(), actionLabel = "Undo",
+                    // Defaults to SnackbarDuration.Short
+                    duration = SnackbarDuration.Short
+                )
+                when (result) {
+                    SnackbarResult.ActionPerformed -> {
+                        viewModel.onUndoPressed()
+                    }
+
+                    SnackbarResult.Dismissed -> {/* Handle snackbar dismissed */
+                    }
+                }
+            } finally {
+                viewModel.onSnackBarDismissed()
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

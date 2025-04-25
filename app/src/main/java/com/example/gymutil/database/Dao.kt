@@ -133,4 +133,7 @@ interface Dao {
 
     @Query("SELECT * FROM `set` WHERE id = :id")
     fun getSetById(id: Long): ExerciseSet?
+
+    @Update
+    fun updateWorkout(workout: Workout)
 }

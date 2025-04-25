@@ -31,6 +31,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         val displaySelectExerciseBottomSheet: Boolean = false,
         val showUndoSnackBar: Boolean = false,
         val undoSnackBarMessage: String? = null,
+        val workoutName: String? = null
     )
 
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
@@ -41,6 +42,9 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         if (workoutTemplateId.value == null) {
             workoutTemplateId.value = it.workoutTemplateId
         }
+        _uiState.value = _uiState.value.copy(
+            workoutName = it.name,
+        )
     }
 
     private val exercises = gymRepository.getAllExercisesByWorkoutId(workoutId)
@@ -147,7 +151,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         }
     }
 
-    fun findSet(setId: Long, exerciseId: Long): ExerciseSet? {
+    private fun findSet(setId: Long, exerciseId: Long): ExerciseSet? {
         exercises.value.let {
             return it?.find { it.exercise.exerciseId == exerciseId }?.exerciseSets?.find { it.id == setId }
         }
@@ -216,6 +220,15 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         _uiState.value = _uiState.value.copy(
             editMode = !_uiState.value.editMode,
         )
+    }
+
+    fun onWorkoutRename(nName: String) {
+        val nWorkout = workout.value!!.copy(
+            name = nName
+        )
+        viewModelScope.launch(IO) {
+            gymRepository.updateWorkout(nWorkout)
+        }
     }
 
 }
