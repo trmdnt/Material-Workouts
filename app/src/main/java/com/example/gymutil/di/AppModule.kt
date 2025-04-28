@@ -1,6 +1,10 @@
 package com.example.gymutil.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.example.gymutil.database.AppDatabase
 import com.example.gymutil.database.Dao
@@ -20,9 +24,7 @@ object AppModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            "gym_database"
+            context.applicationContext, AppDatabase::class.java, "gym_database"
         ).build()
     }
 
@@ -36,4 +38,13 @@ object AppModule {
     fun provideGymRepository(dao: Dao): GymRepository {
         return GymRepository(dao)
     }
+
+    @Provides
+    @Singleton
+    fun providePreferencesDataStore(@ApplicationContext appContext: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            produceFile = {
+                appContext.preferencesDataStoreFile("preferences")
+            }
+        )
 }
