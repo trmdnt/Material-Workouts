@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,11 +18,14 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Summarize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -39,40 +44,71 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         //WindowCompat.setDecorFitsSystemWindows(window, false)
 
+//        val timerServiceManager = TimerServiceManager(this)
+//        timerServiceManager.startTimer(
+//            MyTimer(
+//                endsAt = System.currentTimeMillis() + 1000 * (120 + 30)
+//            )
+//        )
+
+
         setContent {
+            val viewModel: MainActivityViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsState()
+
             GymUtilTheme {
                 //TODO fix deprecation
                 val backgroundColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
                 window.navigationBarColor = backgroundColor
-                MainScreen()
+                MainScreen(uiState)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(uiState: MainActivityViewModel.UiState) {
     val enterTransition = fadeIn()
     val exitTransition = fadeOut()
 
     val navController = rememberNavController()
-    Scaffold(bottomBar = { TabView(navController) }) { contentPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screens.Activities,
-            enterTransition = { enterTransition },
-            exitTransition = { exitTransition },
-            popEnterTransition = { enterTransition },
-            popExitTransition = { exitTransition },
-            modifier = Modifier
-                .padding(contentPadding)
-                .consumeWindowInsets(contentPadding)
-        ) {
-            activitiesGraph(navController)
-            plansGraph(navController)
-            statisticsGraph(navController)
-            settingsGraph(navController)
+    Scaffold(bottomBar = {
+        Column {
+            if (uiState.showTimer) {
+                //TODO refresh timer
+                Row {
+                    Text(uiState.timerText)
+                }
+            }
+            TabView(navController)
         }
+
+    }) { contentPadding ->
+        Column {
+            NavHost(
+                navController = navController,
+                startDestination = Screens.Activities,
+                enterTransition = { enterTransition },
+                exitTransition = { exitTransition },
+                popEnterTransition = { enterTransition },
+                popExitTransition = { exitTransition },
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .consumeWindowInsets(contentPadding)
+            ) {
+                activitiesGraph(navController)
+                plansGraph(navController)
+                statisticsGraph(navController)
+                settingsGraph(navController)
+            }
+
+
+        }
+
     }
 }
 
