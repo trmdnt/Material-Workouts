@@ -43,4 +43,8 @@ data class MyTimer(
     fun getText(): String {
         return getTimePassed() + "/" + getTotalTimeString()
     }
+
+    fun addTime(seconds: Int): MyTimer {
+        return this.copy(endsAt = endsAt + seconds * 1000L)
+    }
 }

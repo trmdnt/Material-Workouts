@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -16,15 +17,19 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Summarize
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Timer10
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -60,7 +65,19 @@ class MainActivity : ComponentActivity() {
                 //TODO fix deprecation
                 val backgroundColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
                 window.navigationBarColor = backgroundColor
-                MainScreen(uiState)
+                MainScreen(
+                    showTimer = uiState.showTimer,
+                    timerText = uiState.timerText,
+                    onTimerCancelPressed = {
+                        viewModel.onTimerCancelPressed()
+                    },
+                    onTimerAddTimePressed = {
+                        viewModel.onTimerAddTimePressed()
+                    },
+                    addTimer = {
+                        viewModel.addTimer()
+                    },
+                )
             }
         }
     }
@@ -71,18 +88,42 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(uiState: MainActivityViewModel.UiState) {
+fun MainScreen(
+    showTimer: Boolean,
+    timerText: String?,
+    onTimerCancelPressed: () -> Unit,
+    onTimerAddTimePressed: () -> Unit,
+    addTimer: () -> Unit,
+) {
     val enterTransition = fadeIn()
     val exitTransition = fadeOut()
 
     val navController = rememberNavController()
     Scaffold(bottomBar = {
-        Column {
-            if (uiState.showTimer) {
+        Column() {
+            if (showTimer) {
                 //TODO refresh timer
-                Row {
-                    Text(uiState.timerText)
+                Row(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = timerText.toString(), modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                    )
+                    TextButton(onClick = {
+                        onTimerAddTimePressed()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Timer10, contentDescription = "add 10 seconds to timer")
+                    }
+                    TextButton(onClick = {
+                        onTimerCancelPressed()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Close, contentDescription = "stop timer")
+                    }
                 }
+                HorizontalDivider()
             }
             TabView(navController)
         }
@@ -100,7 +141,7 @@ fun MainScreen(uiState: MainActivityViewModel.UiState) {
                     .padding(contentPadding)
                     .consumeWindowInsets(contentPadding)
             ) {
-                activitiesGraph(navController)
+                activitiesGraph(navController, addTimer)
                 plansGraph(navController)
                 statisticsGraph(navController)
                 settingsGraph(navController)

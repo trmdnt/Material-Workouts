@@ -37,6 +37,10 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
     val uiState: StateFlow<UiState> = _uiState
 
+    private val _shouldStartTimer: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val shouldStartTimer: StateFlow<Boolean> = _shouldStartTimer
+
+
     private val workout = gymRepository.getWorkoutById(workoutId)
     private val workoutObserver = Observer<Workout> {
         if (workoutTemplateId.value == null) {
@@ -137,6 +141,11 @@ class ViewWorkoutViewModel @AssistedInject constructor(
             exerciseId = exerciseId, date = System.currentTimeMillis()
         )
         insertSet(exerciseSet)
+        _shouldStartTimer.value = true
+    }
+
+    fun onTimerStarted() {
+        _shouldStartTimer.value = false
     }
 
     fun insertSet(exerciseSet: ExerciseSet) {

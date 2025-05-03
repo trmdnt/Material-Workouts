@@ -30,13 +30,20 @@ import com.example.gymutil.ui.components.TopAppBarWithBackButton
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit) {
+fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, startTimer: () -> Unit) {
     val viewModel = hiltViewModel<ViewWorkoutViewModel, ViewWorkoutViewModel.ViewWorkoutViewModelFactory> {
         it.create(workoutId, editing)
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    viewModel.shouldStartTimer.collectAsStateWithLifecycle().let {
+        if (it.value) {
+            startTimer()
+            viewModel.onTimerStarted()
+        }
+    }
 
     Scaffold(snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)

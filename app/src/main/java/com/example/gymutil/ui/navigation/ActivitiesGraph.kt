@@ -9,7 +9,8 @@ import com.example.gymutil.ui.activities.ListWorkouts
 import com.example.gymutil.ui.activities.ViewWorkout
 
 fun NavGraphBuilder.activitiesGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    startTimer: () -> Unit
 ) {
     navigation<Screens.Activities>(startDestination = Screens.Activities.ListWorkouts) {
         composable<Screens.Activities.ListWorkouts> {
@@ -27,7 +28,8 @@ fun NavGraphBuilder.activitiesGraph(
                     if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                         navController.popBackStack()
                     }
-                }
+                },
+                startTimer = startTimer
             )
         }
     }

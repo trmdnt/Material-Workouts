@@ -12,24 +12,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    val timerServiceManager: TimerServiceManager
+    val timerServiceManager: TimerServiceManager = TimerServiceManager(getApplication<Application>().applicationContext)
     private val _uiState = MutableStateFlow<UiState>(UiState())
     val uiState: StateFlow<UiState> = _uiState
     var timer: MyTimer? = null
 
 
-    fun refreshTimer() {
-        timer?.let {
-            if (it.isOver()) {
+    private fun refreshTimer() {
+        refreshTimerOnce()
+        if (timer != null) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                refreshTimer()
+            }, 1000)
+        }
+    }
 
-            }
+    private fun refreshTimerOnce() {
+        timer?.let {
             _uiState.value = _uiState.value.copy(
                 showTimer = true,
                 timerText = it.getText() + if (it.isOver()) " (time over)" else ""
             )
-            Handler(Looper.getMainLooper()).postDelayed({
-                refreshTimer()
-            }, 1000)
         }
         if (timer == null) {
             _uiState.value = _uiState.value.copy(
@@ -40,19 +43,21 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     init {
-        timerServiceManager = TimerServiceManager(getApplication<Application>().applicationContext)
-        timerServiceManager.startTimer(MyTimer(endsAt = System.currentTimeMillis() + 1000 * (120 + 30)))
-
         viewModelScope.launch() {
             timerServiceManager.timer.collect {
                 if (timer == null && it != null) {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        refreshTimer()
-                    }, 1000)
+                    timer = it
+                    refreshTimer()
                 }
                 timer = it
+                refreshTimerOnce()
+                println("ADDTIME: viewmodel: received new value")
             }
         }
+    }
+
+    fun addTimer() {
+        timerServiceManager.startTimer(MyTimer(endsAt = System.currentTimeMillis() + 1000 * (120 + 30)))
     }
 
     data class UiState(
@@ -64,5 +69,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     override fun onCleared() {
         super.onCleared()
         timerServiceManager.unBindService()
+    }
+
+    fun onTimerCancelPressed() {
+        timerServiceManager.stopTimer()
+    }
+
+    fun onTimerAddTimePressed() {
+        println("ADDTIME: pressed on add time")
+        timerServiceManager.addTime(10)
     }
 }

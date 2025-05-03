@@ -7,8 +7,13 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.core.content.ContextCompat.startForegroundService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -20,18 +25,30 @@ class TimerServiceManager(
     private val _timer = MutableStateFlow<MyTimer?>(null)
     val timer: StateFlow<MyTimer?> = _timer
 
+    val timerServiceCollector: FlowCollector<MyTimer?> = FlowCollector {
+        println("ADDTIME: manager: received new value")
+        _timer.value = it
+    }
+
+    var timerCollectorJob: Job? = null
+
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
             isConnecting = false
             timerService = binder.getService()
-            _timer.value = timerService?.timer
+
+            timerCollectorJob = CoroutineScope(Dispatchers.Main).launch {
+                binder.getService().timer.collect(timerServiceCollector)
+            }
 
             println("TimerServiceManager connected")
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
             timerService = null
+            timerCollectorJob?.cancel()
+            timerCollectorJob = null
             _timer.value = null
             println("TimerServiceManager disconnected")
         }
@@ -43,7 +60,8 @@ class TimerServiceManager(
 
     fun startTimer(timer: MyTimer) {
         timerService?.let {
-            println("tried to start timer but already running: currentValue = ${it.timer.getText()}")
+            it.restart(timer)
+            return
         }
 
         if (!isConnecting) {
@@ -52,7 +70,10 @@ class TimerServiceManager(
             startForegroundService(applicationContext, intent)
             tryToBindToServiceIfRunning()
         }
+    }
 
+    fun addTime(seconds: Int) {
+        timerService?.addTime(seconds)
     }
 
     fun stopTimer() {
