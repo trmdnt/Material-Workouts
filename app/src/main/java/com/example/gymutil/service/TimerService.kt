@@ -221,6 +221,7 @@ class TimerService : Service() {
             .setContentTitle("set timer").setSubText(applicationContext.applicationInfo.name)
             .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
             .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .setOngoing(true)
 //            .setSilent(true)
 //            .setProgress(100, timer.value!!.getPercentageDone(), false)
             .addAction(R.drawable.rounded_timer_off_24, "Stop", stopPendingIntent).build()
