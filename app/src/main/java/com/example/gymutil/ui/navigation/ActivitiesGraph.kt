@@ -1,16 +1,13 @@
 package com.example.gymutil.ui.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
+import androidx.navigation.*
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
-import androidx.navigation.toRoute
 import com.example.gymutil.ui.activities.ListWorkouts
 import com.example.gymutil.ui.activities.ViewWorkout
 
 fun NavGraphBuilder.activitiesGraph(
     navController: NavHostController,
-    startTimer: () -> Unit
+    startTimer: (workoutId: Long?) -> Unit
 ) {
     navigation<Screens.Activities>(startDestination = Screens.Activities.ListWorkouts) {
         composable<Screens.Activities.ListWorkouts> {
@@ -20,7 +17,11 @@ fun NavGraphBuilder.activitiesGraph(
                 }
             })
         }
-        composable<Screens.Activities.ViewWorkout> { entry ->
+        composable<Screens.Activities.ViewWorkout>(
+            deepLinks = listOf(
+                navDeepLink<Screens.Activities.ViewWorkout>(basePath = "$uri/activities/workout")
+            )
+        ) { entry ->
             val viewWorkout = entry.toRoute<Screens.Activities.ViewWorkout>()
             ViewWorkout(
                 viewWorkout.workoutId, viewWorkout.edit,

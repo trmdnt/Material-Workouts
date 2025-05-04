@@ -37,8 +37,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
     val uiState: StateFlow<UiState> = _uiState
 
-    private val _shouldStartTimer: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val shouldStartTimer: StateFlow<Boolean> = _shouldStartTimer
+    private val _startTimer: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val startTimer: StateFlow<Boolean> = _startTimer
 
 
     private val workout = gymRepository.getWorkoutById(workoutId)
@@ -98,7 +98,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
-        //TODO check if cancelling observers is really necessary
+        //TODO check if cancelling observers is really necessary if the viewmodel does not exist anymore
         super.onCleared()
         workout.removeObserver(workoutObserver)
         exercises.removeObserver(exercisesObserver)
@@ -141,11 +141,11 @@ class ViewWorkoutViewModel @AssistedInject constructor(
             exerciseId = exerciseId, date = System.currentTimeMillis()
         )
         insertSet(exerciseSet)
-        _shouldStartTimer.value = true
+        _startTimer.value = true
     }
 
     fun onTimerStarted() {
-        _shouldStartTimer.value = false
+        _startTimer.value = false
     }
 
     fun insertSet(exerciseSet: ExerciseSet) {

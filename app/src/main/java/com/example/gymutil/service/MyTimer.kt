@@ -7,6 +7,7 @@ import kotlin.math.ceil
 @Serializable
 data class MyTimer(
     val startedAt: Long = System.currentTimeMillis(),
+    val workoutId: Long? = null,
     val endsAt: Long,
 ) {
     private fun getTimeLeft(): Long {

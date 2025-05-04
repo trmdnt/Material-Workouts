@@ -2,6 +2,8 @@ package com.example.gymutil.ui.navigation
 
 import kotlinx.serialization.Serializable
 
+val uri = "workouts://app"
+
 @Serializable
 sealed class Screens {
     @Serializable

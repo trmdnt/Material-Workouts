@@ -17,6 +17,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
+import androidx.core.net.toUri
+import com.example.gymutil.MainActivity
 import com.example.gymutil.R
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,24 +131,25 @@ class TimerService : Service() {
         if (timerString == null) {
             Log.e(TAG, "onStartCommand: timer is null")
             Log.e(TAG, "intent: ${intent.toString()}")
-            throw IllegalArgumentException("onStartCommand: timer is null")
-        }
-        Log.d(TAG, "service should not stop")
-        state = SERVICE_STATE.RUNNING
-        val filter = IntentFilter()
-        filter.addAction(INTENT_STOP_SERVICE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
+            stopService()
+            return START_REDELIVER_INTENT
         } else {
-            registerReceiver(broadcastReceiver, filter)
+            Log.d(TAG, "service should not stop")
+            state = SERVICE_STATE.RUNNING
+            val filter = IntentFilter()
+            filter.addAction(INTENT_STOP_SERVICE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(broadcastReceiver, filter)
+            }
+
+
+            _timer.value = Json.decodeFromString<MyTimer>(timerString)
+            Log.d(TAG, "onStartCommand: created timer object: ${_timer.value?.getText()}")
+            startAsForegroundService()
+
         }
-
-
-        _timer.value = Json.decodeFromString<MyTimer>(timerString)
-        Log.d(TAG, "onStartCommand: created timer object: ${_timer.value?.getText()}")
-        startAsForegroundService()
-
-
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -164,7 +167,12 @@ class TimerService : Service() {
         }
 
         state = SERVICE_STATE.STOPPED
-        unregisterReceiver(broadcastReceiver)
+        try {
+            unregisterReceiver(broadcastReceiver)
+        } catch (e: Error) {
+
+        }
+
         stopForeground(STOP_FOREGROUND_REMOVE)
         Log.d(TAG, "stopForegroundService: removed itself from foreground")
         stopSelf()
@@ -216,12 +224,28 @@ class TimerService : Service() {
             applicationContext, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE
         )
 
+        var openAppIntent: Intent
+        if (timer.value!!.workoutId != null) {
+            openAppIntent = Intent(
+                Intent.ACTION_VIEW,
+                "workouts://app/activities/workout/${timer.value!!.workoutId}?editMode=true".toUri(),
+                applicationContext,
+                MainActivity::class.java
+            )
+        } else {
+            openAppIntent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        }
+        val openAppPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_IMMUTABLE)
+
         val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
         return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setContentTitle("set timer").setSubText(applicationContext.applicationInfo.name)
             .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
             .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setOngoing(true)
+            .setContentIntent(openAppPendingIntent)
 //            .setSilent(true)
 //            .setProgress(100, timer.value!!.getPercentageDone(), false)
             .addAction(R.drawable.rounded_timer_off_24, "Stop", stopPendingIntent).build()

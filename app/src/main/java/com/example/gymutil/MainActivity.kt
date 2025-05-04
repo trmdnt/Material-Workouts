@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                         viewModel.onTimerAddTimePressed()
                     },
                     addTimer = {
-                        viewModel.addTimer()
+                        viewModel.addTimer(it)
                     },
                 )
             }
@@ -93,7 +93,7 @@ fun MainScreen(
     timerText: String?,
     onTimerCancelPressed: () -> Unit,
     onTimerAddTimePressed: () -> Unit,
-    addTimer: () -> Unit,
+    addTimer: (workoutId: Long?) -> Unit,
 ) {
     val enterTransition = fadeIn()
     val exitTransition = fadeOut()

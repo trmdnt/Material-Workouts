@@ -51,13 +51,17 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 }
                 timer = it
                 refreshTimerOnce()
-                println("ADDTIME: viewmodel: received new value")
             }
         }
     }
 
-    fun addTimer() {
-        timerServiceManager.startTimer(MyTimer(endsAt = System.currentTimeMillis() + 1000 * (5)))
+    fun addTimer(workoutId: Long?) {
+        timerServiceManager.startTimer(
+            MyTimer(
+                endsAt = System.currentTimeMillis() + 1000 * (120),
+                workoutId = workoutId
+            )
+        )
     }
 
     data class UiState(
