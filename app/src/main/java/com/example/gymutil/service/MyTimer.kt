@@ -1,6 +1,7 @@
 package com.example.gymutil.service
 
 import kotlinx.serialization.Serializable
+import kotlin.math.ceil
 
 
 @Serializable
@@ -15,6 +16,15 @@ data class MyTimer(
             return 0
         }
         return timeLeft
+    }
+
+    private fun getTimeDone(): Long {
+        val now = System.currentTimeMillis()
+        val timeDone = now - startedAt
+        if (timeDone > getTotalTime()) {
+            return getTotalTime()
+        }
+        return timeDone
     }
 
     private fun getTotalTime(): Long {
@@ -46,5 +56,9 @@ data class MyTimer(
 
     fun addTime(seconds: Int): MyTimer {
         return this.copy(endsAt = endsAt + seconds * 1000L)
+    }
+
+    fun getPercentageDone(): Int {
+        return ceil(getTimeDone().toDouble() / getTotalTime() * 100).toInt()
     }
 }

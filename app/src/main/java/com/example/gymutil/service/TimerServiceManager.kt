@@ -77,7 +77,7 @@ class TimerServiceManager(
     }
 
     fun stopTimer() {
-        timerService?.stopForegroundService()
+        timerService?.stopService()
     }
 
     fun unBindService() {

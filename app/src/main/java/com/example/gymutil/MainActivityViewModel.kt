@@ -57,7 +57,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun addTimer() {
-        timerServiceManager.startTimer(MyTimer(endsAt = System.currentTimeMillis() + 1000 * (120 + 30)))
+        timerServiceManager.startTimer(MyTimer(endsAt = System.currentTimeMillis() + 1000 * (5)))
     }
 
     data class UiState(
