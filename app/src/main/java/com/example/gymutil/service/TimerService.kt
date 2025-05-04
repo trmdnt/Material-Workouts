@@ -17,7 +17,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
-import androidx.core.content.ContextCompat
 import com.example.gymutil.R
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +43,7 @@ class TimerService : Service() {
     private var stopServiceJob: Job? = null
 
     companion object {
-        val TAG: String = TimerService::class.java.simpleName
+        val TAG: String = TimerService::class.java.simpleName + " (" + this.hashCode() + ")"
     }
 
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -58,6 +57,7 @@ class TimerService : Service() {
 
     init {
         fixedRateTimer(period = 1000L, initialDelay = 1000L) {
+            Log.d(TAG, "fixedRateTimer: state: $state")
             when (state) {
                 SERVICE_STATE.RUNNING -> {
                     stopServiceJob?.cancel()
@@ -93,12 +93,11 @@ class TimerService : Service() {
                                 .notify(TIMER_NOTIF_ID, notificationBuilder.build())
                         }
                         stopForeground(STOP_FOREGROUND_DETACH)
-                        Log.d(TAG, "service should stop")
                         state = SERVICE_STATE.SHOULD_STOP
                         stopServiceJob = CoroutineScope(Dispatchers.Main).launch {
                             delay(5000)
                             if (state == SERVICE_STATE.SHOULD_STOP) {
-                                Log.d(TAG, "service stopping")
+                                Log.d(TAG, "fixedRateTimer: calling stopService()")
                                 stopService()
                             }
                         }
@@ -108,11 +107,12 @@ class TimerService : Service() {
                 }
 
                 SERVICE_STATE.STOPPED -> {
-
+                    this.cancel()
+                    Log.d(TAG, "fixedRateTimer: cancelled")
                 }
 
                 SERVICE_STATE.SHOULD_STOP -> {
-                    this.cancel()
+
                 }
 
                 SERVICE_STATE.NOT_STARTED -> {
@@ -134,7 +134,12 @@ class TimerService : Service() {
         state = SERVICE_STATE.RUNNING
         val filter = IntentFilter()
         filter.addAction(INTENT_STOP_SERVICE)
-        ContextCompat.registerReceiver(this, broadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(broadcastReceiver, filter)
+        }
+
 
         _timer.value = Json.decodeFromString<MyTimer>(timerString)
         Log.d(TAG, "onStartCommand: created timer object: ${_timer.value?.getText()}")
@@ -144,7 +149,9 @@ class TimerService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    fun stopService() {/*
+    fun stopService() {
+        Log.d(TAG, "stopForegroundService: called")
+        /*
         this is in case the service was removed from foreground and detached from the notification (after the
          time ran out) but was started in foreground again (because the timer was changed) and is then stopped while
          running. Since the service is now detached from the notification, the last timer progress update
@@ -168,12 +175,14 @@ class TimerService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
+        Log.d(TAG, "onBind: bind to caller")
         return binder
     }
 
     private fun startAsForegroundService() {
         // promote service to foreground service
         state = SERVICE_STATE.RUNNING
+        Log.d(TAG, "startAsForegroundService: try to promote to foreground")
 
         ServiceCompat.startForeground(
             this, TIMER_NOTIF_ID, getNotification(), if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -187,6 +196,7 @@ class TimerService : Service() {
     private fun updateNotification() {
         val notificationManager: NotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(TIMER_NOTIF_ID, getNotification())
+        Log.d(TAG, "updateNotification: refreshed notification")
     }
 
     private fun getNotification(): Notification {
@@ -215,12 +225,14 @@ class TimerService : Service() {
     }
 
     fun addTime(seconds: Int) {
-        state = SERVICE_STATE.RUNNING
+        startAsForegroundService()
         _timer.value = timer.value?.addTime(seconds)
+        Log.d(TAG, "addTime: replaced timer")
     }
 
     fun restart(timer: MyTimer) {
-        state = SERVICE_STATE.RUNNING
+        startAsForegroundService()
         _timer.value = timer
+        Log.d(TAG, "restart: replaced timer")
     }
 }

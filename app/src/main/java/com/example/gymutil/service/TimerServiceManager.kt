@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import androidx.core.content.ContextCompat.startForegroundService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,6 @@ class TimerServiceManager(
     val timer: StateFlow<MyTimer?> = _timer
 
     val timerServiceCollector: FlowCollector<MyTimer?> = FlowCollector {
-        println("ADDTIME: manager: received new value")
         _timer.value = it
     }
 
@@ -42,7 +42,7 @@ class TimerServiceManager(
                 binder.getService().timer.collect(timerServiceCollector)
             }
 
-            println("TimerServiceManager connected")
+            Log.d(TAG, "connection.onServiceConnected: connected to service")
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -50,8 +50,12 @@ class TimerServiceManager(
             timerCollectorJob?.cancel()
             timerCollectorJob = null
             _timer.value = null
-            println("TimerServiceManager disconnected")
+            Log.d(TAG, "connection.onServiceConnected: disconnected from service")
         }
+    }
+
+    companion object {
+        val TAG: String = TimerServiceManager::class.java.simpleName + " (" + this.hashCode() + ")"
     }
 
     init {
@@ -84,22 +88,18 @@ class TimerServiceManager(
         applicationContext.unbindService(connection)
     }
 
-//    fun getTimer(): StateFlow<MyTimer?> {
-//        return timer
-//    }
-
     private fun tryToBindToServiceIfRunning(): Boolean {
         if (isConnecting) {
             return true
         }
         if (isServiceRunning(TimerService::class.java)) {
-            println("TimerServiceManager: Service is already running, trying to bind.")
+            Log.d(TAG, "tryToBindToServiceIfRunning: service is already running, trying to bind")
             isConnecting = true
             return applicationContext.bindService(
                 Intent(applicationContext, TimerService::class.java), connection, 0
             )
         } else {
-            println("TimerServiceManager: Service is not running.")
+            Log.d(TAG, "tryToBindToServiceIfRunning: service is not running")
             return false
         }
     }
@@ -113,8 +113,4 @@ class TimerServiceManager(
         }
         return false
     }
-}
-
-interface TimerServiceObserver {
-    fun onTimerModified()
 }
