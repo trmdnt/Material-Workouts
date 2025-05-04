@@ -128,6 +128,7 @@ class TimerService : Service() {
         val timerString = intent?.getStringExtra("timer")
         if (timerString == null) {
             Log.e(TAG, "onStartCommand: timer is null")
+            Log.e(TAG, "intent: ${intent.toString()}")
             throw IllegalArgumentException("onStartCommand: timer is null")
         }
         Log.d(TAG, "service should not stop")
@@ -208,7 +209,8 @@ class TimerService : Service() {
             )
             notificationManager.createNotificationChannel(channel)
         }
-        val stopIntent = Intent(applicationContext, broadcastReceiver::class.java)
+        val stopIntent = Intent(INTENT_STOP_SERVICE)
+        stopIntent.setPackage(applicationContext.packageName)
         stopIntent.action = INTENT_STOP_SERVICE
         val stopPendingIntent = PendingIntent.getBroadcast(
             applicationContext, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE
