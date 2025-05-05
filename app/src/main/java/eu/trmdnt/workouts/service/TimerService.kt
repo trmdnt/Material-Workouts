@@ -66,7 +66,7 @@ class TimerService : Service() {
                     if (timer.value?.isOver() == true) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             val channel = NotificationChannel(
-                                TIMER_FINISHED_CHANNEL, "timer", NotificationManager.IMPORTANCE_HIGH
+                                TIMER_FINISHED_CHANNEL, "timer finished", NotificationManager.IMPORTANCE_HIGH
                             )
                             val notificationManager =
                                 applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -213,7 +213,7 @@ class TimerService : Service() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                TIMER_PROGRESS_CHANNEL, "timer", NotificationManager.IMPORTANCE_LOW
+                TIMER_PROGRESS_CHANNEL, "timer progress", NotificationManager.IMPORTANCE_LOW
             )
             notificationManager.createNotificationChannel(channel)
         }
