@@ -1,15 +1,11 @@
 package eu.trmdnt.workouts.ui.plans.workoutTemplates
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -28,7 +24,7 @@ fun CreatePlan(
         }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
+    Card(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
     ) {
