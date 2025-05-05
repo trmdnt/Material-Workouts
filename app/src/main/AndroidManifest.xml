@@ -14,13 +14,13 @@
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
-            android:theme="@style/Theme.GymUtil"
+            android:theme="@style/Theme.AppTheme"
             tools:targetApi="31"
-            android:name=".GymUtilApplication">
+            android:name="eu.trmdnt.workouts.Application">
         <activity
-                android:name=".MainActivity"
+                android:name="eu.trmdnt.workouts.MainActivity"
                 android:exported="true"
-                android:theme="@style/Theme.GymUtil">
+                android:theme="@style/Theme.AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -29,7 +29,7 @@
         </activity>
 
         <service
-                android:name=".service.TimerService"
+                android:name="eu.trmdnt.workouts.service.TimerService"
                 android:foregroundServiceType="mediaPlayback"
                 android:exported="false">
         </service>

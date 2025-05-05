@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GymUtil"
+rootProject.name = "Workouts"
 include ':app'
