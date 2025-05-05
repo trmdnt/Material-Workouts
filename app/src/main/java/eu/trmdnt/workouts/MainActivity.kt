@@ -8,22 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Summarize
+import androidx.compose.material.icons.outlined.AddAlarm
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Timer10
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -38,13 +33,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import eu.trmdnt.workouts.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import eu.trmdnt.workouts.ui.navigation.Screens
-import eu.trmdnt.workouts.ui.navigation.activitiesGraph
-import eu.trmdnt.workouts.ui.navigation.plansGraph
-import eu.trmdnt.workouts.ui.navigation.settingsGraph
-import eu.trmdnt.workouts.ui.navigation.statisticsGraph
+import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
+import eu.trmdnt.workouts.ui.navigation.*
+import eu.trmdnt.workouts.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -78,9 +70,11 @@ class MainActivity : ComponentActivity() {
                     onTimerAddTimePressed = {
                         viewModel.onTimerAddTimePressed()
                     },
-                    addTimer = {
-                        viewModel.addTimer(it)
+                    addTimer = { workoutId, time ->
+                        viewModel.addTimer(workoutId, time)
                     },
+                    showTimerPickerButton = uiState.showTimerPickerButton,
+                    timerDefaultValue = uiState.timerDefaultValue,
                 )
             }
         }
@@ -94,10 +88,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     showTimer: Boolean,
+    showTimerPickerButton: Boolean,
     timerText: String?,
     onTimerCancelPressed: () -> Unit,
     onTimerAddTimePressed: () -> Unit,
-    addTimer: (workoutId: Long?) -> Unit,
+    addTimer: (workoutId: Long?, time: Int?) -> Unit,
+    timerDefaultValue: Int,
 ) {
     val enterTransition = fadeIn()
     val exitTransition = fadeOut()
@@ -106,11 +102,7 @@ fun MainScreen(
     Scaffold(bottomBar = {
         Column() {
             if (showTimer) {
-                //TODO refresh timer
-                Row(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                TimerContainer {
                     Text(
                         text = timerText.toString(), modifier = Modifier
                             .weight(1f)
@@ -127,7 +119,28 @@ fun MainScreen(
                         Icon(imageVector = Icons.Outlined.Close, contentDescription = "stop timer")
                     }
                 }
-                HorizontalDivider()
+            } else if (showTimerPickerButton) {
+                TimerContainer {
+                    val showTimerPickerDialog = remember { mutableStateOf(false) }
+                    Column(modifier = Modifier.weight(1f)) {}
+                    TextButton(onClick = { showTimerPickerDialog.value = true }) {
+                        Text("Select timer")
+                        Icon(Icons.Outlined.AddAlarm, contentDescription = "add timer")
+                    }
+                    when {
+                        showTimerPickerDialog.value -> {
+                            SelectTimespanDialog(
+                                initialValue = timerDefaultValue,
+                                onConfirmValue = {
+                                    addTimer(null, it)
+                                },
+                                onDismiss = {
+                                    showTimerPickerDialog.value = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
             TabView(navController)
         }
@@ -145,7 +158,9 @@ fun MainScreen(
                     .padding(contentPadding)
                     .consumeWindowInsets(contentPadding)
             ) {
-                activitiesGraph(navController, addTimer)
+                activitiesGraph(navController, {
+                    addTimer(it, null)
+                })
                 plansGraph(navController)
                 statisticsGraph(navController)
                 settingsGraph(navController)
@@ -219,4 +234,17 @@ fun TabView(navController: NavController) {
             })
         }
     }
+}
+
+@Composable
+fun TimerContainer(content: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        content()
+    }
+    HorizontalDivider()
 }
