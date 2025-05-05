@@ -24,23 +24,33 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
                     }, onValueChange = {
                         minutes.value = it
                         try {
+                            if (it.isEmpty()) {
+                                return@OutlinedTextField
+                            }
                             it.toInt()
                             minutesError.value = false
                         } catch (_: NumberFormatException) {
                             minutesError.value = true
                         }
-                    }, isError = minutesError.value)
+                    }, isError = minutesError.value, placeholder = {
+                        Text("0")
+                    })
                     OutlinedTextField(modifier = Modifier.weight(1f), value = seconds.value.toString(), label = {
                         Text("seconds")
                     }, onValueChange = {
                         seconds.value = it
                         try {
+                            if (it.isEmpty()) {
+                                return@OutlinedTextField
+                            }
                             it.toInt()
                             secondsError.value = false
                         } catch (_: NumberFormatException) {
                             secondsError.value = true
                         }
-                    }, isError = secondsError.value)
+                    }, isError = secondsError.value, placeholder = {
+                        Text("0")
+                    })
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -55,8 +65,20 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
                     TextButton(
                         onClick = {
                             try {
-                                var value = seconds.value.toInt()
-                                value = value + minutes.value.toInt() * 60
+                                var value = seconds.value.let {
+                                    if (it.isEmpty()) {
+                                        0
+                                    } else {
+                                        it.toInt()
+                                    }
+                                }
+                                value = value + minutes.value.let {
+                                    if (it.isEmpty()) {
+                                        0
+                                    } else {
+                                        it.toInt()
+                                    }
+                                } * 60
                                 onConfirmValue(value)
                             } catch (_: NumberFormatException) {
 
