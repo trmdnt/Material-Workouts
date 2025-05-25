@@ -38,10 +38,3 @@ data class ExerciseSet(
     @ColumnInfo(name = "ignore_in_stat", defaultValue = "false")
     val ignoreInStat: Boolean = false,
 )
-
-enum class SetProperty {
-    TIME,
-    REPS,
-    WEIGHT,
-    DISTANCE
-}
