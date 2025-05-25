@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -68,24 +69,19 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
 
     }, content = {
         Column(
-            modifier = Modifier
-                .padding(it)
+            modifier = Modifier.padding(it)
         ) {
             uiState.workoutName?.let {
                 val text = remember { mutableStateOf(it) }
                 OutlinedTextField(
-                    value = text.value,
-                    label = {
+                    value = text.value, label = {
                         Text("workout name")
-                    },
-                    onValueChange = {
+                    }, onValueChange = {
                         viewModel.onWorkoutRename(it)
                         text.value = it
-                    },
-                    modifier = Modifier
+                    }, modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp),
-                    readOnly = !uiState.editMode
+                        .padding(4.dp), readOnly = !uiState.editMode
                 )
             }
 
@@ -290,7 +286,9 @@ fun SetListItem(
         SwipeToDeleteContainer(onDelete = onDeleteSetPressed, enabled = editMode) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .alpha(if (exerciseSet.ignoreInStat) 0.5f else 1f)
             ) {
                 if (exerciseTemplate.reps) {
                     var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
@@ -299,7 +297,7 @@ fun SetListItem(
                         value = text.value,
                         onValueChange = {
                             text.value = it
-                            var newValue = (if (it.isEmpty()) "0" else it).toIntOrNull()
+                            var newValue = (it.ifEmpty { "0" }).toIntOrNull()
                             if (newValue == null) {
                                 isError.value = true
                             } else {
@@ -337,11 +335,14 @@ fun SetListItem(
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = {
-                            Text("weight (kg)")
+                            Text("weight")
                         },
                         readOnly = !editMode,
                         placeholder = {
                             Text("0.0")
+                        },
+                        suffix = {
+                            Text(text = "kg" + if (exerciseTemplate.weightTimesTwo) " × 2" else "")
                         })
 
                 }

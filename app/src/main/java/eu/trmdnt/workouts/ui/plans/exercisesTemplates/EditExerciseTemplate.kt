@@ -59,6 +59,17 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                     },
                 )
             }
+            if (uiState.weightSelected) {
+                Row {
+                    Text("2x weight", modifier = Modifier.weight(1F))
+                    Checkbox(
+                        checked = uiState.weightTimesTwo,
+                        onCheckedChange = {
+                            viewModel.onWeightTimesTwoSelected()
+                        },
+                    )
+                }
+            }
             Row {
                 Text("time (not implemented)", modifier = Modifier.weight(1F))
                 Checkbox(

@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import eu.trmdnt.workouts.database.GymRepository
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.trmdnt.workouts.database.GymRepository
+import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +31,8 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
         val timeSelected: Boolean,
         val repsSelected: Boolean,
         val distanceSelected: Boolean,
-        val saveButtonEnabled: Boolean
+        val saveButtonEnabled: Boolean,
+        val weightTimesTwo: Boolean,
     )
 
 
@@ -44,21 +45,23 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
             timeSelected = false,
             repsSelected = false,
             distanceSelected = false,
-            saveButtonEnabled = false
+            saveButtonEnabled = false,
+            weightTimesTwo = false,
         )
     )
     val uiState: StateFlow<UiState> = _uiState
 
     private val exerciseTemplateObserver = Observer<ExerciseTemplate> { it ->
-        it?.let { exerciseTemplate ->
+        it.let { exerciseTemplate ->
             println(exerciseTemplate)
-            _uiState.value = _uiState.value.copy(
+            _uiState.value = UiState(
                 nameTextField = exerciseTemplate.name,
                 weightSelected = exerciseTemplate.weight,
                 timeSelected = exerciseTemplate.time,
                 repsSelected = exerciseTemplate.reps,
                 distanceSelected = exerciseTemplate.distance,
-                saveButtonEnabled = false
+                saveButtonEnabled = false,
+                weightTimesTwo = exerciseTemplate.weightTimesTwo
             )
         }
     }
@@ -93,6 +96,12 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
             _uiState.value.copy(distanceSelected = !_uiState.value.distanceSelected, saveButtonEnabled = true)
     }
 
+    fun onWeightTimesTwoSelected() {
+        _uiState.value = _uiState.value.copy(
+            weightTimesTwo = !_uiState.value.weightTimesTwo, saveButtonEnabled = true
+        )
+    }
+
     fun onSaveButtonPressed() {
         val et = exerciseTemplate.value!!.copy(
             name = _uiState.value.nameTextField,
@@ -100,6 +109,7 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
             time = _uiState.value.timeSelected,
             reps = _uiState.value.repsSelected,
             distance = _uiState.value.distanceSelected,
+            weightTimesTwo = _uiState.value.weightTimesTwo
         )
         viewModelScope.launch(IO) {
             gymRepository.updateExerciseTemplate(et)
