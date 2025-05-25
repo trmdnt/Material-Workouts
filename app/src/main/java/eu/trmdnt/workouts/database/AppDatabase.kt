@@ -3,12 +3,7 @@ package eu.trmdnt.workouts.database
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import eu.trmdnt.workouts.database.entities.Exercise
-import eu.trmdnt.workouts.database.entities.ExerciseSet
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import eu.trmdnt.workouts.database.entities.Workout
-import eu.trmdnt.workouts.database.entities.WorkoutExerciseTemplateCrossRef
-import eu.trmdnt.workouts.database.entities.WorkoutTemplate
+import eu.trmdnt.workouts.database.entities.*
 
 @Database(
     entities = [
@@ -18,9 +13,10 @@ import eu.trmdnt.workouts.database.entities.WorkoutTemplate
         Workout::class,
         WorkoutTemplate::class,
         WorkoutExerciseTemplateCrossRef::class],
-    version = 2,
+    version = 3,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
     ]
 )
 abstract class AppDatabase : RoomDatabase() {

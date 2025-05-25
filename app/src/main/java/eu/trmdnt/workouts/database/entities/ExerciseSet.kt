@@ -33,7 +33,10 @@ data class ExerciseSet(
     val distance: Double = 0.0,
 
     @ColumnInfo
-    val date: Long
+    val date: Long,
+
+    @ColumnInfo(name = "ignore_in_stat", defaultValue = "false")
+    val ignoreInStat: Boolean = false,
 )
 
 enum class SetProperty {

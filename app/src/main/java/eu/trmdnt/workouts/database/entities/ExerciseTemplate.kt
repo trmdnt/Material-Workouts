@@ -29,4 +29,7 @@ data class ExerciseTemplate(
 
     @ColumnInfo
     val hidden: Boolean,
+
+    @ColumnInfo(name = "weight_times_two", defaultValue = "false")
+    val weightTimesTwo: Boolean = false,
 )
