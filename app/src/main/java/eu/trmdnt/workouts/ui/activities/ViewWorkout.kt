@@ -333,6 +333,7 @@ fun SetListItem(
                             })
                     }
                 }
+                Spacer(modifier = Modifier.width(4.dp))
 
                 if (exerciseTemplate.weight) {
                     var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
