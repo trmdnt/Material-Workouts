@@ -24,6 +24,8 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     private val preferencesDataStore: DataStore<Preferences>, @ApplicationContext private val appContext: Context
 ) : ViewModel() {
+    // TODO the viewmodel should probably not be in charge of managing the timerServiceManager for the whole app
+
     val timerServiceManager: TimerServiceManager = TimerServiceManager(appContext)
     private val _uiState = MutableStateFlow<UiState>(UiState())
     val uiState: StateFlow<UiState> = _uiState
@@ -108,7 +110,8 @@ class MainActivityViewModel @Inject constructor(
         }
         timerServiceManager.startTimer(
             MyTimer(
-                endsAt = System.currentTimeMillis() + (time ?: timerDefaultValue) * 1000, workoutId = workoutId
+                //need to add 10ms because time is rounded down which leads to the time in mm:ss missing one sec
+                endsAt = System.currentTimeMillis() + (time ?: timerDefaultValue) * 1000 + 10, workoutId = workoutId
             )
         )
     }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
+import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
 
@@ -31,6 +32,7 @@ private const val TIMER_NOTIF_ID = 1
 private const val TIMER_PROGRESS_CHANNEL = "timer_notification_channel"
 private const val TIMER_FINISHED_CHANNEL = "timer_finished_notification_channel"
 private const val INTENT_STOP_SERVICE = "stop_service"
+private const val INTENT_ADD_TIME = "add_time"
 
 private enum class SERVICE_STATE {
     RUNNING, STOPPED, SHOULD_STOP, NOT_STARTED
@@ -48,86 +50,99 @@ class TimerService : Service() {
         val TAG: String = TimerService::class.java.simpleName + " (" + this.hashCode() + ")"
     }
 
+    private val refreshTimer: Timer;
+
+    init {
+        refreshTimer = fixedRateTimer(period = 1000L, initialDelay = 1000L) {
+            refreshState()
+        }
+    }
+
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
-            if (action == INTENT_STOP_SERVICE) {
-                stopService()
+            Log.d(TAG, "onReceive: $action")
+            when (action) {
+                INTENT_STOP_SERVICE -> {
+                    stopService()
+                }
+
+                INTENT_ADD_TIME -> {
+                    addTime(10)
+                }
             }
         }
     }
 
-    init {
-        fixedRateTimer(period = 1000L, initialDelay = 1000L) {
-            Log.d(TAG, "fixedRateTimer: state: $state")
-            when (state) {
-                SERVICE_STATE.RUNNING -> {
-                    stopServiceJob?.cancel()
-                    if (timer.value?.isOver() == true) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            val channel = NotificationChannel(
-                                TIMER_FINISHED_CHANNEL, "timer finished", NotificationManager.IMPORTANCE_HIGH
-                            )
-                            val notificationManager =
-                                applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                            notificationManager.createNotificationChannel(channel)
-                        }
-
-                        val notificationBuilder: Builder = Builder(
-                            this@TimerService,
-                            TIMER_FINISHED_CHANNEL
-                        ).setSmallIcon(R.drawable.rounded_timer_off_24).setContentTitle("set timer")
-                            .setContentText("time is over " + timer.value!!.getText())
-                            .setPriority(NotificationCompat.PRIORITY_HIGH).setSilent(false)
-                        if (ActivityCompat.checkSelfPermission(
-                                this@TimerService, Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            // TODO: Consider calling
-                            //    ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                            //                                          int[] grantResults)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
-                        } else {
-                            NotificationManagerCompat.from(this@TimerService)
-                                .notify(TIMER_NOTIF_ID, notificationBuilder.build())
-                        }
-                        stopForeground(STOP_FOREGROUND_DETACH)
-                        state = SERVICE_STATE.SHOULD_STOP
-                        stopServiceJob = CoroutineScope(Dispatchers.Main).launch {
-                            delay(5000)
-                            if (state == SERVICE_STATE.SHOULD_STOP) {
-                                Log.d(TAG, "fixedRateTimer: calling stopService()")
-                                stopService()
-                            }
-                        }
-                    } else {
-                        updateNotification()
+    private fun refreshState() {
+        Log.d(TAG, "refreshState: state: $state")
+        when (state) {
+            SERVICE_STATE.RUNNING -> {
+                stopServiceJob?.cancel()
+                if (timer.value?.isOver() == true) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val channel = NotificationChannel(
+                            TIMER_FINISHED_CHANNEL, "timer finished", NotificationManager.IMPORTANCE_HIGH
+                        )
+                        val notificationManager =
+                            applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.createNotificationChannel(channel)
                     }
+
+                    val notificationBuilder: Builder = Builder(
+                        this@TimerService,
+                        TIMER_FINISHED_CHANNEL
+                    ).setSmallIcon(R.drawable.rounded_timer_off_24).setContentTitle("set timer")
+                        .setContentText("time is over " + timer.value!!.getText())
+                        .setPriority(NotificationCompat.PRIORITY_HIGH).setSilent(false)
+                        .setContentIntent(getOpenAppPendingIntent())
+                    if (ActivityCompat.checkSelfPermission(
+                            this@TimerService, Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                    } else {
+                        NotificationManagerCompat.from(this@TimerService)
+                            .notify(TIMER_NOTIF_ID, notificationBuilder.build())
+                    }
+                    stopForeground(STOP_FOREGROUND_DETACH)
+                    state = SERVICE_STATE.SHOULD_STOP
+                    stopServiceJob = CoroutineScope(Dispatchers.Main).launch {
+                        delay(5000)
+                        if (state == SERVICE_STATE.SHOULD_STOP) {
+                            Log.d(TAG, "refreshState: calling stopService()")
+                            stopService()
+                        }
+                    }
+                } else {
+                    updateNotification()
                 }
+            }
 
-                SERVICE_STATE.STOPPED -> {
-                    this.cancel()
-                    Log.d(TAG, "fixedRateTimer: cancelled")
-                }
+            SERVICE_STATE.STOPPED -> {
+                refreshTimer.cancel()
+                Log.d(TAG, "refreshState: cancelled")
+            }
 
-                SERVICE_STATE.SHOULD_STOP -> {
+            SERVICE_STATE.SHOULD_STOP -> {
 
-                }
+            }
 
-                SERVICE_STATE.NOT_STARTED -> {
+            SERVICE_STATE.NOT_STARTED -> {
 
-                }
             }
         }
     }
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        println("TimerService: new service started")
-
         val timerString = intent?.getStringExtra("timer")
+        val action = intent?.action
+        Log.d(TAG, "onStartCommand: ")
+        Log.d(TAG, "onStartCommand: intent: $intent")
+        Log.d(TAG, "onStartCommand: timer: $timerString")
+        Log.d(TAG, "onStartCommand: action: $action")
         if (timerString == null) {
             Log.e(TAG, "onStartCommand: timer is null")
             Log.e(TAG, "intent: ${intent.toString()}")
@@ -138,6 +153,7 @@ class TimerService : Service() {
             state = SERVICE_STATE.RUNNING
             val filter = IntentFilter()
             filter.addAction(INTENT_STOP_SERVICE)
+            filter.addAction(INTENT_ADD_TIME)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
             } else {
@@ -154,7 +170,8 @@ class TimerService : Service() {
     }
 
     fun stopService() {
-        Log.d(TAG, "stopForegroundService: called")
+        //throw RuntimeException()
+        Log.d(TAG, "stopService: called")
         /*
         this is in case the service was removed from foreground and detached from the notification (after the
          time ran out) but was started in foreground again (because the timer was changed) and is then stopped while
@@ -174,7 +191,7 @@ class TimerService : Service() {
         }
 
         stopForeground(STOP_FOREGROUND_REMOVE)
-        Log.d(TAG, "stopForegroundService: removed itself from foreground")
+        Log.d(TAG, "stopService: removed itself from foreground")
         stopSelf()
         stopService(Intent(this, TimerService::class.java))
     }
@@ -217,17 +234,29 @@ class TimerService : Service() {
             )
             notificationManager.createNotificationChannel(channel)
         }
-        val stopIntent = Intent(INTENT_STOP_SERVICE)
-        stopIntent.setPackage(applicationContext.packageName)
-        stopIntent.action = INTENT_STOP_SERVICE
-        val stopPendingIntent = PendingIntent.getBroadcast(
-            applicationContext, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE
-        )
 
+        val stopPendingIntent = getActionPendingIntent(INTENT_STOP_SERVICE)
+        val addTimePendingIntent = getActionPendingIntent(INTENT_ADD_TIME)
+
+        val openAppPendingIntent = getOpenAppPendingIntent()
+
+        val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
+        return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setContentTitle("set timer").setSubText(applicationContext.applicationInfo.name)
+            .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .setOngoing(true)
+            .setContentIntent(openAppPendingIntent)
+            .addAction(R.drawable.outline_timer_10_select_24, "Add 10s", addTimePendingIntent)
+            .addAction(R.drawable.rounded_timer_off_24, "Stop", stopPendingIntent).build()
+    }
+
+    private fun getOpenAppPendingIntent(): PendingIntent {
         var openAppIntent: Intent
         if (timer.value!!.workoutId != null) {
             openAppIntent = Intent(
                 Intent.ACTION_VIEW,
+                //TODO deep link does not open the workout in edit mode
                 "workouts://app/activities/workout/${timer.value!!.workoutId}?editMode=true".toUri(),
                 applicationContext,
                 MainActivity::class.java
@@ -238,23 +267,24 @@ class TimerService : Service() {
             }
         }
         val openAppPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_IMMUTABLE)
+        return openAppPendingIntent
+    }
 
-        val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
-        return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentTitle("set timer").setSubText(applicationContext.applicationInfo.name)
-            .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
-            .setOngoing(true)
-            .setContentIntent(openAppPendingIntent)
-//            .setSilent(true)
-//            .setProgress(100, timer.value!!.getPercentageDone(), false)
-            .addAction(R.drawable.rounded_timer_off_24, "Stop", stopPendingIntent).build()
+    private fun getActionPendingIntent(action: String): PendingIntent? {
+        val intent = Intent(INTENT_STOP_SERVICE)
+        intent.setPackage(applicationContext.packageName)
+        intent.action = action
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        )
+        return pendingIntent;
     }
 
     fun addTime(seconds: Int) {
         startAsForegroundService()
         _timer.value = timer.value?.addTime(seconds)
         Log.d(TAG, "addTime: replaced timer")
+        refreshState()
     }
 
     fun restart(timer: MyTimer) {

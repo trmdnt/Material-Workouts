@@ -14,8 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Summarize
-import androidx.compose.material.icons.outlined.AddAlarm
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Timer10
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,15 +43,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        //WindowCompat.setDecorFitsSystemWindows(window, false)
-
-//        val timerServiceManager = TimerServiceManager(this)
-//        timerServiceManager.startTimer(
-//            MyTimer(
-//                endsAt = System.currentTimeMillis() + 1000 * (120 + 30)
-//            )
-//        )
-
 
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
@@ -125,7 +116,7 @@ fun MainScreen(
                     Column(modifier = Modifier.weight(1f)) {}
                     TextButton(onClick = { showTimerPickerDialog.value = true }) {
                         Text("Select timer")
-                        Icon(Icons.Outlined.AddAlarm, contentDescription = "add timer")
+                        Icon(Icons.Outlined.Timer, contentDescription = "add timer")
                     }
                     when {
                         showTimerPickerDialog.value -> {
