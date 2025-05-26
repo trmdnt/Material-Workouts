@@ -23,16 +23,17 @@ fun SwipeToDeleteContainer(
     val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
         when (it) {
             SwipeToDismissBoxValue.StartToEnd -> {
-                onDelete()
-            }
-
-            SwipeToDismissBoxValue.EndToStart -> {
                 if (onIgnoreAction != null) {
                     onIgnoreAction()
                     return@rememberSwipeToDismissBoxState false
                 } else {
                     onDelete()
                 }
+
+            }
+
+            SwipeToDismissBoxValue.EndToStart -> {
+                onDelete()
             }
 
             SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
@@ -52,7 +53,7 @@ fun SwipeToDeleteContainer(
         },
         modifier = modifier,
         enableDismissFromEndToStart = enabled,
-        enableDismissFromStartToEnd = enabled
+        enableDismissFromStartToEnd = enabled && onIgnoreAction != null,
     )
 }
 
@@ -61,14 +62,17 @@ fun SwipeToDeleteContainer(
 @Composable
 fun DismissBackground(dismissState: SwipeToDismissBoxState, ignoreAction: Boolean) {
     val color = when (dismissState.dismissDirection) {
-        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.onError
-        SwipeToDismissBoxValue.EndToStart -> {
+        SwipeToDismissBoxValue.StartToEnd -> {
             if (ignoreAction) {
                 MaterialTheme.colorScheme.onPrimary
             } else {
-                MaterialTheme.colorScheme.onError
+                Color.Transparent
             }
 
+        }
+
+        SwipeToDismissBoxValue.EndToStart -> {
+            MaterialTheme.colorScheme.onError
         }
 
         SwipeToDismissBoxValue.Settled -> Color.Transparent
@@ -83,18 +87,11 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, ignoreAction: Boolea
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
-            Icons.Default.Delete, contentDescription = "delete"
+            Icons.Default.VisibilityOff, contentDescription = "delete"
         )
         Spacer(modifier = Modifier)
-        if (ignoreAction) {
-            Icon(
-                Icons.Default.VisibilityOff, contentDescription = "delete"
-            )
-        } else {
-            Icon(
-                Icons.Default.Delete, contentDescription = "delete"
-            )
-        }
-
+        Icon(
+            Icons.Default.Delete, contentDescription = "delete"
+        )
     }
 }

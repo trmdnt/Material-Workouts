@@ -298,32 +298,42 @@ fun SetListItem(
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                     .alpha(if (exerciseSet.ignoreInStat) 0.6f else 1f)
             ) {
-                if (exerciseTemplate.reps) {
-                    var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
-                    var isError = remember { mutableStateOf(false) }
-                    OutlinedTextField(
-                        value = text.value,
-                        onValueChange = {
-                            text.value = it
-                            var newValue = (it.ifEmpty { "0" }).toIntOrNull()
-                            if (newValue == null) {
-                                isError.value = true
-                            } else {
-                                isError.value = false
-                                onRepsChanged(newValue)
-                            }
-                        },
-                        isError = isError.value,
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        label = {
-                            Text("reps")
-                        },
-                        readOnly = !editMode,
-                        placeholder = {
-                            Text("0")
-                        })
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    AnimatedVisibility(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        visible = exerciseSet.ignoreInStat
+                    ) {
+                        Icon(Icons.Default.VisibilityOff, "this item will not be showed in statistics")
+                    }
+
+                    if (exerciseTemplate.reps) {
+                        var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
+                        var isError = remember { mutableStateOf(false) }
+                        OutlinedTextField(
+                            value = text.value,
+                            onValueChange = {
+                                text.value = it
+                                var newValue = (it.ifEmpty { "0" }).toIntOrNull()
+                                if (newValue == null) {
+                                    isError.value = true
+                                } else {
+                                    isError.value = false
+                                    onRepsChanged(newValue)
+                                }
+                            },
+                            isError = isError.value,
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            label = {
+                                Text("reps")
+                            },
+                            readOnly = !editMode,
+                            placeholder = {
+                                Text("0")
+                            })
+                    }
                 }
+
                 if (exerciseTemplate.weight) {
                     var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
                     var isError = remember { mutableStateOf(false) }
@@ -360,9 +370,7 @@ fun SetListItem(
                 if (exerciseTemplate.time) {
                     TODO("allow editing time")
                 }
-                AnimatedVisibility(modifier = Modifier.padding(horizontal = 8.dp), visible = exerciseSet.ignoreInStat) {
-                    Icon(Icons.Default.VisibilityOff, "this item will not be showed in statistics")
-                }
+
             }
         }
     }
