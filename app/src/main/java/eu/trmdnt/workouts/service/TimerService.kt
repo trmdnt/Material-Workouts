@@ -92,7 +92,7 @@ class TimerService : Service() {
                     val notificationBuilder: Builder = Builder(
                         this@TimerService,
                         TIMER_FINISHED_CHANNEL
-                    ).setSmallIcon(R.drawable.rounded_timer_off_24).setContentTitle("set timer")
+                    ).setSmallIcon(R.drawable.rounded_timer_off_24).setContentTitle("Set timer")
                         .setContentText("time is over " + timer.value!!.getText())
                         .setPriority(NotificationCompat.PRIORITY_HIGH).setSilent(false)
                         .setContentIntent(getOpenAppPendingIntent())
@@ -242,7 +242,7 @@ class TimerService : Service() {
 
         val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
         return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentTitle("set timer").setSubText(applicationContext.applicationInfo.name)
+            .setContentTitle("Set timer")
             .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
             .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setOngoing(true)
