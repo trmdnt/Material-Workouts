@@ -1,16 +1,12 @@
 package eu.trmdnt.workouts.ui.activities
 
 import androidx.lifecycle.*
-import eu.trmdnt.workouts.database.GymRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.trmdnt.workouts.database.entities.Exercise
-import eu.trmdnt.workouts.database.entities.ExerciseSet
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import eu.trmdnt.workouts.database.entities.ExerciseWithSets
-import eu.trmdnt.workouts.database.entities.Workout
+import eu.trmdnt.workouts.database.GymRepository
+import eu.trmdnt.workouts.database.entities.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -241,6 +237,15 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         )
         viewModelScope.launch(IO) {
             gymRepository.updateWorkout(nWorkout)
+        }
+    }
+
+    fun onSetIgnoreAction(setId: Long, exerciseId: Long) {
+        val set = findSet(setId, exerciseId)
+        set?.let {
+            viewModelScope.launch(IO) {
+                gymRepository.updateSet(it.copy(ignoreInStat = !it.ignoreInStat))
+            }
         }
     }
 

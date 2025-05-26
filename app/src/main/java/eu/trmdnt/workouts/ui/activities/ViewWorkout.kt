@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditOff
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -101,6 +102,8 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
                     viewModel.onDeleteExercisePressed(it)
                 }, onDeleteSetPressed = {
                     viewModel.onDeleteSetPressed(it)
+                }, onIgnoreAction = { setId, exerciseId ->
+                    viewModel.onSetIgnoreAction(setId, exerciseId)
                 })
             }
 
@@ -186,6 +189,7 @@ fun ExerciseList(
     editMode: Boolean,
     onDeleteExercisePressed: (Long) -> Unit,
     onDeleteSetPressed: (Long) -> Unit,
+    onIgnoreAction: (Long, Long) -> Unit
 ) {
     if (items.isEmpty()) {
         if (editMode) {
@@ -247,7 +251,10 @@ fun ExerciseList(
                                                 onDeleteSetPressed = {
                                                     onDeleteSetPressed(set.id)
                                                 },
-                                                editMode = editMode
+                                                editMode = editMode,
+                                                onIgnoreAction = {
+                                                    onIgnoreAction(set.id, exerciseWithSets.exercise.exerciseId)
+                                                }
                                             )
 
                                         }
@@ -280,15 +287,16 @@ fun SetListItem(
     onDistanceChanged: (Double) -> Unit,
     onTimeChanged: (Long) -> Unit,
     onDeleteSetPressed: () -> Unit,
+    onIgnoreAction: () -> Unit,
     editMode: Boolean
 ) {
     key(exerciseSet.id) {
-        SwipeToDeleteContainer(onDelete = onDeleteSetPressed, enabled = editMode) {
+        SwipeToDeleteContainer(onDelete = onDeleteSetPressed, onIgnoreAction = onIgnoreAction, enabled = editMode) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .alpha(if (exerciseSet.ignoreInStat) 0.5f else 1f)
+                    .alpha(if (exerciseSet.ignoreInStat) 0.6f else 1f)
             ) {
                 if (exerciseTemplate.reps) {
                     var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
@@ -351,6 +359,9 @@ fun SetListItem(
                 }
                 if (exerciseTemplate.time) {
                     TODO("allow editing time")
+                }
+                AnimatedVisibility(modifier = Modifier.padding(horizontal = 8.dp), visible = exerciseSet.ignoreInStat) {
+                    Icon(Icons.Default.VisibilityOff, "this item will not be showed in statistics")
                 }
             }
         }

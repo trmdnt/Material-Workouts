@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,8 +14,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SwipeToDeleteContainer(
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+    onIgnoreAction: (() -> Unit)? = null,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
@@ -25,7 +27,12 @@ fun SwipeToDeleteContainer(
             }
 
             SwipeToDismissBoxValue.EndToStart -> {
-                onDelete()
+                if (onIgnoreAction != null) {
+                    onIgnoreAction()
+                    return@rememberSwipeToDismissBoxState false
+                } else {
+                    onDelete()
+                }
             }
 
             SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
@@ -33,19 +40,37 @@ fun SwipeToDeleteContainer(
         return@rememberSwipeToDismissBoxState true
     }, positionalThreshold = { it * .3f })
     SwipeToDismissBox(
-        state = dismissState, backgroundContent = { if (enabled) DismissBackground(dismissState) }, content = {
+        state = dismissState,
+        backgroundContent = {
+            if (enabled) DismissBackground(
+                dismissState = dismissState,
+                ignoreAction = (onIgnoreAction != null)
+            )
+        },
+        content = {
             content()
-        }, modifier = modifier, enableDismissFromEndToStart = enabled, enableDismissFromStartToEnd = enabled
+        },
+        modifier = modifier,
+        enableDismissFromEndToStart = enabled,
+        enableDismissFromStartToEnd = enabled
     )
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+fun DismissBackground(dismissState: SwipeToDismissBoxState, ignoreAction: Boolean) {
     val color = when (dismissState.dismissDirection) {
         SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.onError
-        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onError
+        SwipeToDismissBoxValue.EndToStart -> {
+            if (ignoreAction) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onError
+            }
+
+        }
+
         SwipeToDismissBoxValue.Settled -> Color.Transparent
     }
 
@@ -61,8 +86,15 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState) {
             Icons.Default.Delete, contentDescription = "delete"
         )
         Spacer(modifier = Modifier)
-        Icon(
-            Icons.Default.Delete, contentDescription = "delete"
-        )
+        if (ignoreAction) {
+            Icon(
+                Icons.Default.VisibilityOff, contentDescription = "delete"
+            )
+        } else {
+            Icon(
+                Icons.Default.Delete, contentDescription = "delete"
+            )
+        }
+
     }
 }
