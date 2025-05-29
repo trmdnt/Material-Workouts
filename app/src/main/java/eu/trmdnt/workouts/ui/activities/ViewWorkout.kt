@@ -6,7 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -199,19 +199,19 @@ fun ExerciseList(
         }
 
     } else {
-        LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(
-                items = items, key = { it ->
-                    it.exercise.exerciseId
-                }) { exerciseWithSets ->
-
+        LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            itemsIndexed(
+                items = items,
+                key = { _, item -> item.exercise.exerciseId }
+            ) { index, exerciseWithSets ->
                 SwipeToDeleteContainer(onDelete = {
                     onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
                 }, enabled = editMode) {
                     var expanded by remember { mutableStateOf(true) }
-                    Card(
+                    Row(
                         modifier = modifier
                             .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
                             .clickable(
                                 onClick = { expanded = !expanded })
                     ) {
@@ -273,6 +273,9 @@ fun ExerciseList(
                         }
                     }
                 }
+                if (index != items.lastIndex) {
+                    HorizontalDivider()
+                }
             }
         }
     }
@@ -295,7 +298,7 @@ fun SetListItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .background(MaterialTheme.colorScheme.background)
                     .alpha(if (exerciseSet.ignoreInStat) 0.6f else 1f)
             ) {
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
