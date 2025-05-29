@@ -11,9 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.service.MyTimer
 import eu.trmdnt.workouts.service.TimerServiceManager
-import eu.trmdnt.workouts.ui.settings.alwaysShowTimerUiPreference
-import eu.trmdnt.workouts.ui.settings.startTimerOnSetPreference
-import eu.trmdnt.workouts.ui.settings.timerDefaultValuePreference
+import eu.trmdnt.workouts.ui.settings.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -70,6 +68,18 @@ class MainActivityViewModel @Inject constructor(
             }
         }
 
+        viewModelScope.launch {
+            preferencesDataStore.data.map { preferences ->
+                try {
+                    Theme.valueOf(preferences[useThemePreference] ?: Theme.entries[0].name)
+                } catch (e: Exception) {
+                    Theme.entries[0]
+                }
+            }.collect { theme ->
+                _uiState.value = _uiState.value.copy(theme = theme)
+            }
+        }
+
         //TODO does not work
         viewModelScope.launch {
             preferencesDataStore.data.map { preferences ->
@@ -120,7 +130,8 @@ class MainActivityViewModel @Inject constructor(
         val showTimer: Boolean = false,
         val timerText: String = "",
         val showTimerPickerButton: Boolean = true,
-        val timerDefaultValue: Int = 0
+        val timerDefaultValue: Int = 0,
+        val theme: Theme = Theme.System
     )
 
 

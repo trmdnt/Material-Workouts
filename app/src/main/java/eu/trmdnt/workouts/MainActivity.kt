@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainActivityViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
 
-            AppTheme {
+            AppTheme(theme = uiState.theme) {
                 //TODO fix deprecation
                 val backgroundColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
                 window.navigationBarColor = backgroundColor

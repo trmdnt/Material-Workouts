@@ -4,7 +4,9 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import eu.trmdnt.workouts.ui.settings.Theme
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -30,19 +32,35 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    theme: Theme,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+
+
+    val isDark = when (theme) {
+        Theme.System -> isSystemInDarkTheme()
+        Theme.Light -> false
+        Theme.Dark -> true
+        Theme.Oled -> true
+    }
+
+    var colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        isDark -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    if (theme == Theme.Oled) {
+        colorScheme = colorScheme.copy(
+            background = Color.Black
+        )
     }
 
     MaterialTheme(
@@ -50,4 +68,8 @@ fun AppTheme(
         typography = Typography,
         content = content
     )
+}
+
+fun getColorScheme(dynamicColor: Boolean = true, theme: Theme) {
+    
 }
