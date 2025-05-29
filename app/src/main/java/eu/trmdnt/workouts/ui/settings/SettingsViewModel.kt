@@ -1,10 +1,7 @@
 package eu.trmdnt.workouts.ui.settings
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +12,14 @@ import javax.inject.Inject
 val startTimerOnSetPreference = booleanPreferencesKey("startTimerOnSet")
 val timerDefaultValuePreference = intPreferencesKey("timerDefaultValue")
 val alwaysShowTimerUiPreference = booleanPreferencesKey("alwaysShowTimerUi")
+val useThemePreference = stringPreferencesKey("useTheme")
+
+enum class Theme {
+    System,
+    Light,
+    Dark,
+    Oled
+}
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(private val preferencesDataStore: DataStore<Preferences>) : ViewModel() {
@@ -27,6 +32,15 @@ class SettingsViewModel @Inject constructor(private val preferencesDataStore: Da
     }
     val alwaysShowTimerUi = preferencesDataStore.data.map { preferences ->
         preferences[alwaysShowTimerUiPreference] ?: true
+    }
+
+    val useTheme = preferencesDataStore.data.map { preferences ->
+        try {
+            Theme.valueOf(preferences[useThemePreference] ?: Theme.entries[0].name)
+        } catch (e: Exception) {
+            Theme.entries[0]
+        }
+
     }
 
     fun onStartTimerChanged(startTimerOnSetAdded: Boolean) {
@@ -49,6 +63,14 @@ class SettingsViewModel @Inject constructor(private val preferencesDataStore: Da
         viewModelScope.launch {
             preferencesDataStore.edit { preferences ->
                 preferences[alwaysShowTimerUiPreference] = alwaysShowTimer
+            }
+        }
+    }
+
+    fun onThemeChanged(theme: Theme) {
+        viewModelScope.launch {
+            preferencesDataStore.edit { preferences ->
+                preferences[useThemePreference] = theme.toString()
             }
         }
     }

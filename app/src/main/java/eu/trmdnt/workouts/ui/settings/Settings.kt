@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,46 +19,35 @@ fun Settings() {
     val startTimerOnSet by viewModel.startTimerOnSet.collectAsState(true)
     val timerDefaultValue by viewModel.timerDefaultValue.collectAsState(90)
     val alwaysShowTimerUi by viewModel.alwaysShowTimerUi.collectAsState(true)
+    val theme by viewModel.useTheme.collectAsState(Theme.entries[0])
 
-    Column() {
-        SettingsItemContainer {
-            Text(text = "start timer after adding set", modifier = Modifier.weight(1f))
-            Switch(
-                checked = startTimerOnSet,
-                onCheckedChange = { viewModel.onStartTimerChanged(it) }
-            )
+    Column {
+        SwitchPrefItem("start timer after adding set", startTimerOnSet) {
+            viewModel.onStartTimerChanged(it)
         }
         HorizontalDivider()
-        SettingsItemContainer {
-            Text(text = "timer default value", modifier = Modifier.weight(1f))
-            val openAlertDialog = remember { mutableStateOf(false) }
-            when {
-                openAlertDialog.value -> {
-                    SelectTimespanDialog(
-                        initialValue = timerDefaultValue,
-                        onConfirmValue = {
-                            viewModel.onTimerDefaultValueChanged(it)
-                            openAlertDialog.value = false
-                        },
-                        onDismiss = {
-                            openAlertDialog.value = false
-                        }
-                    )
-                }
-            }
-            Button(onClick = {
-                openAlertDialog.value = true
-            }) {
-                Text("Change")
+        val openAlertDialog = remember { mutableStateOf(false) }
+        when {
+            openAlertDialog.value -> {
+                SelectTimespanDialog(initialValue = timerDefaultValue, onConfirmValue = {
+                    viewModel.onTimerDefaultValueChanged(it)
+                    openAlertDialog.value = false
+                }, onDismiss = {
+                    openAlertDialog.value = false
+                })
             }
         }
+        ButtonPrefItem("timer default value", "Change") {
+            openAlertDialog.value = true
+        }
+
         HorizontalDivider()
-        SettingsItemContainer {
-            Text(text = "always show timer ui", modifier = Modifier.weight(1f))
-            Switch(
-                checked = alwaysShowTimerUi,
-                onCheckedChange = { viewModel.onAlwaysShowTimerChanged(it) }
-            )
+        SwitchPrefItem("always show timer ui", alwaysShowTimerUi, {
+            viewModel.onAlwaysShowTimerChanged(it)
+        })
+        HorizontalDivider()
+        RadioPrefItem("theme", theme) {
+            viewModel.onThemeChanged(it)
         }
     }
 }
@@ -71,8 +57,52 @@ fun SettingsItemContainer(content: @Composable () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp), verticalAlignment = Alignment.CenterVertically
+            .padding(8.dp)
     ) {
         content()
     }
+}
+
+@Composable
+fun SwitchPrefItem(label: String, value: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(text = label, modifier = Modifier.weight(1f))
+        Switch(checked = value, onCheckedChange = { onCheckedChange(it) })
+    }
+
+}
+
+@Composable
+fun ButtonPrefItem(label: String, buttonLabel: String, onButtonPressed: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(text = label, modifier = Modifier.weight(1f))
+        Button(onClick = onButtonPressed) {
+            Text(buttonLabel)
+        }
+    }
+}
+
+@Composable
+fun <T : Enum<T>> RadioPrefItem(label: String, value: T, onValueChange: (T) -> Unit) {
+
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = "$label:")
+        Column(modifier = Modifier.padding(start = 16.dp)) {
+            value.javaClass.enumConstants!!.forEach { enumValue ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = enumValue.name.lowercase(), modifier = Modifier.weight(1f))
+                    RadioButton(selected = enumValue == value, onClick = { onValueChange(enumValue) })
+                }
+            }
+        }
+    }
+
 }
