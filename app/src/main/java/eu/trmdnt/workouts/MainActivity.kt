@@ -1,8 +1,10 @@
 package eu.trmdnt.workouts
 
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
@@ -20,7 +22,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,21 +37,30 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 import eu.trmdnt.workouts.ui.navigation.*
 import eu.trmdnt.workouts.ui.theme.AppTheme
+import eu.trmdnt.workouts.ui.theme.isDarkMode
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
 
+            //TODO this seems very janky
+            val systemBarStyle = if (isDarkMode(uiState.theme)) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            }
+
+            enableEdgeToEdge(
+                statusBarStyle = systemBarStyle,
+                navigationBarStyle = systemBarStyle
+            )
+
             AppTheme(theme = uiState.theme) {
-                //TODO fix deprecation
-                val backgroundColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
-                window.navigationBarColor = backgroundColor
                 MainScreen(
                     showTimer = uiState.showTimer,
                     timerText = uiState.timerText,
@@ -75,6 +85,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainScreen(
     showTimer: Boolean,
@@ -90,7 +101,7 @@ fun MainScreen(
 
     val navController = rememberNavController()
     Scaffold(bottomBar = {
-        Column() {
+        Column {
             if (showTimer) {
                 TimerContainer {
                     Text(
@@ -119,15 +130,11 @@ fun MainScreen(
                     }
                     when {
                         showTimerPickerDialog.value -> {
-                            SelectTimespanDialog(
-                                initialValue = timerDefaultValue,
-                                onConfirmValue = {
-                                    addTimer(null, it)
-                                },
-                                onDismiss = {
-                                    showTimerPickerDialog.value = false
-                                }
-                            )
+                            SelectTimespanDialog(initialValue = timerDefaultValue, onConfirmValue = {
+                                addTimer(null, it)
+                            }, onDismiss = {
+                                showTimerPickerDialog.value = false
+                            })
                         }
                     }
                 }
@@ -214,9 +221,7 @@ fun TabView(navController: NavController) {
                 )
             }, label = {
                 AnimatedVisibility(
-                    visible = isSelected,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
+                    visible = isSelected, enter = expandVertically(), exit = shrinkVertically()
                 ) {
                     Text(destination.title, fontWeight = FontWeight.Bold)
                 }

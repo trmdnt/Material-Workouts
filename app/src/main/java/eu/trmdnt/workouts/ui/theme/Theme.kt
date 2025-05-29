@@ -40,12 +40,7 @@ fun AppTheme(
 ) {
 
 
-    val isDark = when (theme) {
-        Theme.System -> isSystemInDarkTheme()
-        Theme.Light -> false
-        Theme.Dark -> true
-        Theme.Oled -> true
-    }
+    val isDark = isDarkMode(theme)
 
     var colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -70,6 +65,10 @@ fun AppTheme(
     )
 }
 
-fun getColorScheme(dynamicColor: Boolean = true, theme: Theme) {
-    
+@Composable
+fun isDarkMode(theme: Theme) = when (theme) {
+    Theme.System -> isSystemInDarkTheme()
+    Theme.Light -> false
+    Theme.Dark -> true
+    Theme.Oled -> true
 }
