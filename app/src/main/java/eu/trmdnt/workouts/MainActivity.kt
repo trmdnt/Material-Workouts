@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                 navigationBarStyle = systemBarStyle
             )
 
-            AppTheme(theme = uiState.theme) {
+            AppTheme(theme = uiState.theme, dynamicColor = uiState.useDynamicColors) {
                 MainScreen(
                     showTimer = uiState.showTimer,
                     timerText = uiState.timerText,

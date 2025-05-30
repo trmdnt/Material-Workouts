@@ -20,6 +20,7 @@ fun Settings() {
     val timerDefaultValue by viewModel.timerDefaultValue.collectAsState(90)
     val alwaysShowTimerUi by viewModel.alwaysShowTimerUi.collectAsState(true)
     val theme by viewModel.useTheme.collectAsState(Theme.entries[0])
+    val useDynamicColor by viewModel.useDynamicColor.collectAsState(true)
 
     Column {
         SwitchPrefItem("start timer after adding set", startTimerOnSet) {
@@ -48,6 +49,10 @@ fun Settings() {
         HorizontalDivider()
         RadioPrefItem("theme", theme) {
             viewModel.onThemeChanged(it)
+        }
+        HorizontalDivider()
+        SwitchPrefItem("use dynamic colors", useDynamicColor) {
+            viewModel.onUseDynamicColorChanged(it)
         }
     }
 }

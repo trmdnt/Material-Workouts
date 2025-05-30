@@ -110,6 +110,16 @@ class MainActivityViewModel @Inject constructor(
                 startTimerOnSet = it
             }
         }
+
+        viewModelScope.launch {
+            preferencesDataStore.data.map { preferences ->
+                preferences[useDynamicColorPreference] ?: true
+            }.collect {
+                _uiState.value = _uiState.value.copy(
+                    useDynamicColors = it
+                )
+            }
+        }
     }
 
     fun addTimer(workoutId: Long? = null, time: Int? = null) {
@@ -131,7 +141,8 @@ class MainActivityViewModel @Inject constructor(
         val timerText: String = "",
         val showTimerPickerButton: Boolean = true,
         val timerDefaultValue: Int = 0,
-        val theme: Theme = Theme.System
+        val theme: Theme = Theme.System,
+        val useDynamicColors: Boolean = true
     )
 
 

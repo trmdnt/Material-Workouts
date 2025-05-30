@@ -13,6 +13,7 @@ val startTimerOnSetPreference = booleanPreferencesKey("startTimerOnSet")
 val timerDefaultValuePreference = intPreferencesKey("timerDefaultValue")
 val alwaysShowTimerUiPreference = booleanPreferencesKey("alwaysShowTimerUi")
 val useThemePreference = stringPreferencesKey("useTheme")
+val useDynamicColorPreference = booleanPreferencesKey("useDynamicColor")
 
 enum class Theme {
     System,
@@ -40,7 +41,10 @@ class SettingsViewModel @Inject constructor(private val preferencesDataStore: Da
         } catch (e: Exception) {
             Theme.entries[0]
         }
+    }
 
+    val useDynamicColor = preferencesDataStore.data.map { preferences ->
+        preferences[useDynamicColorPreference] ?: true
     }
 
     fun onStartTimerChanged(startTimerOnSetAdded: Boolean) {
@@ -71,6 +75,14 @@ class SettingsViewModel @Inject constructor(private val preferencesDataStore: Da
         viewModelScope.launch {
             preferencesDataStore.edit { preferences ->
                 preferences[useThemePreference] = theme.toString()
+            }
+        }
+    }
+
+    fun onUseDynamicColorChanged(useDynamicColor: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.edit { preferences ->
+                preferences[useDynamicColorPreference] = useDynamicColor
             }
         }
     }
