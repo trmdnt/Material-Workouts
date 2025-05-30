@@ -1,9 +1,10 @@
 package eu.trmdnt.workouts.ui.activities
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -201,19 +202,14 @@ fun ExerciseList(
     } else {
         LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
             itemsIndexed(
-                items = items,
-                key = { _, item -> item.exercise.exerciseId }
-            ) { index, exerciseWithSets ->
+                items = items, key = { _, item -> item.exercise.exerciseId }) { index, exerciseWithSets ->
                 SwipeToDeleteContainer(onDelete = {
                     onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
                 }, enabled = editMode) {
-                    var expanded by remember { mutableStateOf(true) }
                     Row(
                         modifier = modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
-                            .clickable(
-                                onClick = { expanded = !expanded })
                     ) {
                         Column(modifier = Modifier.padding(4.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -223,50 +219,42 @@ fun ExerciseList(
                                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 0.dp)
                                 )
                             }
-                            AnimatedVisibility(
-                                visible = expanded,
-                                enter = expandVertically(expandFrom = Alignment.Top),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Top)
-                            ) {
-                                Column {
-                                    if (exerciseWithSets.exerciseSets.isEmpty()) {
-                                        Text("no sets yet")
-                                    } else {
-                                        exerciseWithSets.exerciseSets.fastForEach { set ->
-                                            SetListItem(
-                                                exerciseSet = set,
-                                                exerciseTemplate = exerciseWithSets.exerciseTemplate,
-                                                onWeightChanged = {
-                                                    onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                                },
-                                                onRepsChanged = {
-                                                    onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                                },
-                                                onDistanceChanged = {
-                                                    onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                                },
-                                                onTimeChanged = {
-                                                    onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
-                                                },
-                                                onDeleteSetPressed = {
-                                                    onDeleteSetPressed(set.id)
-                                                },
-                                                editMode = editMode,
-                                                onIgnoreAction = {
-                                                    onIgnoreAction(set.id, exerciseWithSets.exercise.exerciseId)
-                                                }
-                                            )
-
-                                        }
+                            Column {
+                                if (exerciseWithSets.exerciseSets.isEmpty()) {
+                                    Text("no sets yet")
+                                } else {
+                                    exerciseWithSets.exerciseSets.fastForEach { set ->
+                                        SetListItem(
+                                            exerciseSet = set,
+                                            exerciseTemplate = exerciseWithSets.exerciseTemplate,
+                                            onWeightChanged = {
+                                                onWeightChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                            },
+                                            onRepsChanged = {
+                                                onRepsChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                            },
+                                            onDistanceChanged = {
+                                                onDistanceChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                            },
+                                            onTimeChanged = {
+                                                onTimeChanged(set.id, exerciseWithSets.exercise.exerciseId, it)
+                                            },
+                                            onDeleteSetPressed = {
+                                                onDeleteSetPressed(set.id)
+                                            },
+                                            editMode = editMode,
+                                            onIgnoreAction = {
+                                                onIgnoreAction(set.id, exerciseWithSets.exercise.exerciseId)
+                                            })
                                     }
-                                    AnimatedVisibility(
-                                        visible = editMode
-                                    ) {
-                                        TextButton(onClick = {
-                                            onSetAdded(exerciseWithSets.exercise.exerciseId)
-                                        }) {
-                                            Text(text = "Add")
-                                        }
+                                }
+                                AnimatedVisibility(
+                                    visible = editMode
+                                ) {
+                                    TextButton(onClick = {
+                                        onSetAdded(exerciseWithSets.exercise.exerciseId)
+                                    }) {
+                                        Text(text = "Add")
                                     }
                                 }
                             }
@@ -303,8 +291,7 @@ fun SetListItem(
             ) {
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     AnimatedVisibility(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        visible = exerciseSet.ignoreInStat
+                        modifier = Modifier.padding(horizontal = 8.dp), visible = exerciseSet.ignoreInStat
                     ) {
                         Icon(Icons.Default.VisibilityOff, "this item will not be showed in statistics")
                     }
