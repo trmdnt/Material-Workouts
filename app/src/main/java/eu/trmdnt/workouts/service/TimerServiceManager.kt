@@ -85,7 +85,9 @@ class TimerServiceManager(
     }
 
     fun unBindService() {
-        applicationContext.unbindService(connection)
+        timerService?.let {
+            applicationContext.unbindService(connection)
+        }
     }
 
     private fun tryToBindToServiceIfRunning(): Boolean {
