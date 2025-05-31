@@ -3,24 +3,21 @@ package eu.trmdnt.workouts
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.service.MyTimer
 import eu.trmdnt.workouts.service.TimerServiceManager
-import eu.trmdnt.workouts.ui.settings.*
+import eu.trmdnt.workouts.settings.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val preferencesDataStore: DataStore<Preferences>, @ApplicationContext private val appContext: Context
+    private val settingsManager: SettingsManager, @ApplicationContext private val appContext: Context
 ) : ViewModel() {
     // TODO the viewmodel should probably not be in charge of managing the timerServiceManager for the whole app
 
@@ -69,22 +66,14 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            preferencesDataStore.data.map { preferences ->
-                try {
-                    Theme.valueOf(preferences[useThemePreference] ?: Theme.entries[0].name)
-                } catch (e: Exception) {
-                    Theme.entries[0]
-                }
-            }.collect { theme ->
+            settingsManager.getEnumPreference(useThemePreferenceKey, Theme.System.javaClass).collect { theme ->
                 _uiState.value = _uiState.value.copy(theme = theme)
             }
         }
 
         //TODO does not work
         viewModelScope.launch {
-            preferencesDataStore.data.map { preferences ->
-                preferences[alwaysShowTimerUiPreference] != false
-            }.collect {
+            settingsManager.getBooleanPreference(alwaysShowTimerUiPreferenceKey).collect {
                 alwaysShowTimerUi = it
                 _uiState.value = _uiState.value.copy(
                     showTimerPickerButton = it
@@ -93,9 +82,7 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            preferencesDataStore.data.map { preferences ->
-                preferences[timerDefaultValuePreference] ?: 90
-            }.collect {
+            settingsManager.getIntPreference(timerDefaultValuePreferenceKey).collect {
                 timerDefaultValue = it
                 _uiState.value = _uiState.value.copy(
                     timerDefaultValue = it
@@ -104,17 +91,13 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            preferencesDataStore.data.map { preferences ->
-                preferences[startTimerOnSetPreference] != false
-            }.collect {
+            settingsManager.getBooleanPreference(startTimerOnSetPreferenceKey).collect {
                 startTimerOnSet = it
             }
         }
 
         viewModelScope.launch {
-            preferencesDataStore.data.map { preferences ->
-                preferences[useDynamicColorPreference] ?: true
-            }.collect {
+            settingsManager.getBooleanPreference(useDynamicColorPreferenceKey).collect {
                 _uiState.value = _uiState.value.copy(
                     useDynamicColors = it
                 )

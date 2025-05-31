@@ -5,54 +5,62 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.trmdnt.workouts.settings.Theme
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 
 @Composable
 fun Settings() {
     val viewModel: SettingsViewModel = hiltViewModel()
 
-    val startTimerOnSet by viewModel.startTimerOnSet.collectAsState(true)
-    val timerDefaultValue by viewModel.timerDefaultValue.collectAsState(90)
-    val alwaysShowTimerUi by viewModel.alwaysShowTimerUi.collectAsState(true)
-    val theme by viewModel.useTheme.collectAsState(Theme.entries[0])
-    val useDynamicColor by viewModel.useDynamicColor.collectAsState(true)
-
     Column {
-        SwitchPrefItem("start timer after adding set", startTimerOnSet) {
-            viewModel.onStartTimerChanged(it)
-        }
-        HorizontalDivider()
-        val openAlertDialog = remember { mutableStateOf(false) }
-        when {
-            openAlertDialog.value -> {
-                SelectTimespanDialog(initialValue = timerDefaultValue, onConfirmValue = {
-                    viewModel.onTimerDefaultValueChanged(it)
-                    openAlertDialog.value = false
-                }, onDismiss = {
-                    openAlertDialog.value = false
-                })
-            }
-        }
-        ButtonPrefItem("timer default value", "Change") {
-            openAlertDialog.value = true
-        }
+        for (i in 1..viewModel.preferences.size - 1) {
+            val pref = viewModel.preferences[i]
+            when (pref) {
+                is SettingsViewModel.SwitchPreferenceEntry -> {
+                    val value = pref.value.collectAsStateWithLifecycle(true).value
+                    SwitchPrefItem("${pref.key}", value) {
+                        viewModel.onBooleanPreferenceChange(pref.key, it)
+                    }
+                }
 
-        HorizontalDivider()
-        SwitchPrefItem("always show timer ui", alwaysShowTimerUi, {
-            viewModel.onAlwaysShowTimerChanged(it)
-        })
-        HorizontalDivider()
-        RadioPrefItem("theme", theme) {
-            viewModel.onThemeChanged(it)
-        }
-        HorizontalDivider()
-        SwitchPrefItem("use dynamic colors", useDynamicColor) {
-            viewModel.onUseDynamicColorChanged(it)
+                is SettingsViewModel.RadioPreferenceEntry -> {
+                    val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
+                    RadioPrefItem("${pref.key}", value) {
+                        viewModel.onEnumPreferenceChange(pref.key, it)
+                    }
+                }
+
+                is SettingsViewModel.TimeSpanPreferenceEntry -> {
+                    val value = pref.value.collectAsStateWithLifecycle(90).value
+
+                    val openAlertDialog = remember { mutableStateOf(false) }
+                    when {
+                        openAlertDialog.value -> {
+                            SelectTimespanDialog(initialValue = value, onConfirmValue = {
+                                viewModel.onIntPreferenceChange(pref.key, it)
+                                openAlertDialog.value = false
+                            }, onDismiss = {
+                                openAlertDialog.value = false
+                            })
+                        }
+                    }
+                    ButtonPrefItem("${pref.key}", "Select") {
+                        openAlertDialog.value = true
+                    }
+
+                }
+            }
+            if (i != viewModel.preferences.lastIndex) {
+                HorizontalDivider()
+            }
         }
     }
 }
@@ -96,8 +104,7 @@ fun ButtonPrefItem(label: String, buttonLabel: String, onButtonPressed: () -> Un
 }
 
 @Composable
-fun <T : Enum<T>> RadioPrefItem(label: String, value: T, onValueChange: (T) -> Unit) {
-
+fun <T : Enum<T>> RadioPrefItem(label: String, value: Enum<T>, onValueChange: (Enum<T>) -> Unit) {
     Column(modifier = Modifier.padding(8.dp)) {
         Text(text = "$label:")
         Column(modifier = Modifier.padding(start = 16.dp)) {

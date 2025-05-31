@@ -1,89 +1,64 @@
 package eu.trmdnt.workouts.ui.settings
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.map
+import eu.trmdnt.workouts.settings.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-val startTimerOnSetPreference = booleanPreferencesKey("startTimerOnSet")
-val timerDefaultValuePreference = intPreferencesKey("timerDefaultValue")
-val alwaysShowTimerUiPreference = booleanPreferencesKey("alwaysShowTimerUi")
-val useThemePreference = stringPreferencesKey("useTheme")
-val useDynamicColorPreference = booleanPreferencesKey("useDynamicColor")
-
-enum class Theme {
-    System,
-    Light,
-    Dark,
-    Oled
-}
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val preferencesDataStore: DataStore<Preferences>) : ViewModel() {
-
-    val startTimerOnSet = preferencesDataStore.data.map { preferences ->
-        preferences[startTimerOnSetPreference] ?: true
-    }
-    val timerDefaultValue = preferencesDataStore.data.map { preferences ->
-        preferences[timerDefaultValuePreference] ?: 90
-    }
-    val alwaysShowTimerUi = preferencesDataStore.data.map { preferences ->
-        preferences[alwaysShowTimerUiPreference] ?: true
+class SettingsViewModel @Inject constructor(private val settingsManager: SettingsManager) : ViewModel() {
+    interface PreferenceEntry<T1 : Any, T2 : Any> {
+        val key: Preferences.Key<T1>
+        val value: Flow<T2>
     }
 
-    val useTheme = preferencesDataStore.data.map { preferences ->
-        try {
-            Theme.valueOf(preferences[useThemePreference] ?: Theme.entries[0].name)
-        } catch (e: Exception) {
-            Theme.entries[0]
+    inner class SwitchPreferenceEntry(
+        override val key: Preferences.Key<Boolean>,
+
+        ) : PreferenceEntry<Boolean, Boolean> {
+        override val value: Flow<Boolean> = settingsManager.getBooleanPreference(key)
+    }
+
+    inner class TimeSpanPreferenceEntry(override val key: Preferences.Key<Int>) : PreferenceEntry<Int, Int> {
+        override val value = settingsManager.getIntPreference(key)
+
+    }
+
+    inner class RadioPreferenceEntry<T : Enum<T>>(
+        override val key: Preferences.Key<String>,
+        enumClass: Class<T>,
+    ) : PreferenceEntry<String, T> {
+        override val value: Flow<T> = settingsManager.getEnumPreference(key, enumClass)
+    }
+
+    val preferences: List<PreferenceEntry<*, *>> = listOf(
+        SwitchPreferenceEntry(startTimerOnSetPreferenceKey),
+        TimeSpanPreferenceEntry(timerDefaultValuePreferenceKey),
+        SwitchPreferenceEntry(alwaysShowTimerUiPreferenceKey),
+        RadioPreferenceEntry(useThemePreferenceKey, Theme.System.javaClass),
+        SwitchPreferenceEntry(useDynamicColorPreferenceKey)
+    )
+
+    fun onBooleanPreferenceChange(key: Preferences.Key<Boolean>, value: Boolean) {
+        viewModelScope.launch {
+            settingsManager.writeBooleanPreference(key, value)
         }
     }
 
-    val useDynamicColor = preferencesDataStore.data.map { preferences ->
-        preferences[useDynamicColorPreference] ?: true
-    }
-
-    fun onStartTimerChanged(startTimerOnSetAdded: Boolean) {
+    fun onIntPreferenceChange(key: Preferences.Key<Int>, value: Int) {
         viewModelScope.launch {
-            preferencesDataStore.edit { preferences ->
-                preferences[startTimerOnSetPreference] = startTimerOnSetAdded
-            }
+            settingsManager.writeIntPreference(key, value)
         }
     }
 
-    fun onTimerDefaultValueChanged(timerDefaultValue: Int) {
+    fun onEnumPreferenceChange(key: Preferences.Key<String>, value: Enum<*>) {
         viewModelScope.launch {
-            preferencesDataStore.edit { preferences ->
-                preferences[timerDefaultValuePreference] = timerDefaultValue
-            }
-        }
-    }
-
-    fun onAlwaysShowTimerChanged(alwaysShowTimer: Boolean) {
-        viewModelScope.launch {
-            preferencesDataStore.edit { preferences ->
-                preferences[alwaysShowTimerUiPreference] = alwaysShowTimer
-            }
-        }
-    }
-
-    fun onThemeChanged(theme: Theme) {
-        viewModelScope.launch {
-            preferencesDataStore.edit { preferences ->
-                preferences[useThemePreference] = theme.toString()
-            }
-        }
-    }
-
-    fun onUseDynamicColorChanged(useDynamicColor: Boolean) {
-        viewModelScope.launch {
-            preferencesDataStore.edit { preferences ->
-                preferences[useDynamicColorPreference] = useDynamicColor
-            }
+            settingsManager.writeEnumPreference(key, value)
         }
     }
 }

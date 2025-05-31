@@ -6,14 +6,15 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import eu.trmdnt.workouts.database.AppDatabase
-import eu.trmdnt.workouts.database.Dao
-import eu.trmdnt.workouts.database.GymRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import eu.trmdnt.workouts.database.AppDatabase
+import eu.trmdnt.workouts.database.Dao
+import eu.trmdnt.workouts.database.GymRepository
+import eu.trmdnt.workouts.settings.SettingsManager
 import javax.inject.Singleton
 
 @Module
@@ -47,4 +48,10 @@ object AppModule {
                 appContext.preferencesDataStoreFile("preferences")
             }
         )
+
+    @Provides
+    @Singleton
+    fun provideSettingsManager(preferencesDataStore: DataStore<Preferences>): SettingsManager {
+        return SettingsManager(preferencesDataStore)
+    }
 }
