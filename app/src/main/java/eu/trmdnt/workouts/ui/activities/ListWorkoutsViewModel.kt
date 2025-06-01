@@ -3,10 +3,10 @@ package eu.trmdnt.workouts.ui.activities
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.Workout
 import eu.trmdnt.workouts.database.entities.WorkoutTemplate
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,8 +31,8 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
-    private val _navigateToExerciseTemplateId = MutableStateFlow<Pair<Long, Boolean>?>(null)
-    val navigateToExerciseTemplateId: StateFlow<Pair<Long, Boolean>?> = _navigateToExerciseTemplateId
+    private val _navigateToWorkout = MutableStateFlow<Pair<Long, Boolean>?>(null)
+    val navigateToWorkout: StateFlow<Pair<Long, Boolean>?> = _navigateToWorkout
 
     private val workouts = gymRepository.getAllWorkouts()
     private val workoutsObserver = Observer<List<Workout>> {
@@ -76,12 +76,12 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         if (uiState.value.editMode) {
             toggleSelection(workout)
         } else {
-            _navigateToExerciseTemplateId.value = Pair(workout.id, false)
+            _navigateToWorkout.value = Pair(workout.id, false)
         }
     }
 
     fun receivedNavEvent() {
-        _navigateToExerciseTemplateId.value = null
+        _navigateToWorkout.value = null
     }
 
     fun onLongItemPressed(workout: Workout) {
@@ -139,8 +139,12 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
             _uiState.value = _uiState.value.copy(
                 startWorkoutBottomSheetShown = false
             )
-            _navigateToExerciseTemplateId.value = Pair(id, true)
+            _navigateToWorkout.value = Pair(id, true)
         }
+    }
+
+    fun onEditWorkout(workout: Workout) {
+        _navigateToWorkout.value = Pair(workout.id, true)
     }
 
     private fun getOutOfEditMode() {

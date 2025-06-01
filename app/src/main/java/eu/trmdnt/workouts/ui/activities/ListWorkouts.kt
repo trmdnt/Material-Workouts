@@ -22,10 +22,10 @@ fun ListWorkouts(navigateToWorkout: (Long, Boolean) -> Unit) {
     val viewModel: ListWorkoutsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    viewModel.navigateToExerciseTemplateId.collectAsStateWithLifecycle().let {
-        it.value?.let {
+    viewModel.navigateToWorkout.collectAsStateWithLifecycle().let {
+        it.value?.let { pair ->
             viewModel.receivedNavEvent()
-            navigateToWorkout(it.first, it.second)
+            navigateToWorkout(pair.first, pair.second)
         }
     }
 
@@ -59,6 +59,9 @@ fun ListWorkouts(navigateToWorkout: (Long, Boolean) -> Unit) {
         },
         getId = {
             it.id
+        },
+        onItemEditClicked = {
+            viewModel.onEditWorkout(it)
         }
     )
 

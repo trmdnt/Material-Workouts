@@ -24,6 +24,7 @@ fun <T> SelectionContainerWithTopBar(
     selectedItemsList: List<T>,
     onItemClick: (T) -> Unit,
     onLongItemClick: (T) -> Unit,
+    onItemEditClicked: ((T) -> Unit)? = null,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
     editMode: Boolean,
@@ -82,7 +83,8 @@ fun <T> SelectionContainerWithTopBar(
             paddingValues = contentPadding,
             editMode = editMode,
             textContent = textContent,
-            getId = getId
+            getId = getId,
+            onItemEditClicked = onItemEditClicked,
         )
     }
 }
@@ -93,6 +95,7 @@ private fun <T> ItemsList(
     selectedItemsList: List<T>,
     onItemPress: (T) -> Unit,
     onLongItemPress: (T) -> Unit,
+    onItemEditClicked: ((T) -> Unit)?,
     paddingValues: PaddingValues,
     editMode: Boolean,
     textContent: @Composable (T, Modifier) -> Unit,
@@ -101,6 +104,7 @@ private fun <T> ItemsList(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = paddingValues
     ) {
+
         items(
             items = itemsList, key = {
                 getId(it)
@@ -108,13 +112,18 @@ private fun <T> ItemsList(
             MyListItem(
                 onItemPress = {
                     onItemPress(item)
-                }, onLongItemPress = {
+                },
+                onLongItemPress = {
                     onLongItemPress(item)
-                }, editMode = editMode, checked = selectedItemsList.contains(item)
+                },
+                editMode = editMode,
+                checked = selectedItemsList.contains(item),
+                onItemEditClicked = onItemEditClicked?.let {
+                    { it(item) }
+                }
             ) {
                 textContent(item, it)
             }
-
         }
     }
 }
@@ -123,6 +132,7 @@ private fun <T> ItemsList(
 @Composable
 private fun MyListItem(
     onItemPress: () -> Unit,
+    onItemEditClicked: (() -> Unit)?,
     onLongItemPress: () -> Unit,
     editMode: Boolean,
     checked: Boolean,
@@ -149,10 +159,10 @@ private fun MyListItem(
                             onItemPress()
                         })
                 } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (onItemEditClicked != null) {
                         OutlinedButton(
                             onClick = {
-                                onItemPress()
+                                onItemEditClicked()
                             },
 
                             content = {
