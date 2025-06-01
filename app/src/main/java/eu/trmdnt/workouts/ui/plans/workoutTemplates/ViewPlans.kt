@@ -11,12 +11,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
+import eu.trmdnt.workouts.ui.components.CreateNewItemDialog
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewPlans(
-    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit, navToCreateWorkoutTemplate: () -> Unit
+    goToWorkoutTemplate: (workoutTemplateId: Long) -> Unit,
 ) {
     val viewModel: ViewPlansViewmodel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,7 +55,9 @@ fun ViewPlans(
             }
         },
         alternativeTopBar = null,
-        fabAction = navToCreateWorkoutTemplate,
+        fabAction = {
+            viewModel.onCreateWorkoutTemplateButtonPressed()
+        },
         getId = {
             it.workoutTemplateId
         }
@@ -66,5 +69,17 @@ fun ViewPlans(
         }, onConfirm = {
             viewModel.onConfirmButtonPressed()
         })
+    }
+
+    if (uiState.createWorkoutTemplateDialogShown) {
+        CreateNewItemDialog(
+            text = "Create new workout template",
+            onDismiss = {
+                viewModel.onCreateWorkoutTemplateDialogDismissed()
+            },
+            onCreate = {
+                viewModel.onCreateWorkoutTemplate(it)
+            }
+        )
     }
 }

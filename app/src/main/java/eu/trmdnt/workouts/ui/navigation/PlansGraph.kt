@@ -7,7 +7,6 @@ import androidx.navigation.compose.dialog
 import eu.trmdnt.workouts.ui.plans.exercisesTemplates.CreateExerciseDialog
 import eu.trmdnt.workouts.ui.plans.exercisesTemplates.EditExerciseTemplate
 import eu.trmdnt.workouts.ui.plans.exercisesTemplates.ViewExerciseTemplates
-import eu.trmdnt.workouts.ui.plans.workoutTemplates.CreatePlan
 import eu.trmdnt.workouts.ui.plans.workoutTemplates.EditPlan
 import eu.trmdnt.workouts.ui.plans.workoutTemplates.ViewPlans
 
@@ -20,10 +19,6 @@ fun NavGraphBuilder.plansGraph(
                 if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                     navController.navigate(Screens.Plans.EditPlan(it))
                 }
-            }, navToCreateWorkoutTemplate = {
-                if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
-                    navController.navigate(Screens.Plans.CreatePlan)
-                }
             })
         }
         composable<Screens.Plans.EditPlan> { entry ->
@@ -35,14 +30,6 @@ fun NavGraphBuilder.plansGraph(
             }, navToViewExercises = {
                 if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                     navController.navigate(Screens.Plans.ViewExercises)
-                }
-            })
-        }
-
-        dialog<Screens.Plans.CreatePlan> {
-            CreatePlan(onCreateWorkoutTemplate = {
-                if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
-                    navController.navigate(Screens.Plans.EditPlan(it))
                 }
             })
         }

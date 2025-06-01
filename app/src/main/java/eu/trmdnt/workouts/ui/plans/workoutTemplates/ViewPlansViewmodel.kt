@@ -2,10 +2,11 @@ package eu.trmdnt.workouts.ui.plans.workoutTemplates
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.WorkoutTemplate
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,7 +20,8 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
         val selectedWorkoutTemplates: List<WorkoutTemplate> = emptyList(),
         val workoutTemplates: List<WorkoutTemplate> = emptyList(),
         val confirmDialogShown: Boolean = false,
-        val confirmDialogText: String = ""
+        val confirmDialogText: String = "",
+        val createWorkoutTemplateDialogShown: Boolean = false,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -77,6 +79,29 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
 
     fun onCancelButtonPressed() {
         getOutOfEditMode()
+    }
+
+    fun onCreateWorkoutTemplateButtonPressed() {
+        _uiState.value = _uiState.value.copy(
+            createWorkoutTemplateDialogShown = true,
+        )
+    }
+
+    fun onCreateWorkoutTemplateDialogDismissed() {
+        _uiState.value = _uiState.value.copy(
+            createWorkoutTemplateDialogShown = false,
+        )
+    }
+
+    fun onCreateWorkoutTemplate(name: String) {
+        _uiState.value = _uiState.value.copy(
+            createWorkoutTemplateDialogShown = false,
+        )
+        viewModelScope.launch(IO) {
+            val template = WorkoutTemplate(name = name)
+            val id = gymRepository.insertWorkoutTemplate(template)
+            _navigateToWorkoutTemplateId.value = id
+        }
     }
 
     private fun getOutOfEditMode() {

@@ -32,9 +32,6 @@ sealed class Screens {
         )
 
         @Serializable
-        object CreatePlan
-
-        @Serializable
         object ViewExercises
 
         @Serializable
