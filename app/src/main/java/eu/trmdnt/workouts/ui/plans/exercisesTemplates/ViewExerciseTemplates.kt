@@ -9,14 +9,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
 
 @Composable
 fun ViewExerciseTemplates(
-    goToExerciseTemplate: (Long) -> Unit,
-    navToCreateExerciseTemplate: () -> Unit,
-    onBackPressed: () -> Unit
+    goToExerciseTemplate: (Long) -> Unit, navToCreateExerciseTemplate: () -> Unit, onBackPressed: () -> Unit
 ) {
     val viewModel: ViewExerciseTemplatesViewModel = hiltViewModel()
 
@@ -48,8 +47,7 @@ fun ViewExerciseTemplates(
         editMode = uiState.editMode,
         textContent = { it, mod ->
             Column(
-                modifier = mod
-                    .padding(8.dp)
+                modifier = mod.padding(8.dp)
             ) {
                 Text(text = it.name)
             }
@@ -62,6 +60,12 @@ fun ViewExerciseTemplates(
         },
         getId = {
             it.exerciseTemplateId
-        }
-    )
+        })
+
+    if (uiState.confirmDialogShow) {
+        ConfirmDeleteDialog(
+            text = uiState.confirmDialogText,
+            onDismiss = { viewModel.onCancelDialogPressed() },
+            onConfirm = { viewModel.onConfirmButtonPressed() })
+    }
 }

@@ -11,7 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import eu.trmdnt.workouts.ui.components.ConfirmDeleteBottomSheet
+import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
 import eu.trmdnt.workouts.ui.components.ListAvailableItems
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
 
@@ -62,9 +62,9 @@ fun ListWorkouts(navigateToWorkout: (Long, Boolean) -> Unit) {
         }
     )
 
-    if (uiState.confirmBottomSheetShown) {
-        ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
-            viewModel.onCancelConfirmSheetPressed()
+    if (uiState.confirmDialogShown) {
+        ConfirmDeleteDialog(text = uiState.confirmDialogText, onDismiss = {
+            viewModel.onCancelConfirmDialogPressed()
         }, onConfirm = {
             viewModel.onConfirmButtonPressed()
         })

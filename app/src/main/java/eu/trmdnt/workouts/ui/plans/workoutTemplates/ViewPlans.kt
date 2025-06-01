@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import eu.trmdnt.workouts.ui.components.ConfirmDeleteBottomSheet
+import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,9 +60,9 @@ fun ViewPlans(
         }
     )
 
-    if (uiState.confirmBottomSheetShown) {
-        ConfirmDeleteBottomSheet(text = uiState.confirmBottomSheetText, onDismiss = {
-            viewModel.onCancelSheetPressed()
+    if (uiState.confirmDialogShown) {
+        ConfirmDeleteDialog(text = uiState.confirmDialogText, onDismiss = {
+            viewModel.onCancelDialogPressed()
         }, onConfirm = {
             viewModel.onConfirmButtonPressed()
         })

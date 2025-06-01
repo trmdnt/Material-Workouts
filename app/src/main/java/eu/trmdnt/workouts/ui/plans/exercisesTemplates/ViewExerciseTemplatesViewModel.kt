@@ -2,9 +2,9 @@ package eu.trmdnt.workouts.ui.plans.exercisesTemplates
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,8 +19,8 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         val exerciseTemplates: List<ExerciseTemplate> = emptyList(),
         val selectedExerciseTemplates: List<ExerciseTemplate> = emptyList(),
 
-        val confirmBottomSheetShown: Boolean = false,
-        val confirmBottomSheetText: String = ""
+        val confirmDialogShow: Boolean = false,
+        val confirmDialogText: String = ""
     )
 
     init {
@@ -56,15 +56,15 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
 
     fun onDeleteButtonPressed() {
         _uiState.value = _uiState.value.copy(
-            confirmBottomSheetShown = true,
-            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedExerciseTemplates.size} selected item(s)"
+            confirmDialogShow = true,
+            confirmDialogText = "Do you really want to delete the ${_uiState.value.selectedExerciseTemplates.size} selected item(s)"
         )
     }
 
-    fun onCancelSheetPressed() {
+    fun onCancelDialogPressed() {
         _uiState.value = _uiState.value.copy(
-            confirmBottomSheetShown = false,
-            confirmBottomSheetText = ""
+            confirmDialogShow = false,
+            confirmDialogText = ""
         )
     }
 
@@ -73,7 +73,7 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
             gymRepository.deleteExerciseTemplates(_uiState.value.selectedExerciseTemplates)
             getOutOfEditMode()
         }
-        onCancelSheetPressed()
+        onCancelDialogPressed()
     }
 
     fun onCancelButtonPressed() {
@@ -84,9 +84,9 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         _uiState.value = _uiState.value.copy(
             selectedExerciseTemplates = uiState.value.selectedExerciseTemplates.toMutableList().apply {
                 clear()
-            }
+            },
+            editMode = false
         )
-        _uiState.value = _uiState.value.copy(editMode = false)
     }
 
     private fun isInSelectedList(exerciseTemplate: ExerciseTemplate): Boolean {

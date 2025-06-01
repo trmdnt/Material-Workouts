@@ -22,8 +22,8 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         var selectAll: Boolean = false,
         val workouts: List<Workout> = emptyList(),
         val selectedWorkouts: List<Workout> = emptyList(),
-        val confirmBottomSheetShown: Boolean = false,
-        val confirmBottomSheetText: String = "",
+        val confirmDialogShown: Boolean = false,
+        val confirmDialogText: String = "",
         val startWorkoutBottomSheetShown: Boolean = false,
         val workoutTemplates: List<WorkoutTemplate> = emptyList(),
     )
@@ -90,15 +90,15 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
 
     fun onDeleteButtonPressed() {
         _uiState.value = _uiState.value.copy(
-            confirmBottomSheetShown = true,
-            confirmBottomSheetText = "Do you really want to delete the ${_uiState.value.selectedWorkouts.size} selected item(s)"
+            confirmDialogShown = true,
+            confirmDialogText = "Do you really want to delete the ${_uiState.value.selectedWorkouts.size} selected item(s)"
         )
     }
 
-    fun onCancelConfirmSheetPressed() {
+    fun onCancelConfirmDialogPressed() {
         _uiState.value = _uiState.value.copy(
-            confirmBottomSheetShown = false,
-            confirmBottomSheetText = ""
+            confirmDialogShown = false,
+            confirmDialogText = ""
         )
     }
 
@@ -113,7 +113,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
             gymRepository.deleteWorkouts(uiState.value.selectedWorkouts)
             getOutOfEditMode()
         }
-        onCancelConfirmSheetPressed()
+        onCancelConfirmDialogPressed()
     }
 
     fun onCancelButtonPressed() {
