@@ -1,5 +1,7 @@
 package eu.trmdnt.workouts.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,13 +37,15 @@ fun CreateNewItemDialog(text: String, onDismiss: () -> Unit, onCreate: (String) 
                 .fillMaxWidth(),
 
             )
-        TextButton(onClick = onDismiss) {
-            Text("Cancel")
-        }
-        TextButton(onClick = {
-            onCreate(input)
-        }) {
-            Text("Create")
+        Row(horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+            TextButton(onClick = {
+                onCreate(input)
+            }) {
+                Text("Create")
+            }
         }
     }
 }
