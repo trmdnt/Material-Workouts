@@ -59,12 +59,13 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
             }
         })
     }, floatingActionButton = {
-        FloatingActionButton(onClick = {
-            viewModel.onNewExercisePressed()
-        }, content = {
-            Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
-        })
-
+        if (uiState.editMode) {
+            FloatingActionButton(onClick = {
+                viewModel.onNewExercisePressed()
+            }, content = {
+                Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+            })
+        }
     }, content = {
         Column(
             modifier = Modifier.padding(it)
