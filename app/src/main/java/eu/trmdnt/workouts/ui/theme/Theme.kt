@@ -90,7 +90,7 @@ fun Color.darken(factor: Float): Color {
         red = this.red * clampedFactor,
         green = this.green * clampedFactor,
         blue = this.blue * clampedFactor,
-        alpha = this.alpha // Preserve original alpha
+        alpha = this.alpha
     )
 }
 
@@ -113,13 +113,13 @@ fun AppTheme(
     }
 
     if (theme == Theme.Oled) {
-        val darkenFactor = 0.6f
+        val darkenFactor = 0.4f
         colorScheme = colorScheme.copy(
             primaryContainer = colorScheme.primaryContainer.darken(darkenFactor),
             secondaryContainer = colorScheme.secondaryContainer.darken(darkenFactor),
             tertiaryContainer = colorScheme.tertiaryContainer.darken(darkenFactor),
             background = Color.Black,
-            surface = colorScheme.surface.darken(darkenFactor),
+            surface = Color.Black,
             surfaceVariant = colorScheme.surfaceVariant.darken(darkenFactor),
             outline = colorScheme.outline.darken(darkenFactor),
             outlineVariant = colorScheme.outlineVariant.darken(darkenFactor),
