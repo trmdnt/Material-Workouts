@@ -66,12 +66,11 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getEnumPreference(useThemePreferenceKey, Theme.System.javaClass).collect { theme ->
+            settingsManager.getThemePreference().collect { theme ->
                 _uiState.value = _uiState.value.copy(theme = theme)
             }
         }
 
-        //TODO does not work
         viewModelScope.launch {
             settingsManager.getBooleanPreference(alwaysShowTimerUiPreferenceKey).collect {
                 alwaysShowTimerUi = it

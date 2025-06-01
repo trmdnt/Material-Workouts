@@ -1,6 +1,7 @@
 package eu.trmdnt.workouts.ui.settings
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,32 +18,30 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager, @ApplicationContext private val appContext: Context
 ) : ViewModel() {
-    interface PreferenceEntry<T1 : Any, T2 : Any> {
-        val key: Preferences.Key<T1>
+    interface PreferenceEntry<T2 : Any> {
         val value: Flow<T2>
         val label: String
     }
 
     inner class SwitchPreferenceEntry(
-        override val key: Preferences.Key<Boolean>,
+        val key: Preferences.Key<Boolean>,
         override val label: String,
-    ) : PreferenceEntry<Boolean, Boolean> {
+    ) : PreferenceEntry<Boolean> {
         override val value: Flow<Boolean> = settingsManager.getBooleanPreference(key)
     }
 
-    inner class TimeSpanPreferenceEntry(override val key: Preferences.Key<Int>, override val label: String) :
-        PreferenceEntry<Int, Int> {
+    inner class TimeSpanPreferenceEntry(val key: Preferences.Key<Int>, override val label: String) :
+        PreferenceEntry<Int> {
         override val value = settingsManager.getIntPreference(key)
-
     }
 
-    inner class RadioPreferenceEntry<T : Enum<T>>(
-        override val key: Preferences.Key<String>, enumClass: Class<T>, override val label: String
-    ) : PreferenceEntry<String, T> {
-        override val value: Flow<T> = settingsManager.getEnumPreference(key, enumClass)
+    inner class ThemePreferenceEntry(
+        override val label: String
+    ) : PreferenceEntry<Theme> {
+        override val value: Flow<Theme> = settingsManager.getThemePreference()
     }
 
-    val preferences: List<PreferenceEntry<*, *>> = listOf(
+    val preferences: List<PreferenceEntry<*>> = listOf(
         SwitchPreferenceEntry(
             startTimerOnSetPreferenceKey, appContext.getString(R.string.start_timer_on_set_added_description)
         ),
@@ -54,9 +53,7 @@ class SettingsViewModel @Inject constructor(
             alwaysShowTimerUiPreferenceKey,
             appContext.getString(R.string.always_show_timer_description)
         ),
-        RadioPreferenceEntry(
-            useThemePreferenceKey,
-            Theme.System.javaClass,
+        ThemePreferenceEntry(
             appContext.getString(R.string.use_theme_description)
         ),
         SwitchPreferenceEntry(
@@ -77,9 +74,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onEnumPreferenceChange(key: Preferences.Key<String>, value: Enum<*>) {
+    fun onThemePreferenceChange(value: Theme) {
+        Log.d("TAG", "onThemePreferenceChange: $value")
         viewModelScope.launch {
-            settingsManager.writeEnumPreference(key, value)
+            settingsManager.writeThemePreference(value)
         }
     }
 }

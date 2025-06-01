@@ -31,10 +31,10 @@ fun Settings() {
                     }
                 }
 
-                is SettingsViewModel.RadioPreferenceEntry -> {
+                is SettingsViewModel.ThemePreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
-                    RadioPrefItem(pref.label, value) {
-                        viewModel.onEnumPreferenceChange(pref.key, it)
+                    ThemePrefItem(pref.label, value) {
+                        viewModel.onThemePreferenceChange(it)
                     }
                 }
 
@@ -104,7 +104,7 @@ fun ButtonPrefItem(label: String, buttonLabel: String, onButtonPressed: () -> Un
 }
 
 @Composable
-fun <T : Enum<T>> RadioPrefItem(label: String, value: Enum<T>, onValueChange: (Enum<T>) -> Unit) {
+fun ThemePrefItem(label: String, value: Theme, onValueChange: (Theme) -> Unit) {
     Column(modifier = Modifier.padding(8.dp)) {
         Text(text = "$label:")
         Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -116,5 +116,4 @@ fun <T : Enum<T>> RadioPrefItem(label: String, value: Enum<T>, onValueChange: (E
             }
         }
     }
-
 }

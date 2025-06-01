@@ -17,13 +17,11 @@ val useThemePreferenceKey = stringPreferencesKey(USE_THEME)
 val useDynamicColorPreferenceKey = booleanPreferencesKey(USE_DYNAMIC_COLOR)
 
 class SettingsManager(private val preferencesDataStore: DataStore<Preferences>) {
-
-
-    public fun getBooleanPreference(pref: Preferences.Key<Boolean>) = preferencesDataStore.data.map { preferences ->
+    fun getBooleanPreference(pref: Preferences.Key<Boolean>) = preferencesDataStore.data.map { preferences ->
         preferences[pref] ?: true
     }
 
-    public fun getThemePreference() = preferencesDataStore.data.map { preferences ->
+    fun getThemePreference() = preferencesDataStore.data.map { preferences ->
         try {
             Theme.valueOf(preferences[useThemePreferenceKey] ?: Theme.entries[0].name)
         } catch (e: Exception) {
@@ -31,20 +29,7 @@ class SettingsManager(private val preferencesDataStore: DataStore<Preferences>) 
         }
     }
 
-    public fun <T : Enum<T>> getEnumPreference(pref: Preferences.Key<String>, enumClass: Class<T>) =
-        preferencesDataStore.data.map { preferences ->
-            try {
-                val prefValue = preferences[pref]
-                if (prefValue == null) {
-                    enumClass.enumConstants!!.first()
-                }
-                enumClass.enumConstants!!.first { it.name == prefValue }
-            } catch (e: Exception) {
-                enumClass.enumConstants!!.first()
-            }
-        }
-
-    public fun getIntPreference(pref: Preferences.Key<Int>) = preferencesDataStore.data.map { preferences ->
+    fun getIntPreference(pref: Preferences.Key<Int>) = preferencesDataStore.data.map { preferences ->
         preferences[pref] ?: 90
     }
 
@@ -54,15 +39,15 @@ class SettingsManager(private val preferencesDataStore: DataStore<Preferences>) 
         }
     }
 
-    suspend fun writeEnumPreference(pref: Preferences.Key<String>, value: Enum<*>) {
-        preferencesDataStore.edit { preferences ->
-            preferences[pref] = value.toString()
-        }
-    }
-
     suspend fun writeIntPreference(pref: Preferences.Key<Int>, value: Int) {
         preferencesDataStore.edit { preferences ->
             preferences[pref] = value
+        }
+    }
+
+    suspend fun writeThemePreference(value: Theme) {
+        preferencesDataStore.edit { preferences ->
+            preferences[useThemePreferenceKey] = value.name
         }
     }
 }
