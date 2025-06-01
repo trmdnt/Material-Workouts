@@ -1,8 +1,6 @@
 package eu.trmdnt.workouts.ui.activities
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -61,13 +59,11 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
             }
         })
     }, floatingActionButton = {
-        AnimatedVisibility(visible = uiState.editMode, enter = fadeIn(), exit = fadeOut()) {
-            FloatingActionButton(onClick = {
-                viewModel.onNewExercisePressed()
-            }, content = {
-                Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
-            })
-        }
+        FloatingActionButton(onClick = {
+            viewModel.onNewExercisePressed()
+        }, content = {
+            Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+        })
 
     }, content = {
         Column(
