@@ -3,8 +3,6 @@ package eu.trmdnt.workouts.ui.navigation
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.*
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
-import eu.trmdnt.workouts.ui.plans.exercisesTemplates.CreateExerciseDialog
 import eu.trmdnt.workouts.ui.plans.exercisesTemplates.EditExerciseTemplate
 import eu.trmdnt.workouts.ui.plans.exercisesTemplates.ViewExerciseTemplates
 import eu.trmdnt.workouts.ui.plans.workoutTemplates.EditPlan
@@ -39,21 +37,9 @@ fun NavGraphBuilder.plansGraph(
                 if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                     navController.navigate(Screens.Plans.EditExercise(it))
                 }
-            }, navToCreateExerciseTemplate = {
-                if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
-                    navController.navigate(Screens.Plans.CreateExercise)
-                }
             }, onBackPressed = {
                 if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                     navController.popBackStack()
-                }
-            })
-        }
-
-        dialog<Screens.Plans.CreateExercise> {
-            CreateExerciseDialog(onCreateExercise = {
-                if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
-                    navController.navigate(Screens.Plans.EditExercise(it))
                 }
             })
         }

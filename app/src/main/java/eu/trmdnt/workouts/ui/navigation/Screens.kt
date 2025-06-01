@@ -38,9 +38,6 @@ sealed class Screens {
         data class EditExercise(
             val exerciseTemplateId: Long,
         )
-
-        @Serializable
-        object CreateExercise
     }
 
     @Serializable

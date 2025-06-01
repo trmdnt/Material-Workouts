@@ -10,12 +10,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
+import eu.trmdnt.workouts.ui.components.CreateNewItemDialog
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
 
 @Composable
 fun ViewExerciseTemplates(
-    goToExerciseTemplate: (Long) -> Unit, navToCreateExerciseTemplate: () -> Unit, onBackPressed: () -> Unit
+    goToExerciseTemplate: (Long) -> Unit, onBackPressed: () -> Unit
 ) {
     val viewModel: ViewExerciseTemplatesViewModel = hiltViewModel()
 
@@ -39,7 +40,7 @@ fun ViewExerciseTemplates(
             viewModel.onLongItemPressed(it)
         },
         onCancel = {
-            viewModel.onCancelButtonPressed()
+            viewModel.onCancelselectionPressed()
         },
         onDelete = {
             viewModel.onDeleteButtonPressed()
@@ -56,7 +57,7 @@ fun ViewExerciseTemplates(
             TopAppBarWithBackButton(title = "viewing exercises", onBack = onBackPressed)
         },
         fabAction = {
-            navToCreateExerciseTemplate()
+            viewModel.onCreateExerciseButtonPressed()
         },
         getId = {
             it.exerciseTemplateId
@@ -67,5 +68,13 @@ fun ViewExerciseTemplates(
             text = uiState.confirmDialogText,
             onDismiss = { viewModel.onCancelDialogPressed() },
             onConfirm = { viewModel.onConfirmButtonPressed() })
+    }
+
+    if (uiState.createExerciseDialogShown) {
+        CreateNewItemDialog(
+            text = "Create a new exercise",
+            onDismiss = { viewModel.onCreateExerciseDialogDismissed() },
+            onCreate = { viewModel.onCreateExercise(it) }
+        )
     }
 }

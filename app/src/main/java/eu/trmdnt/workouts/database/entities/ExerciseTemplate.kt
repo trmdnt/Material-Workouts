@@ -16,19 +16,19 @@ data class ExerciseTemplate(
     val name: String,
 
     @ColumnInfo
-    val weight: Boolean,
+    val weight: Boolean = true,
 
     @ColumnInfo
-    val time: Boolean,
+    val time: Boolean = false,
 
     @ColumnInfo
-    val reps: Boolean,
+    val reps: Boolean = true,
 
     @ColumnInfo
-    val distance: Boolean,
+    val distance: Boolean = false,
 
     @ColumnInfo
-    val hidden: Boolean,
+    val hidden: Boolean = false,
 
     @ColumnInfo(name = "weight_times_two", defaultValue = "false")
     val weightTimesTwo: Boolean = false,

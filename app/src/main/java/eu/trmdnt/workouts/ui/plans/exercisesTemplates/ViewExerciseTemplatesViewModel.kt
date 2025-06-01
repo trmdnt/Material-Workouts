@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,9 +19,9 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         var selectAll: Boolean = false,
         val exerciseTemplates: List<ExerciseTemplate> = emptyList(),
         val selectedExerciseTemplates: List<ExerciseTemplate> = emptyList(),
-
         val confirmDialogShow: Boolean = false,
-        val confirmDialogText: String = ""
+        val confirmDialogText: String = "",
+        val createExerciseDialogShown: Boolean = false,
     )
 
     init {
@@ -38,7 +39,6 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
     val navigateToExerciseTemplateId: StateFlow<Long?> = _navigateToExerciseTemplateId
 
     fun onItemPressed(exerciseTemplate: ExerciseTemplate) {
-        // return true if event was handled
         if (uiState.value.editMode) {
             toggleSelection(exerciseTemplate)
         } else {
@@ -76,8 +76,31 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         onCancelDialogPressed()
     }
 
-    fun onCancelButtonPressed() {
+    fun onCancelselectionPressed() {
         getOutOfEditMode()
+    }
+
+    fun onCreateExerciseButtonPressed() {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = true,
+        )
+    }
+
+    fun onCreateExerciseDialogDismissed() {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = false,
+        )
+    }
+
+    fun onCreateExercise(name: String) {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = false,
+        )
+        viewModelScope.launch(IO) {
+            val template = ExerciseTemplate(name = name)
+            val id = gymRepository.insertExerciseTemplate(template)
+            _navigateToExerciseTemplateId.value = id
+        }
     }
 
     private fun getOutOfEditMode() {
