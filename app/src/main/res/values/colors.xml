@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="icon_background_color">#FF000000</color>
     <color name="icon_foreground_color">#FFFFFFFF</color>
+    <color name="splash_screen_background">@android:color/background_light</color>
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -43,10 +44,12 @@ import eu.trmdnt.workouts.ui.theme.isDarkMode
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val splashScreen = installSplashScreen()
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
+
+            splashScreen.setKeepOnScreenCondition { uiState.showSplashScreen }
 
             //TODO this seems very janky
             val systemBarStyle = if (isDarkMode(uiState.theme)) {

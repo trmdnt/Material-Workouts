@@ -66,12 +66,6 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getThemePreference().collect { theme ->
-                _uiState.value = _uiState.value.copy(theme = theme)
-            }
-        }
-
-        viewModelScope.launch {
             settingsManager.getBooleanPreference(alwaysShowTimerUiPreferenceKey).collect {
                 alwaysShowTimerUi = it
                 _uiState.value = _uiState.value.copy(
@@ -102,6 +96,12 @@ class MainActivityViewModel @Inject constructor(
                 )
             }
         }
+
+        viewModelScope.launch {
+            settingsManager.getThemePreference().collect { theme ->
+                _uiState.value = _uiState.value.copy(theme = theme, showSplashScreen = false)
+            }
+        }
     }
 
     fun addTimer(workoutId: Long? = null, time: Int? = null) {
@@ -124,7 +124,8 @@ class MainActivityViewModel @Inject constructor(
         val showTimerPickerButton: Boolean = true,
         val timerDefaultValue: Int = 0,
         val theme: Theme = Theme.System,
-        val useDynamicColors: Boolean = true
+        val useDynamicColors: Boolean = true,
+        val showSplashScreen: Boolean = true
     )
 
 
