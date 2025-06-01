@@ -26,14 +26,14 @@ fun Settings() {
             when (pref) {
                 is SettingsViewModel.SwitchPreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(true).value
-                    SwitchPrefItem("${pref.key}", value) {
+                    SwitchPrefItem(pref.label, value) {
                         viewModel.onBooleanPreferenceChange(pref.key, it)
                     }
                 }
 
                 is SettingsViewModel.RadioPreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
-                    RadioPrefItem("${pref.key}", value) {
+                    RadioPrefItem(pref.label, value) {
                         viewModel.onEnumPreferenceChange(pref.key, it)
                     }
                 }
@@ -52,7 +52,7 @@ fun Settings() {
                             })
                         }
                     }
-                    ButtonPrefItem("${pref.key}", "Select") {
+                    ButtonPrefItem(pref.label, "Select") {
                         openAlertDialog.value = true
                     }
 

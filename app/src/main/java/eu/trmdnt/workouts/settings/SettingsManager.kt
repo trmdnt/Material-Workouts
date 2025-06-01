@@ -4,11 +4,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import kotlinx.coroutines.flow.map
 
-public val startTimerOnSetPreferenceKey = booleanPreferencesKey("startTimerOnSet")
-public val timerDefaultValuePreferenceKey = intPreferencesKey("timerDefaultValue")
-public val alwaysShowTimerUiPreferenceKey = booleanPreferencesKey("alwaysShowTimerUi")
-public val useThemePreferenceKey = stringPreferencesKey("useTheme")
-public val useDynamicColorPreferenceKey = booleanPreferencesKey("useDynamicColor")
+const val START_TIMER_ON_SET = "startTimerOnSet"
+const val TIMER_DEFAULT_VALUE = "timerDefaultValue"
+const val ALWAYS_SHOW_TIMER_UI = "alwaysShowTimerUi"
+const val USE_THEME = "useTheme"
+const val USE_DYNAMIC_COLOR = "useDynamicColor"
+
+val startTimerOnSetPreferenceKey = booleanPreferencesKey(START_TIMER_ON_SET)
+val timerDefaultValuePreferenceKey = intPreferencesKey(TIMER_DEFAULT_VALUE)
+val alwaysShowTimerUiPreferenceKey = booleanPreferencesKey(ALWAYS_SHOW_TIMER_UI)
+val useThemePreferenceKey = stringPreferencesKey(USE_THEME)
+val useDynamicColorPreferenceKey = booleanPreferencesKey(USE_DYNAMIC_COLOR)
 
 class SettingsManager(private val preferencesDataStore: DataStore<Preferences>) {
 
