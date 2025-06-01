@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,19 +22,19 @@ fun Settings() {
     val viewModel: SettingsViewModel = hiltViewModel()
 
     Column {
-        for (i in 1..viewModel.preferences.size - 1) {
+        for (i in 0..viewModel.preferences.size - 1) {
             val pref = viewModel.preferences[i]
             when (pref) {
                 is SettingsViewModel.SwitchPreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(true).value
-                    SwitchPrefItem(pref.label, value) {
+                    SwitchPrefItem(label = pref.label, value = value, enabled = pref.enabled) {
                         viewModel.onBooleanPreferenceChange(pref.key, it)
                     }
                 }
 
                 is SettingsViewModel.ThemePreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
-                    ThemePrefItem(pref.label, value) {
+                    ThemePrefItem(label = pref.label, value = value, enabled = pref.enabled) {
                         viewModel.onThemePreferenceChange(it)
                     }
                 }
@@ -52,7 +53,7 @@ fun Settings() {
                             })
                         }
                     }
-                    ButtonPrefItem(pref.label, "Select") {
+                    ButtonPrefItem(label = pref.label, buttonLabel = "Select", enabled = pref.enabled) {
                         openAlertDialog.value = true
                     }
 
@@ -66,52 +67,53 @@ fun Settings() {
 }
 
 @Composable
-fun SettingsItemContainer(content: @Composable () -> Unit) {
+fun SwitchPrefItem(label: String, value: Boolean, enabled: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun SwitchPrefItem(label: String, value: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+            .alpha(if (enabled) 1.0f else 0.5f)
     ) {
         Text(text = label, modifier = Modifier.weight(1f))
-        Switch(checked = value, onCheckedChange = { onCheckedChange(it) })
+        Switch(checked = value, onCheckedChange = { onCheckedChange(it) }, enabled = enabled)
     }
 
 }
 
 @Composable
-fun ButtonPrefItem(label: String, buttonLabel: String, onButtonPressed: () -> Unit) {
+fun ButtonPrefItem(label: String, buttonLabel: String, enabled: Boolean, onButtonPressed: () -> Unit) {
     Row(
-        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .alpha(if (enabled) 1.0f else 0.5f)
     ) {
         Text(text = label, modifier = Modifier.weight(1f))
-        Button(onClick = onButtonPressed) {
+        Button(onClick = onButtonPressed, enabled = enabled) {
             Text(buttonLabel)
         }
     }
 }
 
 @Composable
-fun ThemePrefItem(label: String, value: Theme, onValueChange: (Theme) -> Unit) {
-    Column(modifier = Modifier.padding(8.dp)) {
+fun ThemePrefItem(label: String, value: Theme, enabled: Boolean, onValueChange: (Theme) -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .alpha(if (enabled) 1.0f else 0.5f)
+    ) {
         Text(text = "$label:")
         Column(modifier = Modifier.padding(start = 16.dp)) {
             value.javaClass.enumConstants!!.forEach { enumValue ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = enumValue.name.lowercase(), modifier = Modifier.weight(1f))
-                    RadioButton(selected = enumValue == value, onClick = { onValueChange(enumValue) })
+                    RadioButton(
+                        selected = enumValue == value,
+                        onClick = { onValueChange(enumValue) },
+                        enabled = enabled
+                    )
                 }
             }
         }

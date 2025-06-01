@@ -103,7 +103,7 @@ fun AppTheme(
     val isDark = isDarkMode(theme)
 
     var colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        dynamicColor && supportsDynamicColor() -> {
             val context = LocalContext.current
             if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
@@ -144,4 +144,8 @@ fun isDarkMode(theme: Theme) = when (theme) {
     Theme.Light -> false
     Theme.Dark -> true
     Theme.Oled -> true
+}
+
+fun supportsDynamicColor(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 }

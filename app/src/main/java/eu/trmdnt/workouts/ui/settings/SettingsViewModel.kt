@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.settings.*
+import eu.trmdnt.workouts.ui.theme.supportsDynamicColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,46 +22,57 @@ class SettingsViewModel @Inject constructor(
     interface PreferenceEntry<T2 : Any> {
         val value: Flow<T2>
         val label: String
+        val enabled: Boolean
     }
 
     inner class SwitchPreferenceEntry(
         val key: Preferences.Key<Boolean>,
         override val label: String,
+        override val enabled: Boolean = true,
     ) : PreferenceEntry<Boolean> {
         override val value: Flow<Boolean> = settingsManager.getBooleanPreference(key)
     }
 
-    inner class TimeSpanPreferenceEntry(val key: Preferences.Key<Int>, override val label: String) :
-        PreferenceEntry<Int> {
+    inner class TimeSpanPreferenceEntry(
+        val key: Preferences.Key<Int>, override val label: String, override val enabled: Boolean = true
+    ) : PreferenceEntry<Int> {
         override val value = settingsManager.getIntPreference(key)
     }
 
     inner class ThemePreferenceEntry(
-        override val label: String
+        override val label: String, override val enabled: Boolean = true
     ) : PreferenceEntry<Theme> {
         override val value: Flow<Theme> = settingsManager.getThemePreference()
     }
 
-    val preferences: List<PreferenceEntry<*>> = listOf(
-        SwitchPreferenceEntry(
-            startTimerOnSetPreferenceKey, appContext.getString(R.string.start_timer_on_set_added_description)
-        ),
-        TimeSpanPreferenceEntry(
-            timerDefaultValuePreferenceKey,
-            appContext.getString(R.string.timer_default_value_description)
-        ),
-        SwitchPreferenceEntry(
-            alwaysShowTimerUiPreferenceKey,
-            appContext.getString(R.string.always_show_timer_description)
-        ),
-        ThemePreferenceEntry(
-            appContext.getString(R.string.use_theme_description)
-        ),
-        SwitchPreferenceEntry(
-            useDynamicColorPreferenceKey,
-            appContext.getString(R.string.use_dynamic_color_description)
+    val preferences: List<PreferenceEntry<*>> = buildList {
+        add(
+            TimeSpanPreferenceEntry(
+                timerDefaultValuePreferenceKey, appContext.getString(R.string.timer_default_value_description)
+            )
         )
-    )
+        add(
+            SwitchPreferenceEntry(
+                startTimerOnSetPreferenceKey, appContext.getString(R.string.start_timer_on_set_added_description)
+            )
+        )
+        add(
+            SwitchPreferenceEntry(
+                alwaysShowTimerUiPreferenceKey, appContext.getString(R.string.always_show_timer_description)
+            )
+        )
+        add(
+            ThemePreferenceEntry(
+                appContext.getString(R.string.use_theme_description)
+            )
+        )
+        add(
+            SwitchPreferenceEntry(
+                useDynamicColorPreferenceKey, appContext.getString(R.string.use_dynamic_color_description),
+                enabled = supportsDynamicColor()
+            )
+        )
+    }
 
     fun onBooleanPreferenceChange(key: Preferences.Key<Boolean>, value: Boolean) {
         viewModelScope.launch {
@@ -81,3 +93,4 @@ class SettingsViewModel @Inject constructor(
         }
     }
 }
+
