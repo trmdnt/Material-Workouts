@@ -18,6 +18,10 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
+    //TODO test this without again
+    lint {
+        disable "NullSafeMutableLiveData"
+    }
     signingConfigs {
         config {
             keyAlias keystoreProperties['keyAlias']

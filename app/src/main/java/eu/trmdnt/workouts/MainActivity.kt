@@ -7,10 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import eu.trmdnt.workouts.ui.main.MainScreen
 import eu.trmdnt.workouts.ui.theme.AppTheme
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsState()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             splashScreen.setKeepOnScreenCondition { uiState.showSplashScreen }
 

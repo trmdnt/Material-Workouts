@@ -22,7 +22,7 @@ class MainActivityViewModel @Inject constructor(
     // TODO the viewmodel should probably not be in charge of managing the timerServiceManager for the whole app
 
     val timerServiceManager: TimerServiceManager = TimerServiceManager(appContext)
-    private val _uiState = MutableStateFlow<UiState>(UiState())
+    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow<UiState>(UiState())
     val uiState: StateFlow<UiState> = _uiState
     var timer: MyTimer? = null
 
