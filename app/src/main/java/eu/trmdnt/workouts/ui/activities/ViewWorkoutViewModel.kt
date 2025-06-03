@@ -40,9 +40,16 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     private val _startTimer: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val startTimer: StateFlow<Boolean> = _startTimer
 
+    private val _goBack: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val goBack: StateFlow<Boolean> = _goBack
+
 
     private val workout = gymRepository.getWorkoutById(workoutId)
-    private val workoutObserver = Observer<Workout> {
+    private val workoutObserver = Observer<Workout?> {
+        if (it == null) {
+            _goBack.value = true
+            return@Observer
+        }
         if (workoutTemplateId.value == null) {
             workoutTemplateId.value = it.workoutTemplateId
         }

@@ -102,6 +102,7 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
         )
     }
 
+    //TODO disallow tracking 0 stats
     fun onSaveButtonPressed() {
         val et = exerciseTemplate.value!!.copy(
             name = _uiState.value.nameTextField,

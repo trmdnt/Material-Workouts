@@ -46,6 +46,12 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
         }
     }
 
+    viewModel.goBack.collectAsStateWithLifecycle().let {
+        if (it.value) {
+            onBackPressed()
+        }
+    }
+
     Scaffold(snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
     }, topBar = {
