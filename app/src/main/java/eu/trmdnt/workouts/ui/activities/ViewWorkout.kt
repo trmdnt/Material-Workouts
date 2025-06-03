@@ -183,7 +183,6 @@ fun ExerciseList(
     onRepsChanged: (Long, Long, Int) -> Unit,
     onDistanceChanged: (Long, Long, Double) -> Unit,
     onTimeChanged: (Long, Long, Long) -> Unit,
-    modifier: Modifier = Modifier,
     editMode: Boolean,
     onDeleteExercisePressed: (Long) -> Unit,
     onDeleteSetPressed: (Long) -> Unit,
@@ -211,14 +210,14 @@ fun ExerciseList(
             }
         }
 
-        LazyColumn(state = listState, modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        LazyColumn(state = listState, verticalArrangement = Arrangement.spacedBy(4.dp)) {
             itemsIndexed(
                 items = items, key = { _, item -> item.exercise.exerciseId }) { index, exerciseWithSets ->
                 SwipeToDeleteContainer(onDelete = {
                     onDeleteExercisePressed(exerciseWithSets.exercise.exerciseId)
                 }, enabled = editMode) {
                     Row(
-                        modifier = modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
                     ) {
