@@ -51,7 +51,10 @@ class ViewWorkoutViewModel @AssistedInject constructor(
             return@Observer
         }
         if (workoutTemplateId.value == null) {
-            workoutTemplateId.value = it.workoutTemplateId
+            it.workoutTemplateId?.let { id ->
+                recommended = gymRepository.getAllExerciseTemplatesFromWorkoutTemplate(id)
+                recommended?.observeForever(recommendedObserver)
+            }
         }
         _uiState.value = _uiState.value.copy(
             workoutName = it.name,
@@ -78,12 +81,6 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     init {
         workout.observeForever(workoutObserver)
-        workoutTemplateId.observeForever {
-            it?.let {
-                recommended = gymRepository.getAllExerciseTemplatesFromWorkoutTemplate(it)
-                recommended?.observeForever(recommendedObserver)
-            }
-        }
         exercises.observeForever(exercisesObserver)
         allAvailableExercises.observeForever(allAvailableExercisesObserver)
     }
