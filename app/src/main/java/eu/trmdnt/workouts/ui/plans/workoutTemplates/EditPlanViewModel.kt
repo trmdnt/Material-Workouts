@@ -24,7 +24,7 @@ class EditPlanViewModel @AssistedInject constructor(
         fun create(workoutTemplateId: Long): EditPlanViewModel
     }
 
-    val workoutTemplate: LiveData<WorkoutTemplate> = gymRepository.getWorkoutTemplateByIdLive(workoutTemplateId)
+    val workoutTemplate: LiveData<WorkoutTemplate> = gymRepository.getWorkoutTemplateById(workoutTemplateId)
     val selected = gymRepository.getAllExerciseTemplatesFromWorkoutTemplate(workoutTemplateId)
     val allExerciseTemplates = gymRepository.getAllExerciseTemplates()
 

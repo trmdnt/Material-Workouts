@@ -3,14 +3,7 @@ package eu.trmdnt.workouts.database
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.Dao
-import eu.trmdnt.workouts.database.entities.Exercise
-import eu.trmdnt.workouts.database.entities.ExerciseSet
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import eu.trmdnt.workouts.database.entities.ExerciseWithSets
-import eu.trmdnt.workouts.database.entities.Workout
-import eu.trmdnt.workouts.database.entities.WorkoutExerciseTemplateCrossRef
-import eu.trmdnt.workouts.database.entities.WorkoutTemplate
-import eu.trmdnt.workouts.database.entities.WorkoutTemplateWithExercises
+import eu.trmdnt.workouts.database.entities.*
 
 
 @Dao
@@ -25,7 +18,7 @@ interface Dao {
     @Query(
         "SELECT * FROM workout JOIN exercise ON workout.id = exercise.workout_id JOIN `Set` ON exercise.exercise_id = `Set`.exercise_id"
     )
-    fun getWorkoutsAndExercisesAnd(): LiveData<Map<Workout, Map<Exercise, ExerciseSet>>>
+    fun getWorkoutsExercisesSets(): LiveData<Map<Workout, Map<Exercise, ExerciseSet>>>
 
     //Templates
     @Query(
@@ -36,12 +29,7 @@ interface Dao {
     @Query(
         "SELECT * FROM workout_template where workout_template_id = :workoutTemplateId"
     )
-    fun getWorkoutTemplateByIdLive(workoutTemplateId: Long): LiveData<WorkoutTemplate>
-
-    @Query(
-        "SELECT * FROM workout_template where workout_template_id = :workoutTemplateId"
-    )
-    fun getWorkoutTemplateById(workoutTemplateId: Long): WorkoutTemplate
+    fun getWorkoutTemplateById(workoutTemplateId: Long): LiveData<WorkoutTemplate>
 
     @Insert
     fun insertWorkoutTemplate(workoutTemplate: WorkoutTemplate): Long
@@ -67,15 +55,9 @@ interface Dao {
     @Query("SELECT * FROM exercise_template WHERE exercise_template_id = :exerciseTemplateId")
     fun getExerciseTemplateById(exerciseTemplateId: Long): LiveData<ExerciseTemplate>
 
-//    @Query("SELECT * FROM exercise_template WHERE exercise_template_id = :exerciseTemplateId")
-//    fun getExerciseTemplateByIdInstant(exerciseTemplateId: Long): ExerciseTemplate
-
-
     @Query("SELECT exercise_template.* FROM exercise_template JOIN workout_exercise_template_cross_ref ON workout_exercise_template_cross_ref.exercise_template_id=exercise_template.exercise_template_id WHERE workout_template_id = :workoutTemplateId")
     fun getAllExercisesFromWorkoutTemplate(workoutTemplateId: Long): LiveData<List<ExerciseTemplate>>
 
-//    @Insert
-//    fun insertAllExerciseTemplates(vararg exerciseTemplates: ExerciseTemplate)
 
     @Insert
     fun insertExerciseTemplate(exerciseTemplate: ExerciseTemplate): Long

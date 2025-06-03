@@ -1,21 +1,13 @@
 package eu.trmdnt.workouts.database
 
 import androidx.lifecycle.LiveData
-import eu.trmdnt.workouts.database.entities.Exercise
-import eu.trmdnt.workouts.database.entities.ExerciseSet
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import eu.trmdnt.workouts.database.entities.ExerciseWithSets
-import eu.trmdnt.workouts.database.entities.Workout
-import eu.trmdnt.workouts.database.entities.WorkoutExerciseTemplateCrossRef
-import eu.trmdnt.workouts.database.entities.WorkoutTemplate
+import eu.trmdnt.workouts.database.entities.*
 
 class GymRepository(private val dao: Dao) {
+    //WorkoutTemplates
     fun getAllWorkoutTemplates(): LiveData<List<WorkoutTemplate>> = dao.getWorkoutTemplates()
 
-    fun getWorkoutTemplateByIdLive(workoutTemplateId: Long): LiveData<WorkoutTemplate> =
-        dao.getWorkoutTemplateByIdLive(workoutTemplateId)
-
-    fun getWorkoutTemplateById(workoutTemplateId: Long): WorkoutTemplate =
+    fun getWorkoutTemplateById(workoutTemplateId: Long): LiveData<WorkoutTemplate> =
         dao.getWorkoutTemplateById(workoutTemplateId)
 
     fun insertWorkoutTemplate(workoutTemplate: WorkoutTemplate): Long {
@@ -26,42 +18,24 @@ class GymRepository(private val dao: Dao) {
         dao.deleteWorkoutTemplate(*workoutTemplates.toTypedArray())
     }
 
+    fun updateWorkoutTemplate(workoutTemplate: WorkoutTemplate) {
+        dao.updateWorkoutTemplate(workoutTemplate)
+    }
+
+    //ExerciseTemplates
     fun getAllExerciseTemplatesFromWorkoutTemplate(workoutTemplateId: Long): LiveData<List<ExerciseTemplate>> =
         dao.getAllExercisesFromWorkoutTemplate(workoutTemplateId)
 
     fun getAllExerciseTemplates(): LiveData<List<ExerciseTemplate>> = dao.getAllExerciseTemplates()
 
-    //    fun insertAllExerciseTemplates(vararg exerciseTemplate: ExerciseTemplate) {
-//        dao.insertAllExerciseTemplates(*exerciseTemplate)
-//    }
-    fun getExerciseTemplateById(id: Long): LiveData<ExerciseTemplate> {
-        println("trying to get $id")
-        val exerciseTemplate = dao.getExerciseTemplateById(id)
+    fun getExerciseTemplateById(id: Long) = dao.getExerciseTemplateById(id)
 
-        println(exerciseTemplate.value)
-        return exerciseTemplate
-    }
+    fun insertExerciseTemplate(exerciseTemplate: ExerciseTemplate) = dao.insertExerciseTemplate(exerciseTemplate)
 
-//    fun getExerciseTemplateByIdNow(id: Long): ExerciseTemplate {
-//        println("trying to get $id")
-//        val exerciseTemplate = dao.getExerciseTemplateByIdInstant(id)
-//        sleep(500)
-//        println(exerciseTemplate)
-//        return exerciseTemplate
-//    }
+    fun updateExerciseTemplate(exerciseTemplate: ExerciseTemplate) = dao.updateExerciseTemplate(exerciseTemplate)
 
-
-    fun insertExerciseTemplate(exerciseTemplate: ExerciseTemplate): Long {
-        return dao.insertExerciseTemplate(exerciseTemplate)
-    }
-
-    fun updateExerciseTemplate(exerciseTemplate: ExerciseTemplate) {
-        dao.updateExerciseTemplate(exerciseTemplate)
-    }
-
-    fun deleteExerciseTemplates(exerciseTemplates: List<ExerciseTemplate>) {
+    fun deleteExerciseTemplates(exerciseTemplates: List<ExerciseTemplate>) =
         dao.deleteExerciseTemplates(*exerciseTemplates.toTypedArray())
-    }
 
     fun addExerciseToWorkoutTemplate(workoutTemplateId: Long, exerciseTemplateId: Long) {
         dao.insertWorkoutExerciseTemplateCrossRef(
@@ -79,16 +53,13 @@ class GymRepository(private val dao: Dao) {
         )
     }
 
-    fun updateWorkoutTemplate(workoutTemplate: WorkoutTemplate) {
-        dao.updateWorkoutTemplate(workoutTemplate)
-    }
 
+    //Workouts
     fun getAllWorkouts(): LiveData<List<Workout>> {
         return dao.getAllWorkouts();
     }
 
     fun createWorkout(workout: Workout): Long {
-
         return dao.insertWorkout(workout)
     }
 
@@ -101,14 +72,30 @@ class GymRepository(private val dao: Dao) {
         return dao.getWorkoutById(id)
     }
 
+    fun updateWorkout(workout: Workout) {
+        dao.updateWorkout(workout)
+    }
+
+
+    //Exercises
     fun insertExercise(exercise: Exercise) {
         return dao.insertExercise(exercise)
+    }
+
+    fun deleteExerciseById(exerciseId: Long) {
+        dao.deleteExerciseById(exerciseId)
     }
 
     fun getAllExercisesByWorkoutId(workoutId: Long): LiveData<List<ExerciseWithSets>> {
         return dao.getExercisesByWorkoutId(workoutId)
     }
 
+    fun getExerciseWithSets(id: Long): ExerciseWithSets? {
+        return dao.getExerciseWithSetsById(id)
+    }
+
+
+    //Sets
     fun insertSet(set: ExerciseSet) {
         dao.insertSets(set)
     }
@@ -117,17 +104,8 @@ class GymRepository(private val dao: Dao) {
         dao.insertSets(*sets.toTypedArray())
     }
 
-
     fun updateSet(set: ExerciseSet) {
         dao.updateSet(set)
-    }
-
-    fun deleteExerciseById(exerciseId: Long) {
-        dao.deleteExerciseById(exerciseId)
-    }
-
-    fun getExerciseById(id: Long): Exercise? {
-        return dao.getExerciseById(id)
     }
 
     fun deleteSetById(setId: Long) {
@@ -136,13 +114,5 @@ class GymRepository(private val dao: Dao) {
 
     fun getSetById(id: Long): ExerciseSet? {
         return dao.getSetById(id)
-    }
-
-    fun getExerciseWithSets(id: Long): ExerciseWithSets? {
-        return dao.getExerciseWithSetsById(id)
-    }
-
-    fun updateWorkout(workout: Workout) {
-        dao.updateWorkout(workout)
     }
 }
