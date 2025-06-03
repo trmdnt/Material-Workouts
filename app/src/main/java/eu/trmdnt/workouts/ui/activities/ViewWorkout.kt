@@ -113,22 +113,14 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
 
             AnimatedVisibility(visible = uiState.editMode) {
                 if (uiState.recommendedExercises.isNotEmpty()) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text("available exercises:")
-                        ContextualFlowRow(
-                            itemCount = uiState.recommendedExercises.size,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) { index ->
-                            //TODO find out why this crashes when replacing the list
-                            var exerciseTemplate: ExerciseTemplate = try {
-                                uiState.recommendedExercises[index]
-                            } catch (_: IndexOutOfBoundsException) {
-                                return@ContextualFlowRow
-                            }
-                            Button(onClick = {
-                                viewModel.addExercise(exerciseTemplate)
-                            }) {
-                                Text(text = exerciseTemplate.name)
+                    Column(modifier = Modifier.padding(0.dp)) {
+                        FlowRow {
+                            for (exerciseTemplate in uiState.recommendedExercises) {
+                                TextButton(onClick = {
+                                    viewModel.addExercise(exerciseTemplate)
+                                }) {
+                                    Text(text = exerciseTemplate.name)
+                                }
                             }
                         }
                     }
