@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,6 +29,7 @@ import eu.trmdnt.workouts.database.entities.ExerciseWithSets
 import eu.trmdnt.workouts.ui.components.ListAvailableItems
 import eu.trmdnt.workouts.ui.components.SwipeToDeleteContainer
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -195,7 +197,21 @@ fun ExerciseList(
         }
 
     } else {
-        LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        val listState = rememberLazyListState()
+
+        //TODO janky and breaks animation (at this point, why even have the expand animation?)
+        LaunchedEffect(editMode) {
+            if (editMode) {
+                val atBottom =
+                    listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
+                if (atBottom) {
+                    delay(300)
+                    listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                }
+            }
+        }
+
+        LazyColumn(state = listState, modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
             itemsIndexed(
                 items = items, key = { _, item -> item.exercise.exerciseId }) { index, exerciseWithSets ->
                 SwipeToDeleteContainer(onDelete = {
@@ -244,7 +260,7 @@ fun ExerciseList(
                                     }
                                 }
                                 AnimatedVisibility(
-                                    visible = editMode
+                                    visible = editMode,
                                 ) {
                                     TextButton(onClick = {
                                         onSetAdded(exerciseWithSets.exercise.exerciseId)
