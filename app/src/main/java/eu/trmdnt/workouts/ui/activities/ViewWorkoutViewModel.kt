@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 @HiltViewModel(assistedFactory = ViewWorkoutViewModel.ViewWorkoutViewModelFactory::class)
 class ViewWorkoutViewModel @AssistedInject constructor(
@@ -142,7 +143,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     fun onSetAdded(exerciseId: Long) {
         val exerciseSet = ExerciseSet(
-            exerciseId = exerciseId, date = System.currentTimeMillis()
+            exerciseId = exerciseId, date = Instant.now().epochSecond
         )
         insertSet(exerciseSet)
         _startTimer.value = true

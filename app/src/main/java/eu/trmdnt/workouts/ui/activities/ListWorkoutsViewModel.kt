@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -131,7 +132,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
             name = "${workoutTemplate.name} on ${
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
             }",
-            dateStarted = System.currentTimeMillis(),
+            dateStarted = Instant.now().epochSecond,
             workoutTemplateId = if (workoutTemplate.workoutTemplateId == 0.toLong()) null else workoutTemplate.workoutTemplateId,
         )
         viewModelScope.launch(IO) {
