@@ -25,6 +25,7 @@ import eu.trmdnt.workouts.database.entities.*
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dao(): Dao
+    abstract fun statisticsDao(): StatisticsDao
 }
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
