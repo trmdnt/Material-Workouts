@@ -134,10 +134,10 @@ dependencies {
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    implementation("androidx.compose.runtime:runtime-tracing:1.7.8")
+    implementation(libs.androidx.runtime.tracing)
 
-    implementation "androidx.datastore:datastore-preferences:1.1.4"
+    implementation libs.androidx.datastore.preferences
 
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.splashscreen)
 
 }
