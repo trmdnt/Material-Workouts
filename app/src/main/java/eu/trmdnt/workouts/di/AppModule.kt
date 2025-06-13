@@ -10,10 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eu.trmdnt.workouts.database.AppDatabase
-import eu.trmdnt.workouts.database.Dao
-import eu.trmdnt.workouts.database.GymRepository
-import eu.trmdnt.workouts.database.getDatabase
+import eu.trmdnt.workouts.database.*
 import eu.trmdnt.workouts.settings.SettingsManager
 import javax.inject.Singleton
 
@@ -33,9 +30,20 @@ object AppModule {
     }
 
     @Provides
+    fun provideStatisticsDao(database: AppDatabase): StatisticsDao {
+        return database.statisticsDao()
+    }
+
+    @Provides
     @Singleton
     fun provideGymRepository(dao: Dao): GymRepository {
         return GymRepository(dao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStatisticsRepository(dao: StatisticsDao): StatisticsRepository {
+        return StatisticsRepository(dao)
     }
 
     @Provides

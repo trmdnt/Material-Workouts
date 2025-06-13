@@ -44,6 +44,11 @@ sealed class Screens {
     object Statistics {
         @Serializable
         object ListStatistics
+
+        @Serializable
+        data class ViewWeightPerRep(
+            val exerciseTemplateId: Long,
+        )
     }
 
 

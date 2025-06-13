@@ -1,6 +1,7 @@
 package eu.trmdnt.workouts.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
@@ -8,6 +9,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import eu.trmdnt.workouts.database.entities.*
+import java.util.concurrent.Executors
 
 @Database(
     entities = [
@@ -36,7 +38,13 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 }
 
 fun getDatabase(context: Context): AppDatabase {
-    return Room.databaseBuilder(
+    val builder = Room.databaseBuilder(
         context.applicationContext, AppDatabase::class.java, "gym_database"
-    ).addMigrations(MIGRATION_3_4).build()
+    ).addMigrations(MIGRATION_3_4)
+
+    builder.setQueryCallback(RoomDatabase.QueryCallback { sqlquery, bindargs ->
+        Log.d("DB_QUERY", "$sqlquery SQL Args: $bindargs")
+    }, Executors.newSingleThreadExecutor())
+
+    return builder.build()
 }
