@@ -2,6 +2,10 @@ package eu.trmdnt.workouts.ui.plans.exercisesTemplates
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -56,8 +60,12 @@ fun ViewExerciseTemplates(
         alternativeTopBar = {
             TopAppBarWithBackButton(title = "viewing exercises", onBack = onBackPressed)
         },
-        fabAction = {
-            viewModel.onCreateExerciseButtonPressed()
+        fab = {
+            FloatingActionButton(onClick = {
+                viewModel.onCreateExerciseButtonPressed()
+            }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            }
         },
         getId = {
             it.exerciseTemplateId

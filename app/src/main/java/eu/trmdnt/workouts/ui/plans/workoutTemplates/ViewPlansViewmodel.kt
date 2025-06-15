@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
+import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.database.entities.WorkoutTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -22,6 +23,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
         val confirmDialogShown: Boolean = false,
         val confirmDialogText: String = "",
         val createWorkoutTemplateDialogShown: Boolean = false,
+        val createExerciseDialogShown: Boolean = false,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -29,6 +31,9 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
 
     private val _navigateToWorkoutTemplateId = MutableStateFlow<Long?>(null)
     val navigateToWorkoutTemplateId: StateFlow<Long?> = _navigateToWorkoutTemplateId
+
+    private val _navigateToExerciseTemplateId = MutableStateFlow<Long?>(null)
+    val navigateToExerciseTemplateId: StateFlow<Long?> = _navigateToExerciseTemplateId
 
     init {
         gymRepository.getAllWorkoutTemplates().observeForever { workoutTemplates ->
@@ -40,6 +45,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
 
     fun receivedNavEvent() {
         _navigateToWorkoutTemplateId.value = null
+        _navigateToExerciseTemplateId.value = null
     }
 
     fun onItemPressed(workoutTemplate: WorkoutTemplate) {
@@ -101,6 +107,29 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
             val template = WorkoutTemplate(name = name)
             val id = gymRepository.insertWorkoutTemplate(template)
             _navigateToWorkoutTemplateId.value = id
+        }
+    }
+
+    fun onCreateExerciseButtonPressed() {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = true,
+        )
+    }
+
+    fun onCreateExerciseDialogDismissed() {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = false,
+        )
+    }
+
+    fun onCreateExercise(name: String) {
+        _uiState.value = _uiState.value.copy(
+            createExerciseDialogShown = false,
+        )
+        viewModelScope.launch(IO) {
+            val template = ExerciseTemplate(name = name)
+            val id = gymRepository.insertExerciseTemplate(template)
+            _navigateToExerciseTemplateId.value = id
         }
     }
 

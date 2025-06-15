@@ -2,10 +2,9 @@ package eu.trmdnt.workouts.ui.activities
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
@@ -54,8 +53,12 @@ fun ListWorkouts(navigateToWorkout: (Long, Boolean) -> Unit) {
             }
         },
         alternativeTopBar = null,
-        fabAction = {
-            viewModel.onStartWorkoutButtonPressed()
+        fab = {
+            FloatingActionButton(onClick = {
+                viewModel.onStartWorkoutButtonPressed()
+            }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            }
         },
         getId = {
             it.id

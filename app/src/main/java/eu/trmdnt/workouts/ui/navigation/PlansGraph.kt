@@ -13,11 +13,23 @@ fun NavGraphBuilder.plansGraph(
 ) {
     navigation<Screens.Plans>(startDestination = Screens.Plans.ViewPlans) {
         composable<Screens.Plans.ViewPlans> {
-            ViewPlans(goToWorkoutTemplate = {
-                if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
-                    navController.navigate(Screens.Plans.EditPlan(it))
+            ViewPlans(
+                goToWorkoutTemplate = {
+                    if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
+                        navController.navigate(Screens.Plans.EditPlan(it))
+                    }
+                },
+                goToExerciseTemplate = {
+                    if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
+                        navController.navigate(Screens.Plans.EditExercise(it))
+                    }
+                },
+                goToViewExerciseTemplates = {
+                    if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
+                        navController.navigate(Screens.Plans.ViewExercises)
+                    }
                 }
-            })
+            )
         }
         composable<Screens.Plans.EditPlan> { entry ->
             val editPlan = entry.toRoute<Screens.Plans.EditPlan>()
