@@ -12,6 +12,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Builder
@@ -50,7 +51,7 @@ class TimerService : Service() {
         val TAG: String = TimerService::class.java.simpleName + " (" + this.hashCode() + ")"
     }
 
-    private val refreshTimer: Timer;
+    private val refreshTimer: Timer
 
     init {
         refreshTimer = fixedRateTimer(period = 1000L, initialDelay = 1000L) {
@@ -90,8 +91,7 @@ class TimerService : Service() {
                     }
 
                     val notificationBuilder: Builder = Builder(
-                        this@TimerService,
-                        TIMER_FINISHED_CHANNEL
+                        this@TimerService, TIMER_FINISHED_CHANNEL
                     ).setSmallIcon(R.drawable.rounded_timer_off_24).setContentTitle("Set timer")
                         .setContentText("time is over " + timer.value!!.getText())
                         .setPriority(NotificationCompat.PRIORITY_HIGH).setSilent(false)
@@ -100,8 +100,7 @@ class TimerService : Service() {
                             this@TimerService, Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
+                        
                     } else {
                         NotificationManagerCompat.from(this@TimerService)
                             .notify(TIMER_NOTIF_ID, notificationBuilder.build())
@@ -150,6 +149,18 @@ class TimerService : Service() {
             return START_REDELIVER_INTENT
         } else {
             Log.d(TAG, "service should not stop")
+
+            if (ActivityCompat.checkSelfPermission(
+                    this@TimerService, Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Toast.makeText(
+                    this,
+                    "notifications will not be shown as the permission has not been granted",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             state = SERVICE_STATE.RUNNING
             val filter = IntentFilter()
             filter.addAction(INTENT_STOP_SERVICE)
@@ -171,8 +182,7 @@ class TimerService : Service() {
 
     fun stopService() {
         //throw RuntimeException()
-        Log.d(TAG, "stopService: called")
-        /*
+        Log.d(TAG, "stopService: called")/*
         this is in case the service was removed from foreground and detached from the notification (after the
          time ran out) but was started in foreground again (because the timer was changed) and is then stopped while
          running. Since the service is now detached from the notification, the last timer progress update
@@ -242,11 +252,9 @@ class TimerService : Service() {
 
         val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
         return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentTitle("Set timer")
-            .setContentText(timer.value!!.getText()).setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_PROGRESS)
-            .setOngoing(true)
-            .setContentIntent(openAppPendingIntent)
+            .setContentTitle("Set timer").setContentText(timer.value!!.getText())
+            .setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_PROGRESS).setOngoing(true).setContentIntent(openAppPendingIntent)
             .addAction(R.drawable.outline_timer_10_select_24, "Add 10s", addTimePendingIntent)
             .addAction(R.drawable.rounded_timer_off_24, "Stop", stopPendingIntent).build()
     }
@@ -277,7 +285,7 @@ class TimerService : Service() {
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE
         )
-        return pendingIntent;
+        return pendingIntent
     }
 
     fun addTime(seconds: Int) {
