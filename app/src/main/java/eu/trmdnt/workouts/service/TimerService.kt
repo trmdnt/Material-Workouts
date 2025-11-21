@@ -100,7 +100,7 @@ class TimerService : Service() {
                             this@TimerService, Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
-                        
+
                     } else {
                         NotificationManagerCompat.from(this@TimerService)
                             .notify(TIMER_NOTIF_ID, notificationBuilder.build())
@@ -124,6 +124,8 @@ class TimerService : Service() {
                 Log.d(TAG, "refreshState: cancelled")
             }
 
+            // the service stays active for 5 seconds after the timer ran out
+            // service contains the timer object which is displayed on the main screen
             SERVICE_STATE.SHOULD_STOP -> {
 
             }
@@ -148,8 +150,6 @@ class TimerService : Service() {
             stopService()
             return START_REDELIVER_INTENT
         } else {
-            Log.d(TAG, "service should not stop")
-
             if (ActivityCompat.checkSelfPermission(
                     this@TimerService, Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED

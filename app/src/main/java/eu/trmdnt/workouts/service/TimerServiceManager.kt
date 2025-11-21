@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class TimerServiceManager(
@@ -85,6 +84,7 @@ class TimerServiceManager(
     }
 
     fun unBindService() {
+        Log.d(TAG, "unBindService: called")
         timerService?.let {
             applicationContext.unbindService(connection)
         }
