@@ -264,8 +264,7 @@ class TimerService : Service() {
         if (timer.value!!.workoutId != null) {
             openAppIntent = Intent(
                 Intent.ACTION_VIEW,
-                //TODO deep link does not open the workout in edit mode
-                "workouts://app/activities/workout/${timer.value!!.workoutId}?editMode=true".toUri(),
+                "workouts://app/activities/workout/${timer.value!!.workoutId}?edit=true".toUri(),
                 applicationContext,
                 MainActivity::class.java
             )

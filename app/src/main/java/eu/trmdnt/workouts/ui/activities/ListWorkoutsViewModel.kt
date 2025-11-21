@@ -25,7 +25,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         val selectedWorkouts: List<Workout> = emptyList(),
         val confirmDialogShown: Boolean = false,
         val confirmDialogText: String = "",
-        val startWorkoutBottomSheetShown: Boolean = false,
+        val newWorkoutSelectionFabOpen: Boolean = false,
         val workoutTemplates: List<WorkoutTemplate> = emptyList(),
     )
 
@@ -103,12 +103,6 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         )
     }
 
-    fun onCancelStartSheetPressed() {
-        _uiState.value = _uiState.value.copy(
-            startWorkoutBottomSheetShown = false,
-        )
-    }
-
     fun onConfirmButtonPressed() {
         viewModelScope.launch(IO) {
             gymRepository.deleteWorkouts(uiState.value.selectedWorkouts)
@@ -121,9 +115,9 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         getOutOfEditMode()
     }
 
-    fun onStartWorkoutButtonPressed() {
+    fun onFabPressed() {
         _uiState.value = _uiState.value.copy(
-            startWorkoutBottomSheetShown = true,
+            newWorkoutSelectionFabOpen = !uiState.value.newWorkoutSelectionFabOpen,
         )
     }
 
@@ -138,7 +132,7 @@ class ListWorkoutsViewModel @Inject constructor(private val gymRepository: GymRe
         viewModelScope.launch(IO) {
             val id = gymRepository.createWorkout(workout)
             _uiState.value = _uiState.value.copy(
-                startWorkoutBottomSheetShown = false
+                newWorkoutSelectionFabOpen = false
             )
             _navigateToWorkout.value = Pair(id, true)
         }
