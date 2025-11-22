@@ -5,4 +5,5 @@ data class WeightOnDate(
     var totalWeight: Double,
     var totalReps: Double,
     var weightPerRep: Double,
+    var dateTimeStamp: Long,
 )

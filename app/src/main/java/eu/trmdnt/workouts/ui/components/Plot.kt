@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -19,8 +19,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import eu.trmdnt.workouts.database.entities.statistics.WeightOnDate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,6 +39,8 @@ fun DateHistoryPlot(
     data: List<DataPoint>,
     yAxis1: String,
     yAxis2: String,
+    selectedPoint: Int?,
+    onPointSelected: (Int) -> Unit
 ) {
     if (data.isEmpty()) return
 
@@ -50,7 +50,7 @@ fun DateHistoryPlot(
     val dataOneColor = MaterialTheme.colorScheme.tertiary
     val dataTwoColor = MaterialTheme.colorScheme.primary
     val lineWidth = 4f
-    val borderOffset = 100f
+    val borderOffset = 80f
     val axisPointSize = 15f
     val textStyle = MaterialTheme.typography.bodyLarge
     val textStyleSmall = MaterialTheme.typography.bodySmall
@@ -70,8 +70,8 @@ fun DateHistoryPlot(
     val plot2Zero = 0f
     val plot2Max = ceil(data2Max)
 
-    var pressedPosition by remember { mutableStateOf<Float?>(500f) }
-    var selectedDataPoint by remember { mutableStateOf<DataPoint?>(null) }
+    //used to store the position of a click in the canvas
+    var pressedPosition by remember { mutableStateOf<Float?>(null) }
 
     Box(Modifier.fillMaxSize()) {
         Canvas(
@@ -82,12 +82,7 @@ fun DateHistoryPlot(
                 .pointerInput(key1 = Unit) {
                     detectTapGestures(
                         onPress = {
-                            if (pressedPosition != null) {
-                                selectedDataPoint = null
-                                pressedPosition = null
-                            } else {
-                                pressedPosition = it.x
-                            }
+                            pressedPosition = it.x
                         }
                     )
                 }
@@ -112,18 +107,21 @@ fun DateHistoryPlot(
             }
 
             pressedPosition?.let { it ->
+                pressedPosition = null
                 val xCoord = realXCoordinateToDrawingZone(it)
 
-                val value = data.minBy { it2 ->
-                    abs(xCoord - it2.xPosition)
-                }
+                val index = data.withIndex().minBy { it ->
+                    abs(xCoord - it.value.xPosition)
+                }.index
 
-                selectedDataPoint = value
+                onPointSelected(index)
+            }
 
+            selectedPoint?.let {
                 drawLine(
                     color = lineColor,
-                    start = getDrawingZoneOffset(value.xPosition, 0f),
-                    end = getDrawingZoneOffset(value.xPosition, 1f),
+                    start = getDrawingZoneOffset(data[it].xPosition, 0f),
+                    end = getDrawingZoneOffset(data[it].xPosition, 1f),
                     strokeWidth = lineWidth,
                     pathEffect = PathEffect.dashPathEffect(
                         intervals = floatArrayOf(10f, 10f),
@@ -179,7 +177,7 @@ fun DateHistoryPlot(
                 )
                 val yLabelTopLeft =
                     topLeft.copy(
-                        x = topLeft.x - measuredYLabel.size.width / 2,
+                        x = 0f,
                         y = topLeft.y - measuredYLabel.size.height - 20f
                     )
                 drawText(measuredYLabel, topLeft = yLabelTopLeft)
@@ -196,6 +194,7 @@ fun DateHistoryPlot(
                         strokeWidth = lineWidth
                     )
                     val measuredLabel = textMeasurer.measure(
+                        //TODO questionable way to display number instead of number.0
                         text = if (ceil(it) == it) it.toInt().toString() else it.toString(),
                         style = textStyle.copy(color = dataOneColor),
                     )
@@ -222,8 +221,9 @@ fun DateHistoryPlot(
                     text = labelYAxis2,
                     style = textStyle.copy(color = dataTwoColor),
                 )
+                val overdraw = topRight.x + measuredYLabel.size.width - width
                 val yLabelTopRight = topLeft.copy(
-                    x = topRight.x - measuredYLabel.size.width / 2, y = topRight.y - measuredYLabel.size.height - 20f
+                    x = topRight.x - overdraw, y = topRight.y - measuredYLabel.size.height - 20f
                 )
                 drawText(measuredYLabel, topLeft = yLabelTopRight)
 
@@ -337,26 +337,6 @@ fun DateHistoryPlot(
                 cap = StrokeCap.Round,
             )
         }
-
-        //TODO fix overflow
-        //TODO janky
-        selectedDataPoint?.let { (xPosition, date, value1, value2) ->
-            pressedPosition?.let { pressedPosition ->
-                Card(modifier = Modifier.offset {
-                    IntOffset(pressedPosition.toInt(), 0)
-                }) {
-                    Column(
-                        modifier = Modifier
-                            .padding(4.dp)
-                    ) {
-                        Text(dayMonthFormat.format(date))
-                        Text("$labelYAxis1: $value1")
-                        Text("$labelYAxis2: $value2")
-                    }
-
-                }
-            }
-        }
     }
 }
 
@@ -365,15 +345,20 @@ fun getDaysSince(date: Date, since: Date): Long {
 }
 
 @Composable
-fun WeightRepHistoryPlot(data: List<WeightOnDate>) {
+fun WeightRepHistoryPlot(
+    data: List<WeightOnDate>,
+    pointSelected: Int?,
+    onPointSelected: (Int) -> Unit
+) {
     Log.d("TAG", "WeightRepHistoryPlot: $data")
+
     if (!data.isEmpty()) {
         val startDate = dateFormat.parse(data.first().date)!!
         val endDate = dateFormat.parse(data.last().date)!!
 
         val totalDays = getDaysSince(endDate, startDate)
 
-        val dataPoints = data.mapIndexed { index, value ->
+        val dataPoints = data.mapIndexed { i, value ->
             val date = dateFormat.parse(value.date)!!
             DataPoint(
                 date = date, xPosition = getDaysSince(date, startDate).toFloat() / totalDays,
@@ -382,7 +367,9 @@ fun WeightRepHistoryPlot(data: List<WeightOnDate>) {
             )
         }
 
-        DateHistoryPlot(dataPoints, "weight/reps", "totalReps")
+        DateHistoryPlot(dataPoints, "weight/reps", "totalReps", pointSelected, {
+            onPointSelected(it)
+        })
     } else {
         Text("empty")
     }
@@ -393,21 +380,21 @@ fun WeightRepHistoryPlot(data: List<WeightOnDate>) {
 fun WeightHistoryPlotPreview() {
     val data: List<WeightOnDate> = listOf(
         WeightOnDate(
-            date = "2025-06-25", totalWeight = 300.0, totalReps = 30.0, weightPerRep = 5.0
+            date = "2025-06-25", totalWeight = 300.0, totalReps = 30.0, weightPerRep = 5.0, dateTimeStamp = 1750870221
         ),
 
         WeightOnDate(
-            date = "2025-06-29", totalWeight = 350.0, totalReps = 35.0, weightPerRep = 10.0
+            date = "2025-06-29", totalWeight = 350.0, totalReps = 35.0, weightPerRep = 10.0, dateTimeStamp = 1751215821
         ),
 
         WeightOnDate(
-            date = "2025-07-15", totalWeight = 250.0, totalReps = 30.0, weightPerRep = 15.0
+            date = "2025-07-15", totalWeight = 250.0, totalReps = 30.0, weightPerRep = 15.0, dateTimeStamp = 1752598221
         ),
 
         WeightOnDate(
-            date = "2025-07-29", totalWeight = 250.0, totalReps = 15.0, weightPerRep = 25.0
+            date = "2025-07-29", totalWeight = 250.0, totalReps = 15.0, weightPerRep = 25.0, dateTimeStamp = 1752598221
         ),
     )
 
-    WeightRepHistoryPlot(data)
+    WeightRepHistoryPlot(data, 2, {})
 }
