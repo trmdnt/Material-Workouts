@@ -250,7 +250,7 @@ class TimerService : Service() {
 
         val openAppPendingIntent = getOpenAppPendingIntent()
 
-        val notificationBuilder: Builder = Builder(this, TIMER_PROGRESS_CHANNEL)
+        val notificationBuilder = Builder(this, TIMER_PROGRESS_CHANNEL)
         return notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setContentTitle("Set timer").setContentText(timer.value!!.getText())
             .setSmallIcon(R.drawable.rounded_timer_24).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_LOW)

@@ -50,7 +50,7 @@ fun TabView(navController: NavController) {
                 AnimatedVisibility(
                     visible = isSelected, enter = expandVertically(), exit = shrinkVertically()
                 ) {
-                    Text(destination.title, fontWeight = FontWeight.Companion.Bold)
+                    Text(destination.title, fontWeight = FontWeight.Bold)
                 }
             })
         }

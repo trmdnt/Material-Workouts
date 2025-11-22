@@ -60,39 +60,51 @@ class ViewExerciseStatisticViewModel @AssistedInject constructor(
     }
 
     fun onPreviousPressed() {
-        if (uiState.value.selectedPoint == null) {
-            if (uiState.value.data.isEmpty()) {
+        when (uiState.value.selectedPoint) {
+            null -> {
+                if (uiState.value.data.isEmpty()) {
+                    return
+                }
+
+                _uiState.value = uiState.value.copy(
+                    selectedPoint = uiState.value.data.size - 1
+                )
+            }
+
+            0 -> {
                 return
             }
 
-            _uiState.value = uiState.value.copy(
-                selectedPoint = uiState.value.data.size - 1
-            )
-        } else if (uiState.value.selectedPoint == 0) {
-            return
-        } else {
-            _uiState.value = uiState.value.copy(
-                selectedPoint = uiState.value.selectedPoint!! - 1
-            )
+            else -> {
+                _uiState.value = uiState.value.copy(
+                    selectedPoint = uiState.value.selectedPoint!! - 1
+                )
+            }
         }
         refreshSetsOnDate()
     }
 
     fun onNextPressed() {
-        if (uiState.value.selectedPoint == null) {
-            if (uiState.value.data.isEmpty()) {
+        when (uiState.value.selectedPoint) {
+            null -> {
+                if (uiState.value.data.isEmpty()) {
+                    return
+                }
+
+                _uiState.value = uiState.value.copy(
+                    selectedPoint = uiState.value.data.size - 1
+                )
+            }
+
+            uiState.value.data.size - 1 -> {
                 return
             }
 
-            _uiState.value = uiState.value.copy(
-                selectedPoint = uiState.value.data.size - 1
-            )
-        } else if (uiState.value.selectedPoint == uiState.value.data.size - 1) {
-            return
-        } else {
-            _uiState.value = uiState.value.copy(
-                selectedPoint = uiState.value.selectedPoint!! + 1
-            )
+            else -> {
+                _uiState.value = uiState.value.copy(
+                    selectedPoint = uiState.value.selectedPoint!! + 1
+                )
+            }
         }
         refreshSetsOnDate()
     }

@@ -3,13 +3,13 @@ package eu.trmdnt.workouts.ui.plans.workoutTemplates
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import eu.trmdnt.workouts.database.GymRepository
-import eu.trmdnt.workouts.database.entities.ExerciseTemplate
-import eu.trmdnt.workouts.database.entities.WorkoutTemplate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.trmdnt.workouts.database.GymRepository
+import eu.trmdnt.workouts.database.entities.ExerciseTemplate
+import eu.trmdnt.workouts.database.entities.WorkoutTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,7 +65,7 @@ class EditPlanViewModel @AssistedInject constructor(
     )
 
     fun onExercisePressed(exerciseTemplateId: Long) {
-        if (uiState.value.selected.find { it -> it.exerciseTemplateId == exerciseTemplateId } != null) {
+        if (uiState.value.selected.find { it.exerciseTemplateId == exerciseTemplateId } != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 gymRepository.removeExerciseFromWorkoutTemplate(
                     workoutTemplateId = workoutTemplateId, exerciseTemplateId = exerciseTemplateId

@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.settings.Theme
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
@@ -22,9 +22,8 @@ fun Settings() {
     val viewModel: SettingsViewModel = hiltViewModel()
 
     Column {
-        for (i in 0..viewModel.preferences.size - 1) {
-            val pref = viewModel.preferences[i]
-            when (pref) {
+        for (i in 0..<viewModel.preferences.size) {
+            when (val pref = viewModel.preferences[i]) {
                 is SettingsViewModel.SwitchPreferenceEntry -> {
                     val value = pref.value.collectAsStateWithLifecycle(true).value
                     SwitchPrefItem(label = pref.label, value = value, enabled = pref.enabled) {

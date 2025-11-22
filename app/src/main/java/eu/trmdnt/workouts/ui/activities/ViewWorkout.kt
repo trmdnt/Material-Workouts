@@ -23,7 +23,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
@@ -184,6 +184,7 @@ fun ViewWorkout(
 
     //TODO understand LaunchedEffect
     if (uiState.showUndoSnackBar) {
+        @Suppress("KotlinConstantConditions")
         LaunchedEffect(uiState.showUndoSnackBar) {
             try {
                 val result = snackbarHostState.showSnackbar(

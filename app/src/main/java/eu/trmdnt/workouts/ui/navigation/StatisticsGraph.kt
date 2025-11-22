@@ -13,11 +13,11 @@ fun NavGraphBuilder.statisticsGraph(
 ) {
     navigation<Screens.Statistics>(startDestination = Screens.Statistics.ListStatistics) {
         composable<Screens.Statistics.ListStatistics> {
-            ListStatistics({
+            ListStatistics {
                 if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                     navController.navigate(Screens.Statistics.ViewWeightPerRep(it))
                 }
-            })
+            }
         }
 
         composable<Screens.Statistics.ViewWeightPerRep> { entry ->

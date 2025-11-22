@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class ListStatisticsViewModel @Inject constructor(private val gymRepository: GymRepository) : ViewModel() {
+class ListStatisticsViewModel @Inject constructor(gymRepository: GymRepository) : ViewModel() {
     data class UiState(
         val availableExercises: List<ExerciseTemplate> = emptyList(),
     )

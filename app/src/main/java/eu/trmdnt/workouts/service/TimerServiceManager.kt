@@ -93,13 +93,14 @@ class TimerServiceManager(
         timerService?.stopService()
     }
 
-    //TODO check if not unbinding when the app goes into background leaks anything
-    fun unBindService() {
-        Log.d(TAG, "unBindService: called")
-        timerService?.let {
-            applicationContext.unbindService(connection)
-        }
-    }
+
+//    TODO check if not unbinding when the app goes into background leaks anything
+//    fun unBindService() {
+//        Log.d(TAG, "unBindService: called")
+//        timerService?.let {
+//            applicationContext.unbindService(connection)
+//        }
+//    }
 
     private fun tryToBindToServiceIfRunning(): Boolean {
         if (isConnecting) {

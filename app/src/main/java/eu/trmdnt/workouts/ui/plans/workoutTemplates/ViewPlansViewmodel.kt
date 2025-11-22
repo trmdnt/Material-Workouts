@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.database.entities.WorkoutTemplate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,7 +75,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
     }
 
     fun onConfirmButtonPressed() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(IO) {
             gymRepository.deleteWorkoutTemplates(uiState.value.selectedWorkoutTemplates)
             getOutOfEditMode()
         }

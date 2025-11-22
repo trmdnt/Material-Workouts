@@ -45,7 +45,7 @@ fun MainScreen(
             if (showTimer) {
                 TimerContainer {
                     Text(
-                        text = timerText.toString(), modifier = Modifier.Companion
+                        text = timerText.toString(), modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
                     )
@@ -63,7 +63,7 @@ fun MainScreen(
             } else if (showTimerPickerButton) {
                 TimerContainer {
                     val showTimerPickerDialog = remember { mutableStateOf(false) }
-                    Column(modifier = Modifier.Companion.weight(1f)) {}
+                    Column(modifier = Modifier.weight(1f)) {}
                     TextButton(onClick = { showTimerPickerDialog.value = true }) {
                         Text("Select timer")
                         Icon(Icons.Outlined.Timer, contentDescription = "add timer")
@@ -91,7 +91,7 @@ fun MainScreen(
                 exitTransition = { exitTransition },
                 popEnterTransition = { enterTransition },
                 popExitTransition = { exitTransition },
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(contentPadding)
                     .consumeWindowInsets(contentPadding)
             ) {

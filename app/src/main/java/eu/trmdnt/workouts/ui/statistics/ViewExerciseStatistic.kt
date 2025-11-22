@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import eu.trmdnt.workouts.ui.components.TableCell
 import eu.trmdnt.workouts.ui.components.TableHeader
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
@@ -44,9 +44,9 @@ fun ViewWeightPerRep(exerciseTemplateId: Long, onBackPressed: () -> Unit) {
                 .fillMaxSize()
         ) {
             Row(modifier = Modifier.weight(3f)) {
-                WeightRepHistoryPlot(uiState.data, uiState.selectedPoint, {
+                WeightRepHistoryPlot(uiState.data, uiState.selectedPoint) {
                     viewModel.onPlotPointSelected(it)
-                })
+                }
             }
 
             Column(

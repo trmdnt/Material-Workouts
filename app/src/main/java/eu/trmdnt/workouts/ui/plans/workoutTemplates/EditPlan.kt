@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
@@ -100,7 +100,7 @@ fun ExerciseTemplateListItem(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 0.dp)) {
             Text(text = exerciseTemplate.name, modifier = Modifier.weight(1f))
-            Checkbox(checked = selected.find { it -> it.exerciseTemplateId == exerciseTemplate.exerciseTemplateId } != null,
+            Checkbox(checked = selected.find { it.exerciseTemplateId == exerciseTemplate.exerciseTemplateId } != null,
                 onCheckedChange = { onItemPress() })
         }
     }

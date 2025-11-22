@@ -12,10 +12,10 @@ import androidx.compose.ui.Modifier
 @Composable
 fun TimerContainer(content: @Composable () -> Unit) {
     Row(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         content()
     }

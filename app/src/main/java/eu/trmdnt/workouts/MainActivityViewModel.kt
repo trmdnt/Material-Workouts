@@ -1,12 +1,10 @@
 package eu.trmdnt.workouts
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.service.MyTimer
 import eu.trmdnt.workouts.service.TimerServiceManager
 import eu.trmdnt.workouts.settings.*
@@ -18,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    @ApplicationContext private val appContext: Context,
     private val timerServiceManager: TimerServiceManager
 ) : ViewModel() {
     // TODO the viewmodel should probably not be in charge of managing the timerServiceManager for the whole app

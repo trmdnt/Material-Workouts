@@ -171,8 +171,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     }
 
     private fun findSet(setId: Long, exerciseId: Long): ExerciseSet? {
-        exercises.value.let {
-            return it?.find { it.exercise.exerciseId == exerciseId }?.exerciseSets?.find { it.id == setId }
+        exercises.value?.let {
+            return it.find { it.exercise.exerciseId == exerciseId }?.exerciseSets?.find { it.id == setId }
         }
         return null
     }

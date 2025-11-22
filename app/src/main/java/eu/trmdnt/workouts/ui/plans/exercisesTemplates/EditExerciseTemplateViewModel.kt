@@ -51,7 +51,7 @@ class EditExerciseTemplateViewModel @AssistedInject constructor(
     )
     val uiState: StateFlow<UiState> = _uiState
 
-    private val exerciseTemplateObserver = Observer<ExerciseTemplate> { it ->
+    private val exerciseTemplateObserver = Observer<ExerciseTemplate> {
         it.let { exerciseTemplate ->
             println(exerciseTemplate)
             _uiState.value = UiState(

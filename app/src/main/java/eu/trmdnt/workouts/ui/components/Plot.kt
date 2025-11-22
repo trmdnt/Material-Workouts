@@ -367,9 +367,9 @@ fun WeightRepHistoryPlot(
             )
         }
 
-        DateHistoryPlot(dataPoints, "weight/reps", "totalReps", pointSelected, {
+        DateHistoryPlot(dataPoints, "weight/reps", "totalReps", pointSelected) {
             onPointSelected(it)
-        })
+        }
     } else {
         Text("empty")
     }

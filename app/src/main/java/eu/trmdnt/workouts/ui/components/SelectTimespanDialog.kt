@@ -21,7 +21,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
         val minutes = remember { mutableStateOf((initialValue / 60).toString()) }
         val minutesError = remember { mutableStateOf(false) }
         Row {
-            OutlinedTextField(modifier = Modifier.weight(1f), value = minutes.value.toString(), label = {
+            OutlinedTextField(modifier = Modifier.weight(1f), value = minutes.value, label = {
                 Text("minutes")
             }, onValueChange = {
                 minutes.value = it
@@ -37,7 +37,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
             }, isError = minutesError.value, placeholder = {
                 Text("0")
             })
-            OutlinedTextField(modifier = Modifier.weight(1f), value = seconds.value.toString(), label = {
+            OutlinedTextField(modifier = Modifier.weight(1f), value = seconds.value, label = {
                 Text("seconds")
             }, onValueChange = {
                 seconds.value = it

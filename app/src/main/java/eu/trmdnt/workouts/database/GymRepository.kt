@@ -56,7 +56,7 @@ class GymRepository(private val dao: Dao) {
 
     //Workouts
     fun getAllWorkouts(): LiveData<List<Workout>> {
-        return dao.getAllWorkouts();
+        return dao.getAllWorkouts()
     }
 
     fun createWorkout(workout: Workout): Long {

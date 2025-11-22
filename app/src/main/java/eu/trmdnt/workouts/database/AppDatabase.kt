@@ -42,7 +42,7 @@ fun getDatabase(context: Context): AppDatabase {
         context.applicationContext, AppDatabase::class.java, "gym_database"
     ).addMigrations(MIGRATION_3_4)
 
-    builder.setQueryCallback(RoomDatabase.QueryCallback { sqlquery, bindargs ->
+    builder.setQueryCallback({ sqlquery, bindargs ->
         Log.d("DB_QUERY", "$sqlquery SQL Args: $bindargs")
     }, Executors.newSingleThreadExecutor())
 

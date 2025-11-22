@@ -2,7 +2,7 @@ package eu.trmdnt.workouts.ui.navigation
 
 import kotlinx.serialization.Serializable
 
-val uri = "workouts://app"
+const val uri = "workouts://app"
 
 @Serializable
 sealed class Screens {
@@ -17,8 +17,6 @@ sealed class Screens {
             val edit: Boolean = false
         )
 
-        @Serializable
-        object StartWorkout
     }
 
     @Serializable
