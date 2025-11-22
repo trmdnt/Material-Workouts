@@ -35,7 +35,14 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, startTimer: (workoutId: Long?) -> Unit) {
+fun ViewWorkout(
+    workoutId: Long,
+    editing: Boolean,
+    onBackPressed: () -> Unit,
+    startTimer: (workoutId: Long?) -> Unit,
+    navigateToExerciseStatistics: (Long) -> Unit,
+    navigateToEditExercise: (Long) -> Unit
+) {
     val viewModel = hiltViewModel<ViewWorkoutViewModel, ViewWorkoutViewModel.ViewWorkoutViewModelFactory> {
         it.create(workoutId, editing)
     }
@@ -53,6 +60,20 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
     viewModel.goBack.collectAsStateWithLifecycle().let {
         if (it.value) {
             onBackPressed()
+        }
+    }
+
+    viewModel.navigateToExerciseStatistics.collectAsStateWithLifecycle().let {
+        it.value?.let { exerciseTemplateId ->
+            viewModel.onNavigate()
+            navigateToExerciseStatistics(exerciseTemplateId)
+        }
+    }
+
+    viewModel.navigateToEditExerciseTemplate.collectAsStateWithLifecycle().let {
+        it.value?.let { exerciseTemplateId ->
+            viewModel.onNavigate()
+            navigateToEditExercise(exerciseTemplateId)
         }
     }
 
@@ -96,23 +117,40 @@ fun ViewWorkout(workoutId: Long, editing: Boolean, onBackPressed: () -> Unit, st
 
 
             Row(modifier = Modifier.weight(1f)) {
-                ExerciseList(uiState.exercises, onSetAdded = {
-                    viewModel.onSetAdded(it)
-                }, editMode = uiState.editMode, onWeightChanged = { setId, exerciseId, value ->
-                    viewModel.onWeightChanged(setId, exerciseId, value)
-                }, onRepsChanged = { setId, exerciseId, value ->
-                    viewModel.onRepsChanged(setId, exerciseId, value)
-                }, onDistanceChanged = { setId, exerciseId, value ->
-                    viewModel.onDistanceChanged(setId, exerciseId, value)
-                }, onTimeChanged = { setId, exerciseId, value ->
-                    viewModel.onTimeChanged(setId, exerciseId, value)
-                }, onDeleteExercisePressed = {
-                    viewModel.onDeleteExercisePressed(it)
-                }, onDeleteSetPressed = {
-                    viewModel.onDeleteSetPressed(it)
-                }, onIgnoreAction = { setId, exerciseId ->
-                    viewModel.onSetIgnoreAction(setId, exerciseId)
-                })
+                ExerciseList(
+                    uiState.exercises,
+                    onSetAdded = {
+                        viewModel.onSetAdded(it)
+                    },
+                    editMode = uiState.editMode,
+                    onWeightChanged = { setId, exerciseId, value ->
+                        viewModel.onWeightChanged(setId, exerciseId, value)
+                    },
+                    onRepsChanged = { setId, exerciseId, value ->
+                        viewModel.onRepsChanged(setId, exerciseId, value)
+                    },
+                    onDistanceChanged = { setId, exerciseId, value ->
+                        viewModel.onDistanceChanged(setId, exerciseId, value)
+                    },
+                    onTimeChanged = { setId, exerciseId, value ->
+                        viewModel.onTimeChanged(setId, exerciseId, value)
+                    },
+                    onDeleteExercisePressed = {
+                        viewModel.onDeleteExercisePressed(it)
+                    },
+                    onDeleteSetPressed = {
+                        viewModel.onDeleteSetPressed(it)
+                    },
+                    onIgnoreAction = { setId, exerciseId ->
+                        viewModel.onSetIgnoreAction(setId, exerciseId)
+                    },
+                    onInfoPressed = {
+                        viewModel.onExerciseInfoPressed(it)
+                    },
+                    onEditPressed = {
+                        viewModel.onExerciseEditPressed(it)
+                    },
+                )
             }
 
             AnimatedVisibility(visible = uiState.editMode) {
@@ -188,7 +226,9 @@ fun ExerciseList(
     editMode: Boolean,
     onDeleteExercisePressed: (Long) -> Unit,
     onDeleteSetPressed: (Long) -> Unit,
-    onIgnoreAction: (Long, Long) -> Unit
+    onIgnoreAction: (Long, Long) -> Unit,
+    onInfoPressed: (Long) -> Unit,
+    onEditPressed: (Long) -> Unit
 ) {
     if (items.isEmpty()) {
         if (editMode) {
@@ -234,14 +274,14 @@ fun ExerciseList(
                                 )
 
                                 IconButton(onClick = {
-                                    TODO()
+                                    onInfoPressed(exerciseWithSets.exerciseTemplate.exerciseTemplateId)
                                 }) {
                                     Icon(Icons.Default.Info, contentDescription = "exercise info")
                                 }
 
                                 AnimatedVisibility(visible = editMode) {
                                     IconButton(onClick = {
-                                        TODO()
+                                        onEditPressed(exerciseWithSets.exerciseTemplate.exerciseTemplateId)
                                     }) {
                                         Icon(Icons.Default.Edit, contentDescription = "edit exercise")
 

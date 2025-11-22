@@ -30,7 +30,17 @@ fun NavGraphBuilder.activitiesGraph(
                         navController.popBackStack()
                     }
                 },
-                startTimer = startTimer
+                startTimer = startTimer,
+                navigateToExerciseStatistics = { exerciseTemplateId ->
+                    if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
+                        navController.navigate(Screens.Statistics.ViewWeightPerRep(exerciseTemplateId))
+                    }
+                },
+                navigateToEditExercise = { exerciseTemplateId ->
+                    if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
+                        navController.navigate(Screens.Plans.EditExercise(exerciseTemplateId))
+                    }
+                }
             )
         }
     }

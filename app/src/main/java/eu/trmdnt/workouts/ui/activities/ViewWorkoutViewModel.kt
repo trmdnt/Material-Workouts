@@ -44,6 +44,12 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     private val _goBack: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val goBack: StateFlow<Boolean> = _goBack
 
+    private val _navigateToEditExerciseTemplate: MutableStateFlow<Long?> = MutableStateFlow(null)
+    val navigateToEditExerciseTemplate: StateFlow<Long?> = _navigateToEditExerciseTemplate
+
+    private val _navigateToExerciseStatistics: MutableStateFlow<Long?> = MutableStateFlow(null)
+    val navigateToExerciseStatistics: StateFlow<Long?> = _navigateToExerciseStatistics
+
 
     private val workout = gymRepository.getWorkoutById(workoutId)
     private val workoutObserver = Observer<Workout?> {
@@ -252,6 +258,19 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                 gymRepository.updateSet(it.copy(ignoreInStat = !it.ignoreInStat))
             }
         }
+    }
+
+    fun onExerciseInfoPressed(id: Long) {
+        _navigateToExerciseStatistics.value = id
+    }
+
+    fun onExerciseEditPressed(id: Long) {
+        _navigateToEditExerciseTemplate.value = id
+    }
+
+    fun onNavigate() {
+        _navigateToExerciseStatistics.value = null
+        _navigateToEditExerciseTemplate.value = null
     }
 
 }
