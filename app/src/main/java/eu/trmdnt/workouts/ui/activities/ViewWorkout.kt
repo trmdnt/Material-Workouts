@@ -39,7 +39,6 @@ fun ViewWorkout(
     workoutId: Long,
     editing: Boolean,
     onBackPressed: () -> Unit,
-    startTimer: (workoutId: Long?) -> Unit,
     navigateToExerciseStatistics: (Long) -> Unit,
     navigateToEditExercise: (Long) -> Unit
 ) {
@@ -49,13 +48,6 @@ fun ViewWorkout(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    viewModel.startTimer.collectAsStateWithLifecycle().let {
-        if (it.value) {
-            startTimer(workoutId)
-            viewModel.onTimerStarted()
-        }
-    }
 
     viewModel.goBack.collectAsStateWithLifecycle().let {
         if (it.value) {

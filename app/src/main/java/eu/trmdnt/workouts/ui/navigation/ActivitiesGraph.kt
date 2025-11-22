@@ -7,7 +7,6 @@ import eu.trmdnt.workouts.ui.activities.ViewWorkout
 
 fun NavGraphBuilder.activitiesGraph(
     navController: NavHostController,
-    startTimer: (workoutId: Long?) -> Unit
 ) {
     navigation<Screens.Activities>(startDestination = Screens.Activities.ListWorkouts) {
         composable<Screens.Activities.ListWorkouts> {
@@ -30,7 +29,6 @@ fun NavGraphBuilder.activitiesGraph(
                         navController.popBackStack()
                     }
                 },
-                startTimer = startTimer,
                 navigateToExerciseStatistics = { exerciseTemplateId ->
                     if (navController.currentBackStackEntry?.lifecycleIsResumed() == true) {
                         navController.navigate(Screens.Statistics.ViewWeightPerRep(exerciseTemplateId))

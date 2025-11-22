@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eu.trmdnt.workouts.database.*
+import eu.trmdnt.workouts.service.TimerServiceManager
 import eu.trmdnt.workouts.settings.SettingsManager
 import javax.inject.Singleton
 
@@ -59,5 +60,14 @@ object AppModule {
     @Singleton
     fun provideSettingsManager(preferencesDataStore: DataStore<Preferences>): SettingsManager {
         return SettingsManager(preferencesDataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTimerServiceManager(
+        @ApplicationContext appContext: Context,
+        settingsManager: SettingsManager
+    ): TimerServiceManager {
+        return TimerServiceManager(appContext, settingsManager)
     }
 }

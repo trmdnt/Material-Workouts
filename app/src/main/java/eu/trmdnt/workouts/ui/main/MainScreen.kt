@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
-import eu.trmdnt.workouts.ui.navigation.TabView
 import eu.trmdnt.workouts.ui.components.TimerContainer
 import eu.trmdnt.workouts.ui.navigation.*
 
@@ -96,9 +95,7 @@ fun MainScreen(
                     .padding(contentPadding)
                     .consumeWindowInsets(contentPadding)
             ) {
-                activitiesGraph(navController, {
-                    addTimer(it, null)
-                })
+                activitiesGraph(navController)
                 plansGraph(navController)
                 statisticsGraph(navController)
                 settingsGraph(navController)

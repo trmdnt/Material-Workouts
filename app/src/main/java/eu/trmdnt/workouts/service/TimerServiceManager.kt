@@ -8,17 +8,21 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat.startForegroundService
+import eu.trmdnt.workouts.settings.SettingsManager
+import eu.trmdnt.workouts.settings.timerDefaultValuePreferenceKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class TimerServiceManager(
-    val applicationContext: Context
+    val applicationContext: Context,
+    private val settingsManager: SettingsManager
 ) {
     private var timerService: TimerService? = null
     private var isConnecting = false
@@ -75,6 +79,12 @@ class TimerServiceManager(
         }
     }
 
+    suspend fun startTimer(workoutId: Long) {
+        val time = settingsManager.getIntPreference(timerDefaultValuePreferenceKey).first()
+        val timer = MyTimer(workoutId = workoutId, endsAt = System.currentTimeMillis() + time * 1000)
+        startTimer(timer)
+    }
+
     fun addTime(seconds: Int) {
         timerService?.addTime(seconds)
     }
@@ -83,6 +93,7 @@ class TimerServiceManager(
         timerService?.stopService()
     }
 
+    //TODO check if not unbinding when the app goes into background leaks anything
     fun unBindService() {
         Log.d(TAG, "unBindService: called")
         timerService?.let {

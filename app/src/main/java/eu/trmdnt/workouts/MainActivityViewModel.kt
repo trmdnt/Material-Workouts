@@ -17,11 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val settingsManager: SettingsManager, @ApplicationContext private val appContext: Context
+    private val settingsManager: SettingsManager,
+    @ApplicationContext private val appContext: Context,
+    private val timerServiceManager: TimerServiceManager
 ) : ViewModel() {
     // TODO the viewmodel should probably not be in charge of managing the timerServiceManager for the whole app
 
-    val timerServiceManager: TimerServiceManager = TimerServiceManager(appContext)
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow<UiState>(UiState())
     val uiState: StateFlow<UiState> = _uiState
     var timer: MyTimer? = null
@@ -127,12 +128,6 @@ class MainActivityViewModel @Inject constructor(
         val useDynamicColors: Boolean = true,
         val showSplashScreen: Boolean = true
     )
-
-
-    override fun onCleared() {
-        super.onCleared()
-        timerServiceManager.unBindService()
-    }
 
     fun onTimerCancelPressed() {
         timerServiceManager.stopTimer()

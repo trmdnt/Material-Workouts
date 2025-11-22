@@ -7,6 +7,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.*
+import eu.trmdnt.workouts.service.TimerServiceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,10 @@ import java.time.Instant
 
 @HiltViewModel(assistedFactory = ViewWorkoutViewModel.ViewWorkoutViewModelFactory::class)
 class ViewWorkoutViewModel @AssistedInject constructor(
-    val gymRepository: GymRepository, @Assisted private val workoutId: Long, @Assisted private val editing: Boolean
+    val gymRepository: GymRepository,
+    @Assisted private val workoutId: Long,
+    @Assisted private val editing: Boolean,
+    private val timerServiceManager: TimerServiceManager
 ) : ViewModel() {
     @AssistedFactory
     interface ViewWorkoutViewModelFactory {
@@ -37,9 +41,6 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
     private val _uiState = MutableStateFlow<UiState>(UiState(editMode = editing))
     val uiState: StateFlow<UiState> = _uiState
-
-    private val _startTimer: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val startTimer: StateFlow<Boolean> = _startTimer
 
     private val _goBack: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val goBack: StateFlow<Boolean> = _goBack
@@ -152,11 +153,9 @@ class ViewWorkoutViewModel @AssistedInject constructor(
             exerciseId = exerciseId, date = Instant.now().epochSecond
         )
         insertSet(exerciseSet)
-        _startTimer.value = true
-    }
-
-    fun onTimerStarted() {
-        _startTimer.value = false
+        viewModelScope.launch(IO) {
+            timerServiceManager.startTimer(workoutId)
+        }
     }
 
     fun insertSet(exerciseSet: ExerciseSet) {
