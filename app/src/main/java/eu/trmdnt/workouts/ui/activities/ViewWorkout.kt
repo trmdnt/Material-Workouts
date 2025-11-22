@@ -3,22 +3,24 @@ package eu.trmdnt.workouts.ui.activities
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EditOff
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -226,13 +228,41 @@ fun ExerciseList(
                                 Text(
                                     text = exerciseWithSets.exerciseTemplate.name,
                                     style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 0.dp)
+                                    modifier = Modifier
+                                        .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                                        .weight(1f)
                                 )
+
+                                IconButton(onClick = {
+                                    TODO()
+                                }) {
+                                    Icon(Icons.Default.Info, contentDescription = "exercise info")
+                                }
+
+                                AnimatedVisibility(visible = editMode) {
+                                    IconButton(onClick = {
+                                        TODO()
+                                    }) {
+                                        Icon(Icons.Default.Edit, contentDescription = "edit exercise")
+
+                                    }
+                                }
+
+                                AnimatedVisibility(visible = editMode) {
+                                    IconButton(onClick = {
+                                        onSetAdded(exerciseWithSets.exercise.exerciseId)
+                                    }) {
+                                        Icon(Icons.Default.Add, contentDescription = "add a new set")
+                                    }
+                                }
+
+
                             }
-                            Column {
-                                if (exerciseWithSets.exerciseSets.isEmpty()) {
-                                    Text("no sets yet")
-                                } else {
+
+                            if (exerciseWithSets.exerciseSets.isEmpty()) {
+                                Text("no sets yet")
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     exerciseWithSets.exerciseSets.fastForEach { set ->
                                         SetListItem(
                                             exerciseSet = set,
@@ -256,15 +286,6 @@ fun ExerciseList(
                                             onIgnoreAction = {
                                                 onIgnoreAction(set.id, exerciseWithSets.exercise.exerciseId)
                                             })
-                                    }
-                                }
-                                AnimatedVisibility(
-                                    visible = editMode,
-                                ) {
-                                    TextButton(onClick = {
-                                        onSetAdded(exerciseWithSets.exercise.exerciseId)
-                                    }) {
-                                        Text(text = "Add")
                                     }
                                 }
                             }
@@ -307,13 +328,13 @@ fun SetListItem(
                     }
 
                     if (exerciseTemplate.reps) {
-                        var text = remember { mutableStateOf(exerciseSet.reps.toString()) }
-                        var isError = remember { mutableStateOf(false) }
-                        OutlinedTextField(
+                        val text = remember { mutableStateOf(exerciseSet.reps.toString()) }
+                        val isError = remember { mutableStateOf(false) }
+                        TextFieldWithCustomPadding(
                             value = text.value,
                             onValueChange = {
                                 text.value = it
-                                var newValue = (it.ifEmpty { "0" }).toIntOrNull()
+                                val newValue = (it.ifEmpty { "0" }).toIntOrNull()
                                 if (newValue == null) {
                                     isError.value = true
                                 } else {
@@ -324,25 +345,22 @@ fun SetListItem(
                             isError = isError.value,
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            label = {
-                                Text("reps")
-                            },
+                            label = "reps",
                             readOnly = !editMode,
-                            placeholder = {
-                                Text("0")
-                            })
+                            placeholder = "0"
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.width(4.dp))
 
                 if (exerciseTemplate.weight) {
-                    var text = remember { mutableStateOf(exerciseSet.weight.toString()) }
-                    var isError = remember { mutableStateOf(false) }
-                    OutlinedTextField(
+                    val text = remember { mutableStateOf(exerciseSet.weight.toString()) }
+                    val isError = remember { mutableStateOf(false) }
+                    TextFieldWithCustomPadding(
                         value = text.value,
                         onValueChange = {
                             text.value = it
-                            var newValue = (if (it.isEmpty()) "0" else it.replace(',', '.')).toDoubleOrNull()
+                            val newValue = (if (it.isEmpty()) "0" else it.replace(',', '.')).toDoubleOrNull()
                             if (newValue == null) {
                                 isError.value = true
                             } else {
@@ -353,16 +371,11 @@ fun SetListItem(
                         isError = isError.value,
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        label = {
-                            Text("weight")
-                        },
+                        label = "weight",
                         readOnly = !editMode,
-                        placeholder = {
-                            Text("0.0")
-                        },
-                        suffix = {
-                            Text(text = "kg" + if (exerciseTemplate.weightTimesTwo) " × 2" else "")
-                        })
+                        placeholder = "0.0",
+                        suffix = "kg" + if (exerciseTemplate.weightTimesTwo) " × 2" else "",
+                    )
 
                 }
                 if (exerciseTemplate.distance) {
@@ -374,6 +387,77 @@ fun SetListItem(
 
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TextFieldWithCustomPadding(
+    value: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    label: String,
+    readOnly: Boolean,
+    placeholder: String,
+    suffix: String? = null,
+    padding: Dp = 10.dp
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val colors = OutlinedTextFieldDefaults.colors()
+
+    val textColor = colors.textColor(true, isError, true)
+
+    // Merge with your typography but force the correct color
+    val textStyle = LocalTextStyle.current
+        .merge(MaterialTheme.typography.bodyMedium)
+        .copy(color = textColor)
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        readOnly = readOnly,
+        keyboardOptions = keyboardOptions,
+        textStyle = textStyle,
+        cursorBrush = SolidColor(colors.cursorColor(isError = isError)),
+        interactionSource = interactionSource
+    ) { innerTextField ->
+        OutlinedTextFieldDefaults.DecorationBox(
+            value = value,
+            innerTextField = innerTextField,
+            enabled = !readOnly,
+            singleLine = true,
+            isError = isError,
+            visualTransformation = VisualTransformation.None,
+            label = {
+                Text(label)
+            },
+            placeholder = {
+                Text(placeholder)
+            },
+            trailingIcon = null,
+            leadingIcon = null,
+            suffix = {
+                suffix?.let {
+                    Text(it)
+                }
+            },
+            interactionSource = interactionSource,
+            contentPadding = PaddingValues(
+                padding
+            ),
+            colors = colors,
+            container = {
+                OutlinedTextFieldDefaults.Container(
+                    enabled = !readOnly,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                )
+            }
+        )
     }
 }
 
