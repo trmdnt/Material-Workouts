@@ -10,7 +10,7 @@ data class MyTimer(
     val workoutId: Long? = null,
     val endsAt: Long,
 ) {
-    private fun getTimeLeft(): Long {
+    fun getTimeLeft(): Long {
         val now = System.currentTimeMillis()
         val timeLeft = endsAt - now
         if (timeLeft < 0L) {

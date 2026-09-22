@@ -5,4 +5,8 @@
     <string name="always_show_timer_description">Always show timer ui</string>
     <string name="use_theme_description">Theme in use</string>
     <string name="use_dynamic_color_description">Enable dynamic color (Android 12+)</string>
+    <string name="add_10s">Add 10s</string>
+    <string name="stop">Stop</string>
+    <string name="set_timer">Set timer</string>
+    <string name="time_is_over">"time is over %1$s"</string>
 </resources>
