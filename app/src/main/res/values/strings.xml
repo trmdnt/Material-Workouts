@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Workouts</string>
+    <string name="start_timer_on_set_added_description">Start timer automatically after adding a set</string>
+    <string name="timer_default_value_description">Default value to use for the timer</string>
+    <string name="always_show_timer_description">Always show timer ui</string>
+    <string name="use_theme_description">Theme in use</string>
+    <string name="use_dynamic_color_description">Enable dynamic color (Android 12+)</string>
+</resources>
