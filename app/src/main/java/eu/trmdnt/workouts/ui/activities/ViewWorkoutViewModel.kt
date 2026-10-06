@@ -13,6 +13,7 @@ import eu.trmdnt.workouts.database.entities.statistics.LastWeightForExercise
 import eu.trmdnt.workouts.service.TimerServiceManager
 import eu.trmdnt.workouts.settings.SettingsManager
 import eu.trmdnt.workouts.settings.defaultRepCountPreferenceKey
+import eu.trmdnt.workouts.settings.openEditDialogPreferenceKey
 import eu.trmdnt.workouts.settings.reuseLastWeightPreferenceKey
 import eu.trmdnt.workouts.ui.navigation.NavEvent
 import eu.trmdnt.workouts.ui.navigation.NavEvent.Destination
@@ -239,7 +240,12 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                     )
 
                     val setId = gymRepository.insertSet(set = exerciseSet).first()
-                    _editDialogOpened.value = Pair(event.exerciseId, setId)
+
+                    val shouldOpenDialog = settingsManager.getBooleanPreference(openEditDialogPreferenceKey).first()
+
+                    if (shouldOpenDialog) {
+                        _editDialogOpened.value = Pair(event.exerciseId, setId)
+                    }
                 }
                 viewModelScope.launch(IO) {
                     timerServiceManager.startTimer(workoutId)

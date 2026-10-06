@@ -9,4 +9,5 @@
     <string name="stop">Stop</string>
     <string name="set_timer">Set timer</string>
     <string name="time_is_over">"time is over %1$s"</string>
+    <string name="open_edit_dialog_pref_description">Open edit dialog after creating set</string>
 </resources>

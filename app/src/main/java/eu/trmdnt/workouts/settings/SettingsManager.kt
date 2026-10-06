@@ -1,11 +1,7 @@
 package eu.trmdnt.workouts.settings
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import kotlinx.coroutines.flow.map
 
 const val START_TIMER_ON_SET = "startTimerOnSet"
@@ -15,6 +11,7 @@ const val USE_THEME = "useTheme"
 const val USE_DYNAMIC_COLOR = "useDynamicColor"
 const val DEFAULT_REP_COUNT = "defaultRepCount"
 const val REUSE_LAST_WEIGHT = "reuseLastWeight"
+const val OPEN_EDIT_DIALOG = "openEditDialog"
 
 val startTimerOnSetPreferenceKey = booleanPreferencesKey(START_TIMER_ON_SET)
 val timerDefaultValuePreferenceKey = intPreferencesKey(TIMER_DEFAULT_VALUE)
@@ -23,6 +20,7 @@ val useThemePreferenceKey = stringPreferencesKey(USE_THEME)
 val useDynamicColorPreferenceKey = booleanPreferencesKey(USE_DYNAMIC_COLOR)
 val defaultRepCountPreferenceKey = intPreferencesKey(DEFAULT_REP_COUNT)
 val reuseLastWeightPreferenceKey = booleanPreferencesKey(REUSE_LAST_WEIGHT)
+val openEditDialogPreferenceKey = booleanPreferencesKey(OPEN_EDIT_DIALOG)
 
 class SettingsManager(private val preferencesDataStore: DataStore<Preferences>) {
     fun getBooleanPreference(pref: Preferences.Key<Boolean>) =

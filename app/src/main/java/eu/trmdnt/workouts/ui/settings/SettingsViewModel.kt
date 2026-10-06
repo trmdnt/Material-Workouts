@@ -8,14 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.R
-import eu.trmdnt.workouts.settings.SettingsManager
-import eu.trmdnt.workouts.settings.Theme
-import eu.trmdnt.workouts.settings.alwaysShowTimerUiPreferenceKey
-import eu.trmdnt.workouts.settings.defaultRepCountPreferenceKey
-import eu.trmdnt.workouts.settings.reuseLastWeightPreferenceKey
-import eu.trmdnt.workouts.settings.startTimerOnSetPreferenceKey
-import eu.trmdnt.workouts.settings.timerDefaultValuePreferenceKey
-import eu.trmdnt.workouts.settings.useDynamicColorPreferenceKey
+import eu.trmdnt.workouts.settings.*
 import eu.trmdnt.workouts.ui.theme.supportsDynamicColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -108,6 +101,12 @@ class SettingsViewModel @Inject constructor(
             SwitchPreferenceEntry(
                 reuseLastWeightPreferenceKey,
                 label = "Reuse last used weight when adding set"
+            )
+        )
+        add(
+            SwitchPreferenceEntry(
+                openEditDialogPreferenceKey,
+                label = appContext.getString(R.string.open_edit_dialog_pref_description)
             )
         )
     }
