@@ -4,23 +4,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
-import eu.trmdnt.workouts.ui.components.CreateNewItemDialog
-import eu.trmdnt.workouts.ui.components.FabAction
-import eu.trmdnt.workouts.ui.components.MultiItemFab
-import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
+import eu.trmdnt.workouts.R
+import eu.trmdnt.workouts.ui.components.*
 import eu.trmdnt.workouts.ui.navigation.NavEventHandler
 
 @Composable
@@ -61,7 +54,12 @@ fun ViewPlans(
         textContent = { it, selected ->
             Column {
                 Text(text = it.name)
-                Text(text = "Last used: ${it.lastUsed?.toString() ?: "Never"}")
+                Text(
+                    text = stringResource(
+                        R.string.last_used,
+                        it.lastUsed?.toString() ?: stringResource(R.string.never)
+                    )
+                )
             }
 
 
@@ -107,7 +105,10 @@ fun ViewPlans(
 
     if (uiState.confirmDialogShown) {
         ConfirmDeleteDialog(
-            text = uiState.confirmDialogText,
+            text = stringResource(
+                R.string.do_you_really_want_to_delete_the_selected_item_s,
+                uiState.selectedWorkoutTemplates.size
+            ),
             onDismiss = {
                 viewModel.handleEvent(ViewPlansEvent.CancelDeletion)
             },
@@ -119,7 +120,7 @@ fun ViewPlans(
 
     if (uiState.createWorkoutTemplateDialogShown) {
         CreateNewItemDialog(
-            text = "Create new workout template",
+            text = stringResource(R.string.create_new_workout_template),
             onDismiss = {
                 viewModel.handleEvent(ViewPlansEvent.OnCreateWorkoutTemplateDialogDismissed)
             },
@@ -132,7 +133,7 @@ fun ViewPlans(
 
     if (uiState.createExerciseDialogShown) {
         CreateNewItemDialog(
-            text = "Create new exercise",
+            text = stringResource(R.string.create_new_exercise),
             onDismiss = {
                 viewModel.handleEvent(ViewPlansEvent.OnCreateExerciseDialogDismissed)
             },

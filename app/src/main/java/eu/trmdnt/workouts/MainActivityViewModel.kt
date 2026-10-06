@@ -1,5 +1,6 @@
 package eu.trmdnt.workouts
 
+import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
@@ -7,12 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.service.MyTimer
 import eu.trmdnt.workouts.service.TimerServiceManager
-import eu.trmdnt.workouts.settings.SettingsManager
-import eu.trmdnt.workouts.settings.Theme
-import eu.trmdnt.workouts.settings.alwaysShowTimerUiPreferenceKey
-import eu.trmdnt.workouts.settings.startTimerOnSetPreferenceKey
-import eu.trmdnt.workouts.settings.timerDefaultValuePreferenceKey
-import eu.trmdnt.workouts.settings.useDynamicColorPreferenceKey
+import eu.trmdnt.workouts.settings.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
+    private val appContext: Application,
     private val timerServiceManager: TimerServiceManager
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow<UiState>(UiState())
@@ -44,7 +41,7 @@ class MainActivityViewModel @Inject constructor(
     private fun refreshTimerOnce() {
         timer?.let {
             _uiState.value = _uiState.value.copy(
-                showTimer = true, timerText = it.getText() + if (it.isOver()) " (time over)" else ""
+                showTimer = true, timerText = it.getText() + if (it.isOver()) " (" + appContext.getString(R.string.time_over) + ")" else ""
             )
         }
         if (timer == null) {

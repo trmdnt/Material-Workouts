@@ -1,11 +1,13 @@
 package eu.trmdnt.workouts.ui.activities
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.StatisticsRepository
 import eu.trmdnt.workouts.database.entities.*
@@ -69,6 +71,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
     @Assisted private val editing: Boolean,
     private val timerServiceManager: TimerServiceManager,
     private val settingsManager: SettingsManager,
+    private val appContext: Context,
 ) : ViewModel() {
     companion object {
         const val TAG = "ViewWorkoutViewModel"
@@ -112,10 +115,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
         val scrollEnd: Boolean = false,
         val exerciseSearchQuery: String = "",
         val editDialogOpened: Pair<Long, Long>? = null
-    ) {
-        val topBarTitle: String
-            get() = if (!editMode) "Viewing workout" else "Editing workout"
-    }
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<UiState> = combine(
@@ -186,7 +186,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                     val exerciseWithSets = gymRepository.getExerciseWithSets(event.exerciseId)
                     lastActionToUndo = exerciseWithSets
                     gymRepository.deleteExerciseById(event.exerciseId)
-                    _undoSnackbarText.value = "deleted exercise"
+                    _undoSnackbarText.value = appContext.getString(R.string.deleted_exercise)
                 }
             }
 
@@ -257,7 +257,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                     val set = gymRepository.getSetById(event.setId)
                     lastActionToUndo = set
                     gymRepository.deleteSetById(event.setId)
-                    _undoSnackbarText.value = "deleted set"
+                    _undoSnackbarText.value = appContext.getString(R.string.deleted_set)
                 }
             }
 

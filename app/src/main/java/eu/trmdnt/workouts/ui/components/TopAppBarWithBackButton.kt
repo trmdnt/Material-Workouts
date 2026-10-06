@@ -7,6 +7,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import eu.trmdnt.workouts.R
 
 @Composable
 fun TopAppBarWithBackButton(
@@ -25,7 +27,7 @@ fun TopAppBarWithBackButton(
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Go back to previous screen"
+                    contentDescription = stringResource(R.string.go_back_to_previous_screen)
                 )
             }
         },

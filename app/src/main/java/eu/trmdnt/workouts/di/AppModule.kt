@@ -1,5 +1,6 @@
 package eu.trmdnt.workouts.di
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -10,12 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eu.trmdnt.workouts.database.AppDatabase
-import eu.trmdnt.workouts.database.Dao
-import eu.trmdnt.workouts.database.GymRepository
-import eu.trmdnt.workouts.database.StatisticsDao
-import eu.trmdnt.workouts.database.StatisticsRepository
-import eu.trmdnt.workouts.database.getDatabase
+import eu.trmdnt.workouts.database.*
 import eu.trmdnt.workouts.service.TimerServiceManager
 import eu.trmdnt.workouts.settings.SettingsManager
 import javax.inject.Singleton
@@ -74,5 +70,10 @@ object AppModule {
         settingsManager: SettingsManager
     ): TimerServiceManager {
         return TimerServiceManager(appContext, settingsManager)
+    }
+
+    @Provides
+    fun provideContext(application: Application): Context {
+        return application.applicationContext
     }
 }

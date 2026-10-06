@@ -9,10 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
 import eu.trmdnt.workouts.ui.components.selection.ItemsList
@@ -28,7 +30,7 @@ fun EditPlan(workoutTemplateId: Long, navEventHandler: NavEventHandler) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(containerColor = Color.Transparent, topBar = {
-        TopAppBarWithBackButton(title = "edit workout template", {
+        TopAppBarWithBackButton(title = stringResource(R.string.edit_workout_template), {
             navEventHandler.goBack()
         })
     }, content = {
@@ -71,7 +73,7 @@ fun ExerciseList(
 ) {
     if (exerciseList.isNotEmpty()) {
         Row(modifier = Modifier.padding(10.dp, 0.dp)) {
-            Text("selected exercises:", modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.selected_exercises), modifier = Modifier.weight(1f))
         }
 
         ItemsList(itemsList = exerciseList, selectedItemsList = selectedList, onItemPress = {
@@ -84,6 +86,6 @@ fun ExerciseList(
             it.exerciseTemplateId
         })
     } else {
-        Text("no exercises, start by creating an exercise")
+        Text(stringResource(R.string.no_exercises_start_by_creating_an_exercise))
     }
 }

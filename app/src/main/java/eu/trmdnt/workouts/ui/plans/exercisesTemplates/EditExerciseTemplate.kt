@@ -15,10 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
 import eu.trmdnt.workouts.ui.navigation.NavEventHandler
 
@@ -31,7 +33,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
         }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(containerColor = Color.Transparent, topBar = {
-        TopAppBarWithBackButton(title = "Edit exercise", onBack = {
+        TopAppBarWithBackButton(title = stringResource(R.string.edit_exercise), onBack = {
             navEventHandler.goBack()
         })
     }) {
@@ -51,7 +53,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
                     ), modifier = Modifier.fillMaxWidth()
                 )
                 Row {
-                    Text("reps", modifier = Modifier.weight(1F))
+                    Text(stringResource(R.string.reps), modifier = Modifier.weight(1F))
                     Checkbox(
                         checked = exerciseTemplate.reps,
                         onCheckedChange = {
@@ -60,7 +62,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
                     )
                 }
                 Row {
-                    Text("weight", modifier = Modifier.weight(1F))
+                    Text(stringResource(R.string.weight), modifier = Modifier.weight(1F))
                     Checkbox(
                         checked = exerciseTemplate.weight,
                         onCheckedChange = {
@@ -70,7 +72,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
                 }
                 if (exerciseTemplate.weight) {
                     Row {
-                        Text("2x weight", modifier = Modifier.weight(1F))
+                        Text(stringResource(R.string._2x_weight), modifier = Modifier.weight(1F))
                         Checkbox(
                             checked = exerciseTemplate.weightTimesTwo,
                             onCheckedChange = {
@@ -80,7 +82,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
                     }
                 }
                 Row {
-                    Text("time", modifier = Modifier.weight(1F))
+                    Text(stringResource(R.string.time), modifier = Modifier.weight(1F))
                     Checkbox(
                         checked = exerciseTemplate.time,
                         onCheckedChange = {
@@ -89,7 +91,7 @@ fun EditExerciseTemplate(exerciseTemplateId: Long, navEventHandler: NavEventHand
                     )
                 }
                 Row {
-                    Text("distance", modifier = Modifier.weight(1F))
+                    Text(stringResource(R.string.distance), modifier = Modifier.weight(1F))
                     Checkbox(
                         checked = exerciseTemplate.distance,
                         onCheckedChange = {

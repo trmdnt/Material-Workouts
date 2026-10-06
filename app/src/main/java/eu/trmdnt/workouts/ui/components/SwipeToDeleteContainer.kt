@@ -12,7 +12,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import eu.trmdnt.workouts.R
 import kotlinx.coroutines.launch
 
 @Composable
@@ -98,13 +100,13 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, editAction: Boolean)
     ) {
         if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
             Icon(
-                Icons.Default.Edit, contentDescription = "edit"
+                Icons.Default.Edit, contentDescription = stringResource(R.string.edit)
             )
         }
         Spacer(modifier = Modifier)
         if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
             Icon(
-                Icons.Default.Delete, contentDescription = "delete"
+                Icons.Default.Delete, contentDescription = stringResource(R.string.delete)
             )
         }
     }

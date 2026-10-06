@@ -1,27 +1,20 @@
 package eu.trmdnt.workouts.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.settings.Theme
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 import kotlin.math.roundToInt
@@ -63,7 +56,7 @@ fun Settings() {
                     }
                     ButtonPrefItem(
                         label = pref.label,
-                        buttonLabel = "Select",
+                        buttonLabel = stringResource(R.string.select),
                         enabled = pref.enabled
                     ) {
                         openAlertDialog.value = true
@@ -140,9 +133,15 @@ fun ThemePrefItem(label: String, value: Theme, enabled: Boolean, onValueChange: 
     ) {
         Text(text = "$label:")
         Column(modifier = Modifier.padding(start = 16.dp)) {
-            value.javaClass.enumConstants!!.forEach { enumValue ->
+            Theme.entries.forEach { enumValue ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = enumValue.name.lowercase(), modifier = Modifier.weight(1f))
+                    val text = when (enumValue) {
+                        Theme.System -> stringResource(R.string.system_theme)
+                        Theme.Light -> stringResource(R.string.light_theme)
+                        Theme.Dark -> stringResource(R.string.dark_theme)
+                        Theme.Oled -> stringResource(R.string.oled_theme)
+                    }
+                    Text(text = text, modifier = Modifier.weight(1f))
                     RadioButton(
                         selected = enumValue == value,
                         onClick = { onValueChange(enumValue) },

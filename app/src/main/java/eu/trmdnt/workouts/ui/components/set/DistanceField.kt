@@ -6,7 +6,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.ui.components.TextFieldWithCustomPadding
 
@@ -43,7 +45,7 @@ fun DistanceField(
         isError = isError.value,
         modifier = modifier,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        label = "distance",
+        label = stringResource(R.string.distance),
         readOnly = !editMode,
         placeholder = "0.0",
         suffix = "m",

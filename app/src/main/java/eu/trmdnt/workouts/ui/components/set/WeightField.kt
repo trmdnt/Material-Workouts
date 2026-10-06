@@ -6,7 +6,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.ui.components.TextFieldWithCustomPadding
@@ -45,7 +47,7 @@ fun WeightField(
         isError = isError.value,
         modifier = modifier,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        label = "weight",
+        label = stringResource(R.string.weight),
         readOnly = !editMode,
         placeholder = "0.0",
         suffix = "kg" + if (exerciseTemplate.weightTimesTwo) " × 2" else "",

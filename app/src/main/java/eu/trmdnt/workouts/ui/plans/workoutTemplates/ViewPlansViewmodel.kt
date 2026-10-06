@@ -47,10 +47,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
         val confirmDialogShown: Boolean = false,
         val createWorkoutTemplateDialogShown: Boolean = false,
         val createExerciseDialogShown: Boolean = false,
-    ) {
-        val confirmDialogText: String
-            get() = "Do you really want to delete the ${selectedWorkoutTemplates.size} selected item(s)?"
-    }
+    )
 
     val selectionManager: SelectionManager<WorkoutTemplate> = SelectionManager({ deleteItems(it) })
 

@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -18,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.statistics.RecentStatistics
 import eu.trmdnt.workouts.database.entities.statistics.WorkoutWithDuration
 import eu.trmdnt.workouts.ui.components.*
@@ -93,11 +95,11 @@ private fun ListWorkoutsScreen(
 
 
     val sections: List<Pair<String, List<WorkoutWithDuration>>> = listOf(
-        Pair("Today", itemsToday),
-        Pair("Last week", items7days),
-        Pair("Last month", items30days),
-        Pair("Last year", items1year),
-        Pair("A long time ago", items)
+        Pair(stringResource(R.string.today), itemsToday),
+        Pair(stringResource(R.string.last_week), items7days),
+        Pair(stringResource(R.string.last_month), items30days),
+        Pair(stringResource(R.string.last_year), items1year),
+        Pair(stringResource(R.string.a_long_time_ago), items)
     )
 
     if (uiState.editMode) {
@@ -136,7 +138,10 @@ private fun ListWorkoutsScreen(
     }
 
     if (uiState.confirmDialogShown) {
-        ConfirmDeleteDialog(text = uiState.confirmDialogText, onDismiss = {
+        ConfirmDeleteDialog(text = stringResource(
+            R.string.do_you_really_want_to_delete_the_selected_item_s,
+            uiState.selectedWorkouts.size
+        ), onDismiss = {
             handleEvent(ListWorkoutsEvent.CancelDeletion)
         }, onConfirm = {
             handleEvent(ListWorkoutsEvent.ConfirmDeletion)
@@ -187,7 +192,7 @@ private fun WorkoutListWithSelection(
                     // Define a formatter
                     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-                    Text("on ${dateTime.format(formatter)}")
+                    Text(stringResource(R.string.on, dateTime.format(formatter)))
                 }
 
                 AnimatedVisibility(
@@ -210,7 +215,9 @@ private fun WorkoutListWithSelection(
 @Composable
 private fun RecentStatisticsComponent(recentStatistics: RecentStatistics) {
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val options = listOf("Week", "Month", "Year", "Total")
+    val options = listOf(stringResource(R.string.week), stringResource(R.string.month),
+        stringResource(R.string.year), stringResource(R.string.total)
+    )
 
     Column(
         modifier = Modifier
@@ -225,7 +232,7 @@ private fun RecentStatisticsComponent(recentStatistics: RecentStatistics) {
             MyCard(
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Time spent")
+                Text(stringResource(R.string.time_spent))
                 val time = when (selectedIndex) {
                     0 -> recentStatistics.timeWorkingOutWeek
                     1 -> recentStatistics.timeWorkingOutMonth
@@ -241,7 +248,7 @@ private fun RecentStatisticsComponent(recentStatistics: RecentStatistics) {
                 modifier = Modifier.weight(1f),
 
                 ) {
-                Text("Workout count")
+                Text(stringResource(R.string.workout_count))
                 val count = when (selectedIndex) {
                     0 -> recentStatistics.workoutCountWeek
                     1 -> recentStatistics.workoutCountMonth

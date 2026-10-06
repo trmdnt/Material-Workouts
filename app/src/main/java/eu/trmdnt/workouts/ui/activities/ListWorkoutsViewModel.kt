@@ -1,8 +1,10 @@
 package eu.trmdnt.workouts.ui.activities
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.StatisticsRepository
 import eu.trmdnt.workouts.database.entities.Workout
@@ -37,6 +39,7 @@ sealed class ListWorkoutsEvent {
 @HiltViewModel
 class ListWorkoutsViewModel @Inject constructor(
     private val gymRepository: GymRepository,
+    private val appContext: Context,
     statisticsRepository: StatisticsRepository
 ) :
     ViewModel() {
@@ -48,10 +51,7 @@ class ListWorkoutsViewModel @Inject constructor(
         val newWorkoutSelectionFabOpen: Boolean = false,
         val workoutTemplates: List<WorkoutTemplate> = emptyList(),
         val recentStatistics: RecentStatistics = RecentStatistics(0, 0, 0, 0, 0, 0, 0, 0)
-    ) {
-        val confirmDialogText: String
-            get() = "Do you really want to delete the ${selectedWorkouts.size} selected item(s)?"
-    }
+    )
 
     private val _newWorkoutSelectionFabOpen = MutableStateFlow(false)
     val selectionManager: SelectionManager<WorkoutWithDuration> = SelectionManager({ delete(it) })
@@ -63,7 +63,7 @@ class ListWorkoutsViewModel @Inject constructor(
             new.add(
                 WorkoutTemplate(
                     workoutTemplateId = 0,
-                    name = "Empty workout",
+                    name = appContext.getString(R.string.empty_workout),
                 )
             )
             new.toList()

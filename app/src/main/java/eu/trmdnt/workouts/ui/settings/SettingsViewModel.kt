@@ -94,13 +94,13 @@ class SettingsViewModel @Inject constructor(
                 defaultRepCountPreferenceKey,
                 lowerBound = 0,
                 upperBound = 35,
-                label = "Default reps for new set",
+                label = appContext.getString(R.string.default_reps_pref_description),
             )
         )
         add(
             SwitchPreferenceEntry(
                 reuseLastWeightPreferenceKey,
-                label = "Reuse last used weight when adding set"
+                label = appContext.getString(R.string.reuse_last_used_weight_pref_description)
             )
         )
         add(

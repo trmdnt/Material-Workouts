@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -29,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.database.entities.ExerciseWithSets
@@ -101,7 +103,10 @@ fun ViewWorkout(
     Scaffold(containerColor = Color.Transparent, snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
     }, topBar = {
-        TopAppBarWithBackButton(title = uiState.topBarTitle, {
+        TopAppBarWithBackButton(
+            title = if (uiState.editMode) stringResource(R.string.editing_workout) else stringResource(
+            R.string.viewing_workout
+        ), {
             navEventHandler.handle(NavEvent.Back)
         }, onAlternativeAction = {
             val event = ViewWorkoutEvent.EditButtonPressed
@@ -132,7 +137,7 @@ fun ViewWorkout(
                 val text = remember { mutableStateOf(value) }
                 OutlinedTextField(
                     value = text.value, label = {
-                        Text("workout name")
+                        Text(stringResource(R.string.workout_name))
                     }, onValueChange = {
                         val event = ViewWorkoutEvent.WorkoutRenamed(it)
                         viewModel.handleEvent(event)
@@ -239,12 +244,14 @@ fun ViewWorkout(
         }
     })
 
+    val undoText = stringResource(R.string.undo)
     LaunchedEffect(uiState.undoSnackBarMessage) {
+
         uiState.undoSnackBarMessage?.let {
             try {
                 val result = snackbarHostState.showSnackbar(
                     message = uiState.undoSnackBarMessage.toString(),
-                    actionLabel = "Undo",
+                    actionLabel = undoText,
                     duration = SnackbarDuration.Short
                 )
                 when (result) {
@@ -282,7 +289,7 @@ private fun SelectExerciseDialog(
                 onValueChange = updateSearch,
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 label = {
-                    Text("Filter")
+                    Text(stringResource(R.string.filter))
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -304,7 +311,7 @@ private fun SelectExerciseDialog(
             Row {
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = dismiss) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         }
@@ -331,9 +338,9 @@ fun ExerciseList(
 ) {
     if (items.isEmpty()) {
         if (editMode) {
-            Text("add an exercise to get started")
+            Text(stringResource(R.string.add_an_exercise_to_get_started))
         } else {
-            Text("this workout is empty")
+            Text(stringResource(R.string.this_workout_is_empty))
         }
 
     } else {
@@ -407,7 +414,7 @@ fun ExerciseList(
                             }
 
                             if (exerciseWithSets.exerciseSets.isEmpty()) {
-                                Text("no sets yet")
+                                Text(stringResource(R.string.no_sets_yet))
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     exerciseWithSets.exerciseSets.fastForEach { set ->

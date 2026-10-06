@@ -16,8 +16,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.ui.components.TableCell
 import eu.trmdnt.workouts.ui.components.TableHeader
 import eu.trmdnt.workouts.ui.components.TopAppBarWithBackButton
@@ -61,11 +63,11 @@ fun ViewWeightPerRep(exerciseTemplateId: Long, navEventHandler: NavEventHandler)
                     IconButton(onClick = {
                         viewModel.onPreviousPressed()
                     }) {
-                        Icon(Icons.Filled.ChevronLeft, contentDescription = "previous point")
+                        Icon(Icons.Filled.ChevronLeft, contentDescription = stringResource(R.string.previous_point))
                     }
                     val formatter = SimpleDateFormat("yyyy-MM-dd")
                     if (uiState.selectedPoint == null) {
-                        Text("Select a point to view its data", Modifier.weight(1f))
+                        Text(stringResource(R.string.select_a_point_to_view_its_data), Modifier.weight(1f))
                     } else {
                         uiState.selectedPoint?.let {
                             val dateString = formatter.format(uiState.data[it].dateTimeStamp * 1000)
@@ -80,7 +82,7 @@ fun ViewWeightPerRep(exerciseTemplateId: Long, navEventHandler: NavEventHandler)
                     IconButton(onClick = {
                         viewModel.onNextPressed()
                     }) {
-                        Icon(Icons.Filled.ChevronRight, contentDescription = "next point")
+                        Icon(Icons.Filled.ChevronRight, contentDescription = stringResource(R.string.next_point))
                     }
                 }
 
@@ -88,7 +90,7 @@ fun ViewWeightPerRep(exerciseTemplateId: Long, navEventHandler: NavEventHandler)
                     val weightPerRep = uiState.data[it].weightPerRep
                     val totalReps = uiState.data[it].totalReps
                     Text(
-                        "Weight/Rep: $weightPerRep, total Reps: $totalReps",
+                        stringResource(R.string.weight_rep_total_reps, weightPerRep, totalReps),
                         style = MaterialTheme.typography.bodyLargeEmphasized
                     )
                 }
@@ -96,8 +98,8 @@ fun ViewWeightPerRep(exerciseTemplateId: Long, navEventHandler: NavEventHandler)
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     uiState.setsOnSelectedDate?.let {
                         Row {
-                            TableHeader("weight", 1f)
-                            TableHeader("reps", 1f)
+                            TableHeader(stringResource(R.string.weight), 1f)
+                            TableHeader(stringResource(R.string.reps), 1f)
                         }
                         it.forEach {
                             Row {

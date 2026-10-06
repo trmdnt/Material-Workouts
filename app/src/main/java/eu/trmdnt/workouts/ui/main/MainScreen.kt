@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 import eu.trmdnt.workouts.ui.components.TimerContainer
 import eu.trmdnt.workouts.ui.navigation.*
@@ -47,13 +49,13 @@ fun MainScreen(
                         onTimerAddTimePressed()
                     }) {
                         Icon(
-                            imageVector = Icons.Outlined.Timer10, contentDescription = "add 10 seconds to timer"
+                            imageVector = Icons.Outlined.Timer10, contentDescription = stringResource(R.string.add_10s)
                         )
                     }
                     TextButton(onClick = {
                         onTimerCancelPressed()
                     }) {
-                        Icon(imageVector = Icons.Outlined.Close, contentDescription = "stop timer")
+                        Icon(imageVector = Icons.Outlined.Close, contentDescription = stringResource(R.string.stop_timer))
                     }
                 }
             } else if (showTimerPickerButton) {
@@ -61,8 +63,8 @@ fun MainScreen(
                     val showTimerPickerDialog = remember { mutableStateOf(false) }
                     Column(modifier = Modifier.weight(1f)) {}
                     TextButton(onClick = { showTimerPickerDialog.value = true }) {
-                        Text("Select timer")
-                        Icon(Icons.Outlined.Timer, contentDescription = "add timer")
+                        Text(stringResource(R.string.select_timer))
+                        Icon(Icons.Outlined.Timer, contentDescription = stringResource(R.string.add_timer_button))
                     }
                     when {
                         showTimerPickerDialog.value -> {

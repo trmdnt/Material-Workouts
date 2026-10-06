@@ -14,7 +14,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import eu.trmdnt.workouts.R
 
 @Composable
 fun CreateNewItemDialog(text: String, onDismiss: () -> Unit, onCreate: (String) -> Unit) {
@@ -40,12 +42,12 @@ fun CreateNewItemDialog(text: String, onDismiss: () -> Unit, onCreate: (String) 
         Row {
             Spacer(Modifier.weight(1f))
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
             TextButton(onClick = {
                 onCreate(input)
             }) {
-                Text("Create")
+                Text(stringResource(R.string.create))
             }
         }
     }

@@ -40,10 +40,7 @@ class ViewExerciseTemplatesViewModel @Inject constructor(private val gymReposito
         val selectedExerciseTemplates: Set<ExerciseTemplate> = emptySet(),
         val confirmDialogShow: Boolean = false,
         val createExerciseDialogShown: Boolean = false,
-    ) {
-        val confirmDialogText: String
-            get() = "Do you really want to delete the ${selectedExerciseTemplates.size} selected item(s)?"
-    }
+    )
 
     val selectionManager: SelectionManager<ExerciseTemplate> = SelectionManager({ deleteItems(it) })
 

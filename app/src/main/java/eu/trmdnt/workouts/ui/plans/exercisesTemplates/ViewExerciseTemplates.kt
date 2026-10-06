@@ -8,11 +8,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.ui.components.ConfirmDeleteDialog
 import eu.trmdnt.workouts.ui.components.CreateNewItemDialog
 import eu.trmdnt.workouts.ui.components.SelectionContainerWithTopBar
@@ -57,7 +59,7 @@ fun ViewExerciseTemplates(
             Text(text = it.name)
         },
         alternativeTopBar = {
-            TopAppBarWithBackButton(title = "viewing exercises", onBack = {
+            TopAppBarWithBackButton(title = stringResource(R.string.viewing_exercises), onBack = {
                 navEventHandler.goBack()
             })
         },
@@ -65,7 +67,7 @@ fun ViewExerciseTemplates(
             FloatingActionButton(onClick = {
                 viewModel.handleEvent(ViewExerciseTemplatesEvent.OnCreateExerciseTemplateButtonPressed)
             }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
         },
         getId = {
@@ -74,7 +76,10 @@ fun ViewExerciseTemplates(
 
     if (uiState.confirmDialogShow) {
         ConfirmDeleteDialog(
-            text = uiState.confirmDialogText,
+            text = stringResource(
+                R.string.do_you_really_want_to_delete_the_selected_item_s,
+                uiState.selectedExerciseTemplates.size
+            ),
             onDismiss = { viewModel.handleEvent(ViewExerciseTemplatesEvent.CancelDeletion) },
             onConfirm = { viewModel.handleEvent(ViewExerciseTemplatesEvent.ConfirmDeletion) })
     }

@@ -8,8 +8,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.database.entities.SetType
@@ -46,10 +48,10 @@ fun EditSetDialog(
                 onClick = onDelete,
                 colors = ButtonDefaults.textButtonColors().copy(contentColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Delete")
+                Text(stringResource(R.string.delete))
             }
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(R.string.cancel))
             }
         }
     }
@@ -72,7 +74,7 @@ fun EditSetDialogContents(
                     onRepsChanged(exerciseSet.reps - 1)
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Remove, contentDescription = "remove one rep"
+                        imageVector = Icons.Filled.Remove, contentDescription = stringResource(R.string.remove_one_rep)
                     )
                 }
                 RepsField(
@@ -84,7 +86,7 @@ fun EditSetDialogContents(
                     onRepsChanged(exerciseSet.reps + 1)
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Add, contentDescription = "add one rep"
+                        imageVector = Icons.Filled.Add, contentDescription = stringResource(R.string.add_one_rep)
                     )
                 }
             }
@@ -95,7 +97,7 @@ fun EditSetDialogContents(
                     onWeightChanged(exerciseSet.weight - 1)
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Remove, contentDescription = "remove weight"
+                        imageVector = Icons.Filled.Remove, contentDescription = stringResource(R.string.remove_weight)
                     )
                 }
                 WeightField(
@@ -108,7 +110,7 @@ fun EditSetDialogContents(
                     onWeightChanged(exerciseSet.weight + 1)
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Add, contentDescription = "add weight"
+                        imageVector = Icons.Filled.Add, contentDescription = stringResource(R.string.add_weight)
                     )
                 }
             }
@@ -121,11 +123,18 @@ fun EditSetDialogContents(
         if (exerciseTemplate.time) {
             TimeField(exerciseSet, onTimeChanged, Modifier.fillMaxWidth())
         }
-        Text("Set type")
+        Text(stringResource(R.string.set_type))
         Column(modifier = Modifier.padding(start = 16.dp)) {
-            SetType::class.java.enumConstants!!.forEach { enumValue ->
+            //TODO extract composable
+            SetType.entries.forEach { enumValue ->
+                val text = when (enumValue) {
+                    SetType.Default -> stringResource(R.string.default_)
+                    SetType.WarmUp -> stringResource(R.string.warm_up)
+                    SetType.Drop -> stringResource(R.string.drop_set)
+                }
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = enumValue.name.lowercase(), modifier = Modifier.weight(1f))
+                    Text(text = text, modifier = Modifier.weight(1f))
                     RadioButton(
                         selected = enumValue == exerciseSet.setType,
                         onClick = { onSetTypeChanged(enumValue) },

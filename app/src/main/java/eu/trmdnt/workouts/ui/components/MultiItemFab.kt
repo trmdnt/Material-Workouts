@@ -15,19 +15,16 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import eu.trmdnt.workouts.R
 
 data class FabAction(
     val label: String,
@@ -95,7 +92,7 @@ fun MultiItemFab(actions: List<FabAction>, expanded: Boolean, onButtonPressed: (
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = if (expanded) "Close" else "Open",
+                contentDescription = if (expanded) stringResource(R.string.close_menu) else stringResource(R.string.open_menu),
                 modifier = Modifier.rotate(rotation),
             )
         }

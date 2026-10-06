@@ -16,9 +16,11 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.statistics.WeightOnDate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -369,11 +371,12 @@ fun WeightRepHistoryPlot(
             )
         }
 
-        DateHistoryPlot(dataPoints, "weight/reps", "totalReps", pointSelected) {
+        DateHistoryPlot(dataPoints, stringResource(R.string.weight_per_rep),
+            stringResource(R.string.total_reps), pointSelected) {
             onPointSelected(it)
         }
     } else {
-        Text("empty")
+        Text(stringResource(R.string.empty))
     }
 }
 

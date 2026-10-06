@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import eu.trmdnt.workouts.R
 
 @Composable
 fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDismiss: () -> Unit) {
@@ -20,7 +22,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
         val minutesError = remember { mutableStateOf(false) }
         Row {
             OutlinedTextField(modifier = Modifier.weight(1f), value = minutes.value, label = {
-                Text("minutes")
+                Text(stringResource(R.string.minutes))
             }, onValueChange = {
                 minutes.value = it
                 try {
@@ -36,7 +38,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
                 Text("0")
             })
             OutlinedTextField(modifier = Modifier.weight(1f), value = seconds.value, label = {
-                Text("seconds")
+                Text(stringResource(R.string.seconds))
             }, onValueChange = {
                 seconds.value = it
                 try {
@@ -60,7 +62,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
                 onClick = { onDismiss() },
 //                        modifier = Modifier.padding(8.dp),
             ) {
-                Text("Dismiss")
+                Text(stringResource(R.string.cancel))
             }
             TextButton(
                 onClick = {
@@ -85,7 +87,7 @@ fun SelectTimespanDialog(initialValue: Int, onConfirmValue: (Int) -> Unit, onDis
                     }
                 },
             ) {
-                Text("Confirm")
+                Text(stringResource(R.string.confirm))
             }
         }
     }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.entities.ExerciseSet
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 import eu.trmdnt.workouts.ui.components.TextFieldWithCustomPadding
@@ -34,7 +36,7 @@ fun TimeField(
         value = "${minutes}:${seconds}",
         onValueChange = {},
         modifier = modifier,
-        label = "time",
+        label = stringResource(R.string.time),
         readOnly = true,
         interactionSource = interactionSource,
         showReadOnly = !editMode
