@@ -2,9 +2,7 @@ package eu.trmdnt.workouts.ui.main
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Timer
@@ -43,16 +41,13 @@ fun MainScreen(
             if (showTimer) {
                 TimerContainer {
                     Text(
-                        text = timerText.toString(), modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp)
+                        text = timerText.toString(), modifier = Modifier.weight(1f).padding(4.dp)
                     )
                     TextButton(onClick = {
                         onTimerAddTimePressed()
                     }) {
                         Icon(
-                            imageVector = Icons.Outlined.Timer10,
-                            contentDescription = "add 10 seconds to timer"
+                            imageVector = Icons.Outlined.Timer10, contentDescription = "add 10 seconds to timer"
                         )
                     }
                     TextButton(onClick = {
@@ -71,14 +66,11 @@ fun MainScreen(
                     }
                     when {
                         showTimerPickerDialog.value -> {
-                            SelectTimespanDialog(
-                                initialValue = timerDefaultValue,
-                                onConfirmValue = {
-                                    addTimer(null, it)
-                                },
-                                onDismiss = {
-                                    showTimerPickerDialog.value = false
-                                })
+                            SelectTimespanDialog(initialValue = timerDefaultValue, onConfirmValue = {
+                                addTimer(null, it)
+                            }, onDismiss = {
+                                showTimerPickerDialog.value = false
+                            })
                         }
                     }
                 }
@@ -87,7 +79,9 @@ fun MainScreen(
         }
 
     }) { contentPadding ->
-        Column {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(contentPadding).consumeWindowInsets(contentPadding)
+        ) {
             NavHost(
                 navController = navController,
                 startDestination = Screen.Activities,
@@ -95,9 +89,6 @@ fun MainScreen(
                 exitTransition = { exitTransition },
                 popEnterTransition = { enterTransition },
                 popExitTransition = { exitTransition },
-                modifier = Modifier
-                    .padding(contentPadding)
-                    .consumeWindowInsets(contentPadding)
             ) {
                 activitiesGraph(navController)
                 plansGraph(navController)

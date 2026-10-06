@@ -342,7 +342,9 @@ fun ExerciseList(
 
         val focusManager = LocalFocusManager.current
 
-        scrollEnd(!listState.canScrollForward)
+        LaunchedEffect(listState.canScrollForward) {
+            scrollEnd(!listState.canScrollForward)
+        }
 
         LaunchedEffect(newItemIndex) {
             newItemIndex?.let {
