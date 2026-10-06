@@ -12,7 +12,9 @@ plugins {
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 
-if (keystorePropertiesFile.exists()) {
+val hasKeystore = keystorePropertiesFile.exists()
+
+if (hasKeystore) {
     keystorePropertiesFile.inputStream().use {
         keystoreProperties.load(it)
     }
@@ -23,13 +25,15 @@ android {
     compileSdk = 37
 
     signingConfigs {
-        create("config") {
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let {
-                file(it)
+        if (hasKeystore) {
+            create("config") {
+                keyAlias = keystoreProperties["keyAlias"] as String?
+                keyPassword = keystoreProperties["keyPassword"] as String?
+                storeFile = keystoreProperties["storeFile"]?.let {
+                    file(it)
+                }
+                storePassword = keystoreProperties["storePassword"] as String?
             }
-            storePassword = keystoreProperties["storePassword"] as String?
         }
     }
 
@@ -63,7 +67,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            signingConfig = signingConfigs.getByName("config")
+            signingConfig = if (hasKeystore) signingConfigs.getByName("config") else null
         }
 
         debug {
@@ -74,7 +78,10 @@ android {
                 "proguard-rules.pro"
             )
 
-            signingConfig = signingConfigs.getByName("config")
+            // uses debug otherwise
+            if (hasKeystore) {
+                signingConfig = signingConfigs.getByName("config")
+            }
         }
     }
 
@@ -98,7 +105,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
