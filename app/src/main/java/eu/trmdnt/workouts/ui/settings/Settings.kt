@@ -172,15 +172,21 @@ fun SliderPrefItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Slider(
+            val sliderState = rememberSliderState(
                 value = value.toFloat(),
+                steps = upperBound - lowerBound - 1,
+                trackRange = lowerBound.toFloat()..upperBound.toFloat()
+            )
+
+            Slider(
+                state = sliderState,
                 onValueChange = {
+                    sliderState.value = it
                     onValueChange(it.roundToInt())
                 },
-                steps = upperBound - lowerBound,
-                valueRange = lowerBound.toFloat()..upperBound.toFloat(),
                 modifier = Modifier.weight(1f)
             )
+
             Text(value.toString())
         }
     }
