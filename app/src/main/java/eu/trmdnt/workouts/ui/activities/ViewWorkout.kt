@@ -288,7 +288,7 @@ private fun SelectExerciseDialog(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        selectExercise(availableExercises.first())
+                        availableExercises.firstOrNull()?.let { selectExercise(it) }
                     })
             )
 
