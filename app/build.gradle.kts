@@ -129,6 +129,8 @@ dependencies {
     implementation(libs.androidx.room3.runtime)
     ksp(libs.androidx.room3.compiler)
 
+    androidTestImplementation(libs.androidx.room3.testing)
+
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.hilt.android)
