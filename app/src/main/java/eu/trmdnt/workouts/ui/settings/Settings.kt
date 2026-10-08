@@ -1,12 +1,12 @@
 package eu.trmdnt.workouts.ui.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -15,69 +15,114 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.R
+import eu.trmdnt.workouts.database.backup.BackupManager
 import eu.trmdnt.workouts.settings.Theme
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun Settings() {
     val viewModel: SettingsViewModel = hiltViewModel()
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        for (i in 0..<viewModel.preferences.size) {
-            when (val pref = viewModel.preferences[i]) {
-                is SettingsViewModel.SwitchPreferenceEntry -> {
-                    val value = pref.value.collectAsStateWithLifecycle(true).value
-                    SwitchPrefItem(label = pref.label, value = value, enabled = pref.enabled) {
-                        viewModel.onBooleanPreferenceChange(pref.key, it)
-                    }
-                }
-
-                is SettingsViewModel.ThemePreferenceEntry -> {
-                    val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
-                    ThemePrefItem(label = pref.label, value = value, enabled = pref.enabled) {
-                        viewModel.onThemePreferenceChange(it)
-                    }
-                }
-
-                is SettingsViewModel.TimeSpanPreferenceEntry -> {
-                    val value = pref.value.collectAsStateWithLifecycle(90).value
-
-                    val openAlertDialog = remember { mutableStateOf(false) }
-                    when {
-                        openAlertDialog.value -> {
-                            SelectTimespanDialog(initialValue = value, onConfirmValue = {
-                                viewModel.onIntPreferenceChange(pref.key, it)
-                                openAlertDialog.value = false
-                            }, onDismiss = {
-                                openAlertDialog.value = false
-                            })
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+    )
+    { contentPadding ->
+        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(contentPadding)) {
+            for (i in 0..<viewModel.preferences.size) {
+                when (val pref = viewModel.preferences[i]) {
+                    is SettingsViewModel.SwitchPreferenceEntry -> {
+                        val value = pref.value.collectAsStateWithLifecycle(true).value
+                        SwitchPrefItem(label = pref.label, value = value, enabled = pref.enabled) {
+                            viewModel.onBooleanPreferenceChange(pref.key, it)
                         }
                     }
-                    ButtonPrefItem(
-                        label = pref.label,
-                        buttonLabel = stringResource(R.string.select),
-                        enabled = pref.enabled
-                    ) {
-                        openAlertDialog.value = true
+
+                    is SettingsViewModel.ThemePreferenceEntry -> {
+                        val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
+                        ThemePrefItem(label = pref.label, value = value, enabled = pref.enabled) {
+                            viewModel.onThemePreferenceChange(it)
+                        }
                     }
 
-                }
+                    is SettingsViewModel.TimeSpanPreferenceEntry -> {
+                        val value = pref.value.collectAsStateWithLifecycle(90).value
 
-                is SettingsViewModel.SliderPreferenceEntry -> {
-                    val value = pref.value.collectAsStateWithLifecycle(12).value
-                    SliderPrefItem(
-                        label = pref.label,
-                        value = value,
-                        enabled = pref.enabled,
-                        onValueChange = { viewModel.onIntPreferenceChange(pref.key, it) },
-                        lowerBound = pref.lowerBound,
-                        upperBound = pref.upperBound
-                    )
+                        val openAlertDialog = remember { mutableStateOf(false) }
+                        when {
+                            openAlertDialog.value -> {
+                                SelectTimespanDialog(initialValue = value, onConfirmValue = {
+                                    viewModel.onIntPreferenceChange(pref.key, it)
+                                    openAlertDialog.value = false
+                                }, onDismiss = {
+                                    openAlertDialog.value = false
+                                })
+                            }
+                        }
+                        ButtonPrefItem(
+                            label = pref.label,
+                            buttonLabel = stringResource(R.string.select),
+                            enabled = pref.enabled
+                        ) {
+                            openAlertDialog.value = true
+                        }
+
+                    }
+
+                    is SettingsViewModel.SliderPreferenceEntry -> {
+                        val value = pref.value.collectAsStateWithLifecycle(12).value
+                        SliderPrefItem(
+                            label = pref.label,
+                            value = value,
+                            enabled = pref.enabled,
+                            onValueChange = { viewModel.onIntPreferenceChange(pref.key, it) },
+                            lowerBound = pref.lowerBound,
+                            upperBound = pref.upperBound
+                        )
+                    }
+                }
+                if (i != viewModel.preferences.lastIndex) {
+                    HorizontalDivider()
                 }
             }
-            if (i != viewModel.preferences.lastIndex) {
-                HorizontalDivider()
+
+            val launcher = rememberLauncherForActivityResult(
+                ActivityResultContracts.OpenDocumentTree()
+            ) { uri -> viewModel.onBackupFolderPicked(uri) }
+
+            HorizontalDivider()
+
+            ButtonPrefItem("Backup db to external storage", "Choose folder", true, {
+                launcher.launch(null)
+            })
+
+            val launcher2 = rememberLauncherForActivityResult(
+                ActivityResultContracts.OpenDocument()
+            ) { uri -> viewModel.onRestoreFilePicked(uri) }
+
+            HorizontalDivider()
+
+            ButtonPrefItem("restore db from external storage", "Choose file", true, {
+                launcher2.launch(arrayOf("*/*"))
+            })
+
+            val restoreResult by viewModel.restoreState.collectAsStateWithLifecycle()
+            LaunchedEffect(restoreResult) {
+                restoreResult?.let {
+                    scope.launch {
+                        val message = when (it) {
+                            BackupManager.RestoreResult.SUCCESS -> "DB will be restored during the next launch"
+                            BackupManager.RestoreResult.BAD_FILE -> "Not a valid file"
+                            BackupManager.RestoreResult.OTHER -> "Could not restore file"
+                        }
+                        snackbarHostState.showSnackbar(message = message)
+                    }
+                }
             }
         }
     }

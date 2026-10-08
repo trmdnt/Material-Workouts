@@ -1,6 +1,7 @@
 package eu.trmdnt.workouts.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room3.*
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
@@ -8,10 +9,15 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import eu.trmdnt.workouts.database.entities.*
+import java.io.File
+
+const val DATABASE_NAME = "gym_database"
+private const val TAG = "AppDatabase"
+const val DATABASE_VERSION = 7
 
 @Database(
     entities = [Exercise::class, ExerciseTemplate::class, ExerciseSet::class, Workout::class, WorkoutTemplate::class, WorkoutExerciseTemplateCrossRef::class],
-    version = 7,
+    version = DATABASE_VERSION,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -51,19 +57,31 @@ internal class MIGRATION_SPEC_5_6 : AutoMigrationSpec
 
 
 fun getDatabase(context: Context): AppDatabase {
+    applyPendingRestore(context)
+
     val builder = Room.databaseBuilder(
-        context.applicationContext, AppDatabase::class.java, "gym_database"
+        context.applicationContext, AppDatabase::class.java, DATABASE_NAME
     ).addMigrations(MIGRATION_3_4).addMigrations(MIGRATION_4_5)
         .setDriver(AndroidSQLiteDriver())
 
-    //TODO fix this
-    // from https://stackoverflow.com/a/23844693
-//    val isDebuggable = 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
-//    if (isDebuggable) {
-//        builder.setQueryCallback({ sqlquery, bindargs ->
-//            Log.d("DB_QUERY", "$sqlquery SQL Args: $bindargs")
-//        }, Executors.newSingleThreadExecutor())
-//    }
-
     return builder.build()
+}
+
+private fun applyPendingRestore(context: Context) {
+    Log.d(TAG, "applyPendingRestore: check for pending restore")
+    val dbPath = context.getDatabasePath(DATABASE_NAME).path
+    val staged = File("$dbPath.restore")
+
+    if (staged.exists()) {
+        Log.d(TAG, "applyPendingRestore: pending restore")
+        listOf("", "-wal", "-shm", ".lck", "-journal").forEach { File(dbPath + it).delete() }
+
+        if (staged.renameTo(File(dbPath))) {
+            Log.d(TAG, "applyPendingRestore: restore applied")
+        } else {
+            Log.d(TAG, "applyPendingRestore: restore not applied")
+        }
+    } else {
+        Log.d(TAG, "applyPendingRestore: no pending restore")
+    }
 }

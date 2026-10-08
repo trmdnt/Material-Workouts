@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eu.trmdnt.workouts.database.*
+import eu.trmdnt.workouts.database.backup.BackupManager
 import eu.trmdnt.workouts.service.TimerServiceManager
 import eu.trmdnt.workouts.settings.SettingsManager
 import javax.inject.Singleton
@@ -70,6 +71,15 @@ object AppModule {
         settingsManager: SettingsManager
     ): TimerServiceManager {
         return TimerServiceManager(appContext, settingsManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackupManager(
+        @ApplicationContext appContext: Context,
+        database: AppDatabase,
+    ): BackupManager {
+        return BackupManager(database, appContext)
     }
 
     @Provides

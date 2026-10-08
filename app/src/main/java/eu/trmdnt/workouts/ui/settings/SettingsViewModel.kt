@@ -1,6 +1,7 @@
 package eu.trmdnt.workouts.ui.settings
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
@@ -8,9 +9,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.trmdnt.workouts.R
+import eu.trmdnt.workouts.database.backup.BackupManager
 import eu.trmdnt.workouts.settings.*
 import eu.trmdnt.workouts.ui.theme.supportsDynamicColor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    @ApplicationContext private val appContext: Context
+    @ApplicationContext private val appContext: Context,
+    private val backupManager: BackupManager
 ) : ViewModel() {
     interface PreferenceEntry<T : Any> {
         val value: Flow<T>
@@ -57,6 +62,10 @@ class SettingsViewModel @Inject constructor(
     ) : PreferenceEntry<Theme> {
         override val value: Flow<Theme> = settingsManager.getThemePreference()
     }
+
+
+    private val _restoreState: MutableStateFlow<BackupManager.RestoreResult?> = MutableStateFlow(null)
+    val restoreState: StateFlow<BackupManager.RestoreResult?> = _restoreState
 
     val preferences: List<PreferenceEntry<*>> = buildList {
         add(
@@ -127,6 +136,24 @@ class SettingsViewModel @Inject constructor(
         Log.d("TAG", "onThemePreferenceChange: $value")
         viewModelScope.launch {
             settingsManager.writeThemePreference(value)
+        }
+    }
+
+    fun onBackupFolderPicked(uri: Uri?) {
+        uri?.let {
+            viewModelScope.launch {
+                backupManager.backup(uri)
+            }
+
+        }
+    }
+
+    fun onRestoreFilePicked(uri: Uri?) {
+        uri?.let {
+            viewModelScope.launch {
+                _restoreState.value = backupManager.restore(uri)
+            }
+
         }
     }
 }
