@@ -90,4 +90,11 @@
     <string name="light_theme">Light Theme</string>
     <string name="dark_theme">Dark Theme</string>
     <string name="oled_theme">Oled Theme</string>
+    <string name="backup_db_to_external_storage">Backup db to external storage</string>
+    <string name="restore_db_from_external_storage">Restore db from external storage</string>
+    <string name="choose_file">Choose file</string>
+    <string name="choose_folder">Choose folder</string>
+    <string name="db_will_be_restored_during_the_next_launch">Database will be restored during the next launch</string>
+    <string name="not_a_valid_file">Not a valid file</string>
+    <string name="could_not_restore_file">Could not restore file</string>
 </resources>

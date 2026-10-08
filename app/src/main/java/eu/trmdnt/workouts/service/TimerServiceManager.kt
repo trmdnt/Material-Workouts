@@ -3,8 +3,8 @@ package eu.trmdnt.workouts.service
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat.startForegroundService
+import eu.trmdnt.workouts.settings.Prefs
 import eu.trmdnt.workouts.settings.SettingsManager
-import eu.trmdnt.workouts.settings.timerDefaultValuePreferenceKey
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +52,7 @@ class TimerServiceManager(
     }
 
     suspend fun startTimer(workoutId: Long) {
-        val time = settingsManager.getIntPreference(timerDefaultValuePreferenceKey).first()
+        val time = settingsManager.getPreference(Prefs.timerDefaultValue).first()
         val timer =
             MyTimer(workoutId = workoutId, endsAt = System.currentTimeMillis() + time * 1000)
         startTimer(timer)

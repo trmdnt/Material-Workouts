@@ -13,10 +13,8 @@ import eu.trmdnt.workouts.database.StatisticsRepository
 import eu.trmdnt.workouts.database.entities.*
 import eu.trmdnt.workouts.database.entities.statistics.LastWeightForExercise
 import eu.trmdnt.workouts.service.TimerServiceManager
+import eu.trmdnt.workouts.settings.Prefs
 import eu.trmdnt.workouts.settings.SettingsManager
-import eu.trmdnt.workouts.settings.defaultRepCountPreferenceKey
-import eu.trmdnt.workouts.settings.openEditDialogPreferenceKey
-import eu.trmdnt.workouts.settings.reuseLastWeightPreferenceKey
 import eu.trmdnt.workouts.ui.navigation.NavEvent
 import eu.trmdnt.workouts.ui.navigation.NavEvent.Destination
 import eu.trmdnt.workouts.ui.navigation.Screen.Plans.EditExercise
@@ -221,8 +219,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                     val exerciseTemplateId =
                         uiState.value.exercises.find { it.exercise.exerciseId == event.exerciseId }?.exerciseTemplate?.exerciseTemplateId
 
-                    val shouldReuseWeight = settingsManager.getBooleanPreference(
-                        reuseLastWeightPreferenceKey
+                    val shouldReuseWeight = settingsManager.getPreference(
+                        Prefs.reuseLastWeight
                     ).first()
                     val lastWeight = if (!shouldReuseWeight || exerciseTemplateId == null) {
                         LastWeightForExercise(0.0, 0.0, 0.0)
@@ -231,7 +229,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                     }
 
                     val defaultReps =
-                        settingsManager.getIntPreference(defaultRepCountPreferenceKey).first()
+                        settingsManager.getPreference(Prefs.defaultRepCount).first()
                     val exerciseSet = ExerciseSet(
                         exerciseId = event.exerciseId,
                         date = Instant.now().epochSecond,
@@ -241,7 +239,7 @@ class ViewWorkoutViewModel @AssistedInject constructor(
 
                     val setId = gymRepository.insertSet(set = exerciseSet).first()
 
-                    val shouldOpenDialog = settingsManager.getBooleanPreference(openEditDialogPreferenceKey).first()
+                    val shouldOpenDialog = settingsManager.getPreference(Prefs.openEditDialog).first()
 
                     if (shouldOpenDialog) {
                         _editDialogOpened.value = Pair(event.exerciseId, setId)
@@ -346,8 +344,8 @@ class ViewWorkoutViewModel @AssistedInject constructor(
                             statisticsRepository.getLastWeightByExerciseTemplate(exerciseTemplateId)
                         }
 
-                        val shouldReuseWeight = settingsManager.getBooleanPreference(
-                            reuseLastWeightPreferenceKey
+                        val shouldReuseWeight = settingsManager.getPreference(
+                            Prefs.reuseLastWeight
                         ).first()
 
                         // if the user has not changed the weight, we can set the weight from the last set

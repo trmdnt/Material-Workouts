@@ -16,7 +16,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.database.backup.BackupManager
-import eu.trmdnt.workouts.settings.Theme
 import eu.trmdnt.workouts.ui.components.SelectTimespanDialog
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -34,20 +33,17 @@ fun Settings() {
     )
     { contentPadding ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(contentPadding)) {
-            for (i in 0..<viewModel.preferences.size) {
-                when (val pref = viewModel.preferences[i]) {
+            for ((i, element) in viewModel.preferences.withIndex()) {
+                when (val pref = element) {
                     is SettingsViewModel.SwitchPreferenceEntry -> {
                         val value = pref.value.collectAsStateWithLifecycle(true).value
                         SwitchPrefItem(label = pref.label, value = value, enabled = pref.enabled) {
-                            viewModel.onBooleanPreferenceChange(pref.key, it)
+                            pref.onValueChanged(it)
                         }
                     }
 
-                    is SettingsViewModel.ThemePreferenceEntry -> {
-                        val value = pref.value.collectAsStateWithLifecycle(Theme.System).value
-                        ThemePrefItem(label = pref.label, value = value, enabled = pref.enabled) {
-                            viewModel.onThemePreferenceChange(it)
-                        }
+                    is SettingsViewModel.EnumPreferenceEntry -> {
+                        EnumEntryRow(pref)
                     }
 
                     is SettingsViewModel.TimeSpanPreferenceEntry -> {
@@ -57,7 +53,7 @@ fun Settings() {
                         when {
                             openAlertDialog.value -> {
                                 SelectTimespanDialog(initialValue = value, onConfirmValue = {
-                                    viewModel.onIntPreferenceChange(pref.key, it)
+                                    pref.onValueChanged(it)
                                     openAlertDialog.value = false
                                 }, onDismiss = {
                                     openAlertDialog.value = false
@@ -80,7 +76,7 @@ fun Settings() {
                             label = pref.label,
                             value = value,
                             enabled = pref.enabled,
-                            onValueChange = { viewModel.onIntPreferenceChange(pref.key, it) },
+                            onValueChange = { pref.onValueChanged(it) },
                             lowerBound = pref.lowerBound,
                             upperBound = pref.upperBound
                         )
@@ -97,9 +93,11 @@ fun Settings() {
 
             HorizontalDivider()
 
-            ButtonPrefItem("Backup db to external storage", "Choose folder", true, {
-                launcher.launch(null)
-            })
+            ButtonPrefItem(
+                stringResource(R.string.backup_db_to_external_storage),
+                stringResource(R.string.choose_folder), true, {
+                    launcher.launch(null)
+                })
 
             val launcher2 = rememberLauncherForActivityResult(
                 ActivityResultContracts.OpenDocument()
@@ -107,18 +105,25 @@ fun Settings() {
 
             HorizontalDivider()
 
-            ButtonPrefItem("restore db from external storage", "Choose file", true, {
-                launcher2.launch(arrayOf("*/*"))
-            })
+            ButtonPrefItem(
+                stringResource(R.string.restore_db_from_external_storage),
+                stringResource(R.string.choose_file), true, {
+                    launcher2.launch(arrayOf("*/*"))
+                })
 
             val restoreResult by viewModel.restoreState.collectAsStateWithLifecycle()
+
+            val successMessage = stringResource(R.string.db_will_be_restored_during_the_next_launch)
+            val fileErrorMessage = stringResource(R.string.not_a_valid_file)
+            val otherErrorMessage = stringResource(R.string.could_not_restore_file)
+
             LaunchedEffect(restoreResult) {
                 restoreResult?.let {
                     scope.launch {
                         val message = when (it) {
-                            BackupManager.RestoreResult.SUCCESS -> "DB will be restored during the next launch"
-                            BackupManager.RestoreResult.BAD_FILE -> "Not a valid file"
-                            BackupManager.RestoreResult.OTHER -> "Could not restore file"
+                            BackupManager.RestoreResult.SUCCESS -> successMessage
+                            BackupManager.RestoreResult.BAD_FILE -> fileErrorMessage
+                            BackupManager.RestoreResult.OTHER -> otherErrorMessage
                         }
                         snackbarHostState.showSnackbar(message = message)
                     }
@@ -126,6 +131,19 @@ fun Settings() {
             }
         }
     }
+}
+
+@Composable
+private fun <E : Enum<E>> EnumEntryRow(
+    entry: SettingsViewModel.EnumPreferenceEntry<E>,
+) {
+    val value by entry.value.collectAsStateWithLifecycle(entry.pref.default)
+    EnumPrefItem(
+        label = entry.label,
+        value = value,
+        enabled = entry.enabled,
+        entries = entry.entries,
+    ) { entry.onValueChanged(it) }
 }
 
 @Composable
@@ -170,7 +188,13 @@ fun ButtonPrefItem(
 }
 
 @Composable
-fun ThemePrefItem(label: String, value: Theme, enabled: Boolean, onValueChange: (Theme) -> Unit) {
+fun <E : Enum<E>> EnumPrefItem(
+    label: String,
+    value: E,
+    entries: List<Pair<E, String>>,
+    enabled: Boolean,
+    onValueChange: (E) -> Unit
+) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -178,14 +202,8 @@ fun ThemePrefItem(label: String, value: Theme, enabled: Boolean, onValueChange: 
     ) {
         Text(text = "$label:")
         Column(modifier = Modifier.padding(start = 16.dp)) {
-            Theme.entries.forEach { enumValue ->
+            entries.forEach { (enumValue, text) ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val text = when (enumValue) {
-                        Theme.System -> stringResource(R.string.system_theme)
-                        Theme.Light -> stringResource(R.string.light_theme)
-                        Theme.Dark -> stringResource(R.string.dark_theme)
-                        Theme.Oled -> stringResource(R.string.oled_theme)
-                    }
                     Text(text = text, modifier = Modifier.weight(1f))
                     RadioButton(
                         selected = enumValue == value,

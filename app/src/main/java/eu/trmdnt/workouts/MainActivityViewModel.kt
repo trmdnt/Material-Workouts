@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.service.MyTimer
 import eu.trmdnt.workouts.service.TimerServiceManager
-import eu.trmdnt.workouts.settings.*
+import eu.trmdnt.workouts.settings.Prefs
+import eu.trmdnt.workouts.settings.SettingsManager
+import eu.trmdnt.workouts.settings.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -41,7 +43,8 @@ class MainActivityViewModel @Inject constructor(
     private fun refreshTimerOnce() {
         timer?.let {
             _uiState.value = _uiState.value.copy(
-                showTimer = true, timerText = it.getText() + if (it.isOver()) " (" + appContext.getString(R.string.time_over) + ")" else ""
+                showTimer = true,
+                timerText = it.getText() + if (it.isOver()) " (" + appContext.getString(R.string.time_over) + ")" else ""
             )
         }
         if (timer == null) {
@@ -64,7 +67,7 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getBooleanPreference(alwaysShowTimerUiPreferenceKey).collect {
+            settingsManager.getPreference(Prefs.alwaysShowTimerUi).collect {
                 alwaysShowTimerUi = it
                 _uiState.value = _uiState.value.copy(
                     showTimerPickerButton = it
@@ -73,7 +76,7 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getIntPreference(timerDefaultValuePreferenceKey).collect {
+            settingsManager.getPreference(Prefs.timerDefaultValue).collect {
                 timerDefaultValue = it
                 _uiState.value = _uiState.value.copy(
                     timerDefaultValue = it
@@ -82,13 +85,13 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getBooleanPreference(startTimerOnSetPreferenceKey).collect {
+            settingsManager.getPreference(Prefs.startTimerOnSet).collect {
                 startTimerOnSet = it
             }
         }
 
         viewModelScope.launch {
-            settingsManager.getBooleanPreference(useDynamicColorPreferenceKey).collect {
+            settingsManager.getPreference(Prefs.useDynamicColor).collect {
                 _uiState.value = _uiState.value.copy(
                     useDynamicColors = it
                 )
@@ -96,7 +99,7 @@ class MainActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsManager.getThemePreference().collect { theme ->
+            settingsManager.getPreference(Prefs.useTheme).collect { theme ->
                 _uiState.value = _uiState.value.copy(theme = theme, showSplashScreen = false)
             }
         }
