@@ -1,6 +1,7 @@
 package eu.trmdnt.workouts.database.entities
 
 import androidx.room3.ColumnInfo
+import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 
@@ -12,7 +13,9 @@ data class WorkoutTemplate(
 
     @ColumnInfo
     val name: String,
+)
 
-    @ColumnInfo(name = "last_used")
-    val lastUsed: Int? = null
+data class WorkoutTemplateWithLastUsed(
+    @Embedded val workoutTemplate: WorkoutTemplate,
+    val lastUsed: Long?
 )

@@ -8,6 +8,8 @@ class GymRepository(private val dao: Dao) {
     //WorkoutTemplates
     fun getAllWorkoutTemplates(): Flow<List<WorkoutTemplate>> = dao.getWorkoutTemplates()
 
+    fun getAllWorkoutTemplatesWithLastUsed(): Flow<List<WorkoutTemplateWithLastUsed>> = dao.getWorkoutTemplatesWithLastUsed()
+
     fun getWorkoutTemplateById(workoutTemplateId: Long): Flow<WorkoutTemplate> =
         dao.getWorkoutTemplateById(workoutTemplateId)
 

@@ -13,7 +13,7 @@ import java.io.File
 
 const val DATABASE_NAME = "gym_database"
 private const val TAG = "AppDatabase"
-const val DATABASE_VERSION = 7
+const val DATABASE_VERSION = 8
 
 @Database(
     entities = [Exercise::class, ExerciseTemplate::class, ExerciseSet::class, Workout::class, WorkoutTemplate::class, WorkoutExerciseTemplateCrossRef::class],
@@ -23,6 +23,7 @@ const val DATABASE_VERSION = 7
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 5, to = 6, spec = MIGRATION_SPEC_5_6::class),
         AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8, spec = MIGRATION_SPEC_7_8::class),
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -54,6 +55,9 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 
 @DeleteColumn("Set", "ignore_in_stat")
 internal class MIGRATION_SPEC_5_6 : AutoMigrationSpec
+
+@DeleteColumn("workout_template", "last_used")
+internal class MIGRATION_SPEC_7_8 : AutoMigrationSpec
 
 
 fun getDatabase(context: Context): AppDatabase {

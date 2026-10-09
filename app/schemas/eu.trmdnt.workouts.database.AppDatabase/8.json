@@ -1,0 +1,385 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 8,
+    "identityHash": "cb83ee98707075966e6299db07c809f4",
+    "entities": [
+      {
+        "tableName": "Exercise",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`exercise_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workout_id` INTEGER NOT NULL, `exercise_template_id` INTEGER NOT NULL, FOREIGN KEY(`workout_id`) REFERENCES `Workout`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exercise_template_id`) REFERENCES `exercise_template`(`exercise_template_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "exerciseId",
+            "columnName": "exercise_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workoutId",
+            "columnName": "workout_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exerciseTemplateId",
+            "columnName": "exercise_template_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "exercise_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Exercise_workout_id",
+            "unique": false,
+            "columnNames": [
+              "workout_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Exercise_workout_id` ON `${TABLE_NAME}` (`workout_id`)"
+          },
+          {
+            "name": "index_Exercise_exercise_template_id",
+            "unique": false,
+            "columnNames": [
+              "exercise_template_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Exercise_exercise_template_id` ON `${TABLE_NAME}` (`exercise_template_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Workout",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "workout_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "exercise_template",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exercise_template_id"
+            ],
+            "referencedColumns": [
+              "exercise_template_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "exercise_template",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`exercise_template_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `weight` INTEGER NOT NULL, `time` INTEGER NOT NULL, `reps` INTEGER NOT NULL, `distance` INTEGER NOT NULL, `hidden` INTEGER NOT NULL, `weight_times_two` INTEGER NOT NULL DEFAULT false)",
+        "fields": [
+          {
+            "fieldPath": "exerciseTemplateId",
+            "columnName": "exercise_template_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weight",
+            "columnName": "weight",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reps",
+            "columnName": "reps",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hidden",
+            "columnName": "hidden",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weightTimesTwo",
+            "columnName": "weight_times_two",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "exercise_template_id"
+          ]
+        }
+      },
+      {
+        "tableName": "Set",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `exercise_id` INTEGER NOT NULL, `time` INTEGER NOT NULL, `reps` INTEGER NOT NULL, `weight` REAL NOT NULL, `distance` REAL NOT NULL, `date` INTEGER NOT NULL, `set_type` TEXT NOT NULL DEFAULT 'Default', FOREIGN KEY(`exercise_id`) REFERENCES `Exercise`(`exercise_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exerciseId",
+            "columnName": "exercise_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reps",
+            "columnName": "reps",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weight",
+            "columnName": "weight",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setType",
+            "columnName": "set_type",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Default'"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Set_exercise_id",
+            "unique": false,
+            "columnNames": [
+              "exercise_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Set_exercise_id` ON `${TABLE_NAME}` (`exercise_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Exercise",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exercise_id"
+            ],
+            "referencedColumns": [
+              "exercise_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Workout",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dateStarted` INTEGER NOT NULL, `workout_template_id` INTEGER, FOREIGN KEY(`workout_template_id`) REFERENCES `workout_template`(`workout_template_id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateStarted",
+            "columnName": "dateStarted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workoutTemplateId",
+            "columnName": "workout_template_id",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Workout_workout_template_id",
+            "unique": false,
+            "columnNames": [
+              "workout_template_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Workout_workout_template_id` ON `${TABLE_NAME}` (`workout_template_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "workout_template",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "workout_template_id"
+            ],
+            "referencedColumns": [
+              "workout_template_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "workout_template",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workout_template_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "workoutTemplateId",
+            "columnName": "workout_template_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "workout_template_id"
+          ]
+        }
+      },
+      {
+        "tableName": "workout_exercise_template_cross_ref",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workout_template_id` INTEGER NOT NULL, `exercise_template_id` INTEGER NOT NULL, PRIMARY KEY(`exercise_template_id`, `workout_template_id`), FOREIGN KEY(`exercise_template_id`) REFERENCES `exercise_template`(`exercise_template_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`workout_template_id`) REFERENCES `workout_template`(`workout_template_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "workoutTemplateId",
+            "columnName": "workout_template_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exerciseTemplateId",
+            "columnName": "exercise_template_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "exercise_template_id",
+            "workout_template_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_workout_exercise_template_cross_ref_workout_template_id",
+            "unique": false,
+            "columnNames": [
+              "workout_template_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_workout_exercise_template_cross_ref_workout_template_id` ON `${TABLE_NAME}` (`workout_template_id`)"
+          },
+          {
+            "name": "index_workout_exercise_template_cross_ref_exercise_template_id",
+            "unique": false,
+            "columnNames": [
+              "exercise_template_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_workout_exercise_template_cross_ref_exercise_template_id` ON `${TABLE_NAME}` (`exercise_template_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "exercise_template",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exercise_template_id"
+            ],
+            "referencedColumns": [
+              "exercise_template_id"
+            ]
+          },
+          {
+            "table": "workout_template",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "workout_template_id"
+            ],
+            "referencedColumns": [
+              "workout_template_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb83ee98707075966e6299db07c809f4')"
+    ]
+  }
+}

@@ -35,6 +35,16 @@ ORDER BY dateStarted DESC
     fun getWorkoutTemplates(): Flow<List<WorkoutTemplate>>
 
     @Query(
+        """
+SELECT workout_template.*, max(Workout.dateStarted) as lastUsed FROM workout_template
+LEFT JOIN Workout 
+	ON Workout.workout_template_id = workout_template.workout_template_id
+GROUP BY workout_template.workout_template_id
+        """
+    )
+    fun getWorkoutTemplatesWithLastUsed(): Flow<List<WorkoutTemplateWithLastUsed>>
+
+    @Query(
         "SELECT * FROM workout_template where workout_template_id = :workoutTemplateId"
     )
     fun getWorkoutTemplateById(workoutTemplateId: Long): Flow<WorkoutTemplate>
@@ -42,7 +52,6 @@ ORDER BY dateStarted DESC
     @Insert
     fun insertWorkoutTemplate(workoutTemplate: WorkoutTemplate): Long
 
-    // is a delete query
     @Query("delete from workout_template where workout_template_id = :id")
     fun deleteWorkoutTemplateWithId(id: Long)
 

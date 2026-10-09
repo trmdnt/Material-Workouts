@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.trmdnt.workouts.database.GymRepository
 import eu.trmdnt.workouts.database.entities.ExerciseTemplate
 import eu.trmdnt.workouts.database.entities.WorkoutTemplate
+import eu.trmdnt.workouts.database.entities.WorkoutTemplateWithLastUsed
 import eu.trmdnt.workouts.ui.SelectionEvent
 import eu.trmdnt.workouts.ui.SelectionEvent.ToggleSelection
 import eu.trmdnt.workouts.ui.SelectionManager
@@ -42,7 +43,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
     ViewModel() {
     data class UiState(
         val editMode: Boolean = false,
-        val workoutTemplates: List<WorkoutTemplate> = emptyList(),
+        val workoutTemplates: List<WorkoutTemplateWithLastUsed> = emptyList(),
         val selectedWorkoutTemplates: Set<WorkoutTemplate> = emptySet(),
         val confirmDialogShown: Boolean = false,
         val createWorkoutTemplateDialogShown: Boolean = false,
@@ -56,7 +57,7 @@ class ViewPlansViewmodel @Inject constructor(private val gymRepository: GymRepos
     private val _createExerciseDialogShown = MutableStateFlow(false)
 
     val uiState: StateFlow<UiState> = combine(
-        gymRepository.getAllWorkoutTemplates(),
+        gymRepository.getAllWorkoutTemplatesWithLastUsed(),
         selectionManager.isEditMode,
         selectionManager.selectedItems,
         selectionManager.confirmDeleteDialogShown,

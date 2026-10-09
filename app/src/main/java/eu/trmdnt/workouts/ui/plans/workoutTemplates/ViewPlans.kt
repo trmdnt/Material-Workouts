@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -15,6 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import eu.trmdnt.workouts.R
 import eu.trmdnt.workouts.ui.components.*
 import eu.trmdnt.workouts.ui.navigation.NavEventHandler
+import java.time.ZoneId
+import java.time.format.FormatStyle
 
 @Composable
 fun ViewPlans(
@@ -36,7 +39,7 @@ fun ViewPlans(
     val expanded = remember { mutableStateOf(false) }
 
     SelectionContainerWithTopBar(
-        itemsList = uiState.workoutTemplates,
+        itemsList = uiState.workoutTemplates.map { it.workoutTemplate },
         selectedItemsList = uiState.selectedWorkoutTemplates.toList(),
         onItemClick = {
             viewModel.handleEvent(ViewPlansEvent.OnItemPressed(it))
@@ -54,10 +57,19 @@ fun ViewPlans(
         textContent = { it, selected ->
             Column {
                 Text(text = it.name)
+                //TODO fix jank
+                val lastUsed = uiState.workoutTemplates.find { s -> s.workoutTemplate == it }?.lastUsed?.let {
+                    java.time.format.DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+                        .withLocale(LocalLocale.current.platformLocale).withZone(
+                            ZoneId.systemDefault()
+                        )
+                        .format(java.time.Instant.ofEpochSecond(it))
+
+                }
                 Text(
                     text = stringResource(
                         R.string.last_used,
-                        it.lastUsed?.toString() ?: stringResource(R.string.never)
+                        lastUsed ?: stringResource(R.string.never)
                     )
                 )
             }
